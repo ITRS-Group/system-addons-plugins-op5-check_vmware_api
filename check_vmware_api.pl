@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Nagios plugin to monitor vmware esx servers
+# Nagios plugin to monitor vmware ESX and vSphere servers
 #
 # License: GPL
 # Copyright (c) 2008 op5 AB
@@ -87,7 +87,7 @@ Follow the on screen instructions, described below:
 
   --the VMware team\"
 
-Note: \"Crypt::SSLeay\" and \"Compress::Zlib\" are not needed for check_esx3 to work.
+Note: \"Crypt::SSLeay\" and \"Compress::Zlib\" are not needed for check_vmware_api to work.
 ";
 
 
