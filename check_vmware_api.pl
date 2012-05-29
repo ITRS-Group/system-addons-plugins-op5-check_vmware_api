@@ -4115,7 +4115,7 @@ sub cluster_cluster_info
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
-				$np->add_perfdata(label => "failover", value => $value, uom => 'MB', threshold => $np->threshold);
+				$np->add_perfdata(label => "failover", value => $value, threshold => $np->threshold);
 				$output = "failover=" . $value . " ";
 				$res = $np->check_threshold(check => $value);
 			}
