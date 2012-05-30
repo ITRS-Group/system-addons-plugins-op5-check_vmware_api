@@ -648,7 +648,13 @@ sub generic_performance_values {
 
 	my @perf_query_spec = ();
 	if (defined($timestamp)) {
-		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => 1, startTime => $timestamp)) foreach (@$views);
+		my ($sec,$min,$hour,$mday,$mon,$year) = gmtime($timestamp - $timeshift);
+		my $startTime = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+
+		($sec,$min,$hour,$mday,$mon,$year) = gmtime($timestamp);
+		my $endTime = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+
+		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, startTime => $startTime, endTime => $endTime)) foreach (@$views);
 	} else {
 		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => 1)) foreach (@$views);
 	}
@@ -684,14 +690,10 @@ sub return_host_performance_values {
 	die "Runtime error\n" if (!defined($host_view));
 	die "Host \"" . $$host_name{"name"} . "\" does not exist\n" if (!@$host_view);
 	die {msg => ("NOTICE: \"" . $$host_view[0]->name . "\" is in maintenance mode, check skipped\n"), code => OK} if (uc($$host_view[0]->get_property('runtime.inMaintenanceMode')) eq "TRUE");
+
 	# Timestamp is required for some Hosts in vCenter(Datacenter), this could fix 'Unknown error' type of issues
 	my $timestamp = undef;
-	if (defined($timeshift)) {
-		$timestamp = Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime();
-		my $unixtime = str2time($timestamp);
-		my($sec,$min,$hour,$mday,$mon,$year) = gmtime($unixtime - $timeshift);
-		$timestamp = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year+1900, $mon+1, $mday, $hour, $min, $sec);
-	}
+	$timestamp = str2time(Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime()) if (defined($timeshift));
 	$values = generic_performance_values($host_view, $timestamp, @_);
 
 	return undef if ($@);
@@ -705,7 +707,10 @@ sub return_host_vmware_performance_values {
 	die "Runtime error\n" if (!defined($vm_view));
 	die "VMware machine \"" . $vmname . "\" does not exist\n" if (!@$vm_view);
 	die "VMware machine \"" . $vmname . "\" is not running. Current state is \"" . $$vm_view[0]->get_property('runtime.powerState')->val . "\"\n" if ($$vm_view[0]->get_property('runtime.powerState')->val ne "poweredOn");
-	$values = generic_performance_values($vm_view, undef, @_);
+
+	my $timestamp = undef;
+	$timestamp = time() if (defined($timeshift));
+	$values = generic_performance_values($vm_view, $timestamp, @_);
 
 	return $@ if ($@);
 	return ($vm_view, $values);
@@ -716,7 +721,10 @@ sub return_dc_performance_values {
 	my $host_views = Vim::find_entity_views(view_type => 'HostSystem', properties => [ 'name' ]);
 	die "Runtime error\n" if (!defined($host_views));
 	die "Datacenter does not contain any hosts\n" if (!@$host_views);
-	$values = generic_performance_values($host_views, undef, @_);
+
+	my $timestamp = undef;
+	$timestamp = time() if (defined($timeshift));
+	$values = generic_performance_values($host_views, $timestamp, @_);
 
 	return undef if ($@);
 	return ($host_views, $values);
@@ -728,7 +736,10 @@ sub return_cluster_performance_values {
 	my $cluster_view = Vim::find_entity_views(view_type => 'ClusterComputeResource', filter => { name => "$cluster_name" }, properties => [ 'name' ]); # Added properties named argument.
 	die "Runtime error\n" if (!defined($cluster_view));
 	die "Cluster \"" . $cluster_name . "\" does not exist\n" if (!@$cluster_view);
-	$values = generic_performance_values($cluster_view, undef, @_);
+
+	my $timestamp = undef;
+	$timestamp = time() if (defined($timeshift));
+	$values = generic_performance_values($cluster_view, $timestamp, @_);
 
 	return undef if ($@);
 	return $values;
@@ -747,12 +758,7 @@ sub return_host_temporary_vc_4_1_network_performance_values {
 	return undef if (substr($software_version, 0, 4) ne '4.1.');
 
 	my $timestamp = undef;
-	if (defined($timeshift)) {
-		$timestamp = Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime();
-		my $unixtime = str2time($timestamp);
-		my($sec,$min,$hour,$mday,$mon,$year) = gmtime($unixtime - $timeshift);
-		$timestamp = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year+1900, $mon+1, $mday, $hour, $min, $sec);
-	}
+	$timestamp = str2time(Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime()) if (defined($timeshift));
 
 	my $perfMgr = Vim::get_view(mo_ref => Vim::get_service_content()->perfManager, properties => [ 'perfCounter' ]);
 	my $metrices = get_key_metrices($perfMgr, 'net', @list);
@@ -761,7 +767,11 @@ sub return_host_temporary_vc_4_1_network_performance_values {
 	my @perf_query_spec = ();
 
 	if (defined($timestamp)) {
-		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => 1, startTime => $timestamp)) foreach (@$host_view);
+		my ($sec,$min,$hour,$mday,$mon,$year) = gmtime($timestamp - $timeshift);
+		my $endTime = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+		($sec,$min,$hour,$mday,$mon,$year) = gmtime($timestamp - $timeshift);
+		my $startTime = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, startTime => $startTime, endtime => $endTime)) foreach (@$host_view);
 	} else {
 		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => 1)) foreach (@$host_view);
 	}
