@@ -99,7 +99,7 @@ $PROGNAME = basename($0);
 $VERSION = '0.6.0';
 
 my $np = Nagios::Plugin->new(
-  usage => "Usage: %s -D <data_center> | -H <host_name> [ -N <vm_name> ]\n"
+  usage => "Usage: %s -D <data_center> | -H <host_name> [ -C <cluster_name> ] [ -N <vm_name> ]\n"
     . "    -u <user> -p <pass> | -f <authfile>\n"
     . "    -l <command> [ -s <subcommand> ] [ -T <timeshift> ] [ -i <interval> ]\n"
     . "    [ -x <black_list> ] [ -o <additional_options> ]\n"
@@ -319,7 +319,7 @@ $np->add_arg(
 $np->add_arg(
   spec => 'interval|i=s',
   help => "-i, --interval=<sampling period> \n"
-	. "   Sampling Period in seconds. Basic historic intervals: 300, 1800, 7200 or 66400. See config for any changes.\n"
+	. "   Sampling Period in seconds. Basic historic intervals: 300, 1800, 7200 or 86400. See config for any changes.\n"
     . '   Default value is 20 (realtime). Since cluster don\'t have realtime stats interval other than 20 is mandatory',
   required => 0,
 );
