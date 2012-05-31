@@ -27,7 +27,7 @@
 
 use strict;
 use warnings;
-use vars qw($PROGNAME $VERSION $output $values $result $timeshift);
+use vars qw($PROGNAME $VERSION $output $values $result $timeshift $interval);
 use Nagios::Plugin::Functions qw(%STATUS_TEXT);
 use Nagios::Plugin;
 use File::Basename;
@@ -334,6 +334,7 @@ $np->add_arg(
 $np->getopts;
 
 $timeshift = $np->opts->timestamp;
+$interval = $np->opts->interval;
 my $host = $np->opts->host;
 my $cluster = $np->opts->cluster;
 my $datacenter = $np->opts->datacenter;
@@ -348,7 +349,6 @@ my $subcommand = $np->opts->subcommand;
 my $sessionfile = $np->opts->sessionfile;
 my $blacklist = $np->opts->exclude;
 my $addopts = $np->opts->options;
-my $interval = $np->opts->interval;
 my $trace = $np->opts->trace;
 my $percw;
 my $percc;
@@ -393,12 +393,6 @@ eval
 			}
 		}
 		die "Auth file must contain both username and password\n" if (!(defined($username) && defined($password)));
-	}
-
-	if (!$interval)
-	{
-		die "Since cluster don\'t have realtime stats interval other than 20(default value) is mandatory\n" if (defined($cluster));
-		$interval = 20;
 	}
 
 	my $host_address;
@@ -645,6 +639,12 @@ sub generic_performance_values {
 	my $amount = @list;
 	my $perfMgr = Vim::get_view(mo_ref => Vim::get_service_content()->perfManager, properties => [ 'perfCounter' ]);
 	my $metrices = get_key_metrices($perfMgr, $group, @list);
+
+	if (!$interval)
+	{
+		die "Since cluster don\'t have realtime stats interval other than 20(default value) is mandatory\n" if (defined($cluster));
+		$interval = 20;
+	}
 
 	my @perf_query_spec = ();
 	if (defined($timestamp)) {
