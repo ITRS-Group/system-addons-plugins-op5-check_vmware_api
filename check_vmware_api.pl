@@ -4102,7 +4102,7 @@ sub cluster_cluster_info
 			$values = return_cluster_performance_values($cluster, 'clusterServices', ('effectivecpu.average'));
 			if (defined($values))
 			{
-				my $value = simplify_number(convert_number(get_val_from_list($$values[0][0]->value)) * 0.01);
+				my $value = simplify_number(convert_number($$values[0][0]->value) * 0.01);
 				$np->add_perfdata(label => "effective cpu", value => $value, uom => 'Mhz', threshold => $np->threshold);
 				$output = "effective cpu=" . $value . " %";
 				$res = $np->check_threshold(check => $value);
