@@ -1397,69 +1397,76 @@ sub host_net_info
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value));
 			my $value2 = simplify_number(convert_number($$values[0][1]->value));
-			$np->add_perfdata(label => "net_receive", value => $value1, uom => 'KBps', threshold => $np->threshold);
-			$np->add_perfdata(label => "net_send", value => $value2, uom => 'KBps', threshold => $np->threshold);
-			$res = OK;
-			$output = "net receive=" . $value1 . " KBps, send=" . $value2 . " KBps, ";
-		}
-		$host_view = $$host_view[0];
-		$host_view->update_view_data(['configManager.networkSystem']);
-		my $network_system = Vim::get_view(mo_ref => $host_view->get_property('configManager.networkSystem') , properties => ['networkInfo']);
-		$network_system->update_view_data(['networkInfo']);
-		my $network_config = $network_system->networkInfo;
-		if (defined($network_config))
-		{
-			my $OKCount = 0;
-			my $BadCount = 0;
 
-			# create a hash of NIC info to facilitate easy lookups
-			my %NIC = ();
-			foreach (@{$network_config->pnic})
+			$host_view = $$host_view[0];
+			$host_view->update_view_data(['configManager.networkSystem']);
+			my $network_system = Vim::get_view(mo_ref => $host_view->get_property('configManager.networkSystem') , properties => ['networkInfo']);
+			$network_system->update_view_data(['networkInfo']);
+			my $network_config = $network_system->networkInfo;
+			if (defined($network_config))
 			{
-				$NIC{$_->key} = $_;
-			}
+				my $OKCount = 0;
+				my $BadCount = 0;
 
-			my $nic_output = '';
-			my @switches = ();
-
-			push(@switches, $network_config->vswitch) if (exists($network_config->{vswitch}));
-			push(@switches, $network_config->proxySwitch) if (exists($network_config->{proxySwitch}));
-
-			# see which NICs are actively part of a switch
-			foreach my $switch (@switches)
-			{
-				foreach (@{$switch})
+				# create a hash of NIC info to facilitate easy lookups
+				my %NIC = ();
+				foreach (@{$network_config->pnic})
 				{
-					# get list of physical nics
-					if (defined($_->pnic)){
-						foreach my $nic_key (@{$_->pnic})
-						{
-							if (!defined($NIC{$nic_key}->linkSpeed))
+					$NIC{$_->key} = $_;
+				}
+
+				my $nic_output = '';
+				my @switches = ();
+
+				push(@switches, $network_config->vswitch) if (exists($network_config->{vswitch}));
+				push(@switches, $network_config->proxySwitch) if (exists($network_config->{proxySwitch}));
+
+				# see which NICs are actively part of a switch
+				foreach my $switch (@switches)
+				{
+					foreach (@{$switch})
+					{
+						# get list of physical nics
+						if (defined($_->pnic)){
+							foreach my $nic_key (@{$_->pnic})
 							{
-								$nic_output .= ", " if ($output);
-								$nic_output .= $NIC{$nic_key}->device . " is unplugged";
-								$res = CRITICAL;
-								$BadCount++;
-							}
-							else
-							{
-								$OKCount++;
+								if (!defined($NIC{$nic_key}->linkSpeed))
+								{
+									$nic_output .= ", " if ($output);
+									$nic_output .= $NIC{$nic_key}->device . " is unplugged";
+									$res = CRITICAL;
+									$BadCount++;
+								}
+								else
+								{
+									$OKCount++;
+								}
 							}
 						}
 					}
 				}
-			}
 
-			if (!$BadCount)
-			{
-				$output .= "all $OKCount NICs are connected";
+
+				$res = OK;
+				$output = "net receive=" . $value1 . " KBps, send=" . $value2 . " KBps, ";
+				$np->add_perfdata(label => "net_receive", value => $value1, uom => 'KBps', threshold => $np->threshold);
+				$np->add_perfdata(label => "net_send", value => $value2, uom => 'KBps', threshold => $np->threshold);
+
+				if (!$BadCount)
+				{
+					$output .= "all $OKCount NICs are connected";
+				}
+				else
+				{
+					$output .= $BadCount ."/" . ($BadCount + $OKCount) . " NICs are disconnected: " . $nic_output;
+				}
+				$np->add_perfdata(label => "OK_NICs", value => $OKCount);
+				$np->add_perfdata(label => "Bad_NICs", value => $BadCount);
 			}
 			else
 			{
-				$output .= $BadCount ."/" . ($BadCount + $OKCount) . " NICs are disconnected: " . $nic_output;
+				$output = "NIC data is not available";
 			}
-			$np->add_perfdata(label => "OK_NICs", value => $OKCount);
-			$np->add_perfdata(label => "Bad_NICs", value => $BadCount);
 		}
 	}
 
