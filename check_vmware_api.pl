@@ -823,8 +823,14 @@ sub simplify_number
 sub convert_number
 {
 	my @vals = split(/,/, shift(@_));
-	return shift(@vals) if ($vals[-1] < 0);
-	return pop(@vals);
+	my $a = $vals[0];
+	my $b = $vals[-1];
+
+	if (defined($a)) {
+		return $a if (!defined($b) || (($b < 0) && ($a >= 0)));
+	}
+
+	return defined($b) ? $b : 0;
 }
 
 sub check_percantage
