@@ -133,7 +133,7 @@ my $np = Nagios::Plugin->new(
     . "            + write - write latency in ms (totalWriteLatency.average)\n"
     . "            ^ all disk io info\n"
     . "        * runtime - shows runtime info\n"
-    . "            + status - overall host status (gray/green/red/yellow)\n"
+    . "            + status - overall object status (gray/green/red/yellow)\n"
     . "            + issues - all issues for the host\n"
     . "            ^ all runtime info\n"
     . "    VM specific :\n"
@@ -201,6 +201,33 @@ my $np = Nagios::Plugin->new(
     . "        * recommendations - shows recommendations for cluster\n"
     . "            + (name) - recommendations for cluster with name (name)\n"
     . "            ^ all clusters recommendations\n"
+    . "    Cluster specific :\n"
+    . "        * cpu - shows cpu info\n"
+    . "            + usage - CPU usage in percentage\n"
+    . "            + usagemhz - CPU usage in MHz\n"
+    . "            ^ all cpu info\n"
+    . "        * mem - shows mem info\n"
+    . "            + usage - mem usage in percentage\n"
+    . "            + usagemb - mem usage in MB\n"
+    . "            + swap - swap mem usage in MB\n"
+    . "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
+    . "            ^ all mem info\n"
+    . "        * cluster - shows cluster services info\n"
+    . "            + effectivecpu - total available cpu resources of all hosts within cluster\n"
+    . "            + effectivemem - total amount of machine memory of all hosts in the cluster\n"
+    . "            + failover - VMWare HA number of failures that can be tolerated\n"
+    . "            + cpufainess - fairness of distributed cpu resource allocation\n"
+    . "            + memfainess - fairness of distributed mem resource allocation\n"
+    . "            ^ all cluster services info\n"
+    . "        * runtime - shows runtime info\n"
+    . "            + list(vm) - list of VMWare machines in cluster and their statuses\n"
+    . "            + listhost - list of VMWare esx host servers in cluster and their statuses\n"
+    . "            + status - overall cluster status (gray/green/red/yellow)\n"
+    . "            + issues - all issues for the cluster\n"
+    . "            ^ all cluster runtime info\n"
+    . "        * vmfs - shows Datastore info\n"
+    . "            + (name) - free space info for datastore with name (name)\n"
+    . "            ^ all datastore info\n"
     . "\n\nCopyright (c) 2008 op5",
   timeout => 30,
 );
@@ -320,7 +347,7 @@ $np->add_arg(
   spec => 'interval|i=s',
   help => "-i, --interval=<sampling period> \n"
 	. "   Sampling Period in seconds. Basic historic intervals: 300, 1800, 7200 or 86400. See config for any changes.\n"
-    . '   Default value is 20 (realtime). Since cluster don\'t have realtime stats interval other than 20(default realtime) is mandatory',
+    . '   Default value is 20 (realtime). Since cluster does not have realtime stats interval other than 20(default realtime) is mandatory',
   required => 0,
 );
 
