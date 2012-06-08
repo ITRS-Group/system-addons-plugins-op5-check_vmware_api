@@ -27,7 +27,7 @@
 
 use strict;
 use warnings;
-use vars qw($PROGNAME $VERSION $output $values $result $timeshift $interval);
+use vars qw($PROGNAME $VERSION $output $values $result $defperfargs);
 use Nagios::Plugin::Functions qw(%STATUS_TEXT);
 use Nagios::Plugin;
 use File::Basename;
@@ -320,7 +320,15 @@ $np->add_arg(
   spec => 'interval|i=s',
   help => "-i, --interval=<sampling period> \n"
 	. "   Sampling Period in seconds. Basic historic intervals: 300, 1800, 7200 or 86400. See config for any changes.\n"
-    . '   Default value is 20 (realtime). Since cluster don\'t have realtime stats interval other than 20 is mandatory',
+    . '   Default value is 20 (realtime). Since cluster don\'t have realtime stats interval other than 20(default realtime) is mandatory',
+  required => 0,
+);
+
+$np->add_arg(
+  spec => 'maxsamples|M=s',
+  help => "-M, --maxsamples=<max sample count> \n"
+	. "   Maximum number of samples to retrieve. Max sample number is ignored for historic intervals.\n"
+    . '   Default value is 1 (latest available sample). ',
   required => 0,
 );
 
@@ -333,8 +341,6 @@ $np->add_arg(
 
 $np->getopts;
 
-$timeshift = $np->opts->timestamp;
-$interval = $np->opts->interval;
 my $host = $np->opts->host;
 my $cluster = $np->opts->cluster;
 my $datacenter = $np->opts->datacenter;
@@ -350,6 +356,9 @@ my $sessionfile = $np->opts->sessionfile;
 my $blacklist = $np->opts->exclude;
 my $addopts = $np->opts->options;
 my $trace = $np->opts->trace;
+my $timeshift = $np->opts->timestamp;
+my $interval = $np->opts->interval;
+my $maxsamples = $np->opts->maxsamples;
 my $percw;
 my $percc;
 
@@ -374,6 +383,11 @@ if (defined($warning))
 }
 
 $np->set_thresholds(critical => $critical, warning => $warning);
+
+$defperfargs = {};
+$defperfargs->{timeshift} = $timeshift if (defined($timeshift));
+$defperfargs->{interval} = $interval if (defined($interval));
+$defperfargs->{maxsamples} = $maxsamples if (defined($maxsamples));
 
 eval
 {
@@ -633,30 +647,32 @@ sub get_key_metrices {
 }
 
 sub generic_performance_values {
-	my ($views, $timestamp, $group, @list) = @_;
+	my ($views, $perfargs, $group, @list) = @_;
 	my $counter = 0;
 	my @values = ();
 	my $amount = @list;
-	my $perfMgr = Vim::get_view(mo_ref => Vim::get_service_content()->perfManager, properties => [ 'perfCounter' ]);
-	my $metrices = get_key_metrices($perfMgr, $group, @list);
-
-	if (!$interval)
-	{
-		die "Since cluster don\'t have realtime stats interval other than 20(default value) is mandatory\n" if (defined($cluster));
-		$interval = 20;
+	my $perfMgr = $perfargs->{perfCounter};
+	if (!defined($perfMgr)) {
+		$perfMgr = Vim::get_view(mo_ref => Vim::get_service_content()->perfManager, properties => [ 'perfCounter' ]);
+		$perfargs->{perfCounter} = $perfMgr;
 	}
+	my $metrices = get_key_metrices($perfMgr, $group, @list);
+	my $maxsamples = defined($perfargs->{maxsamples}) ? $perfargs->{maxsamples} : 1; #default 1 sample
+	my $interval = defined($perfargs->{interval}) ? $perfargs->{interval} : 20; #retrive RefreshRate as default value
+	my $timestamp = $perfargs->{timestamp};
 
 	my @perf_query_spec = ();
 	if (defined($timestamp)) {
+		my $timeshift = $perfargs->{timeshift};
 		my ($sec,$min,$hour,$mday,$mon,$year) = gmtime($timestamp - $timeshift);
 		my $startTime = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
 
 		($sec,$min,$hour,$mday,$mon,$year) = gmtime($timestamp);
 		my $endTime = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
 
-		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, startTime => $startTime, endTime => $endTime)) foreach (@$views);
+		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples, startTime => $startTime, endTime => $endTime)) foreach (@$views);
 	} else {
-		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => 1)) foreach (@$views);
+		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples)) foreach (@$views);
 	}
 	my $perf_data = $perfMgr->QueryPerf(querySpec => \@perf_query_spec);
 	$amount *= @$perf_data;
@@ -692,9 +708,9 @@ sub return_host_performance_values {
 	die {msg => ("NOTICE: \"" . $$host_view[0]->name . "\" is in maintenance mode, check skipped\n"), code => OK} if (uc($$host_view[0]->get_property('runtime.inMaintenanceMode')) eq "TRUE");
 
 	# Timestamp is required for some Hosts in vCenter(Datacenter), this could fix 'Unknown error' type of issues
-	my $timestamp = undef;
-	$timestamp = str2time(Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime()) if (defined($timeshift));
-	$values = generic_performance_values($host_view, $timestamp, @_);
+	my $perfargs = shift(@_);
+	$perfargs->{timestamp} = str2time(Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime()) if (exists($perfargs->{timeshift}));
+	$values = generic_performance_values($host_view, $perfargs, @_);
 
 	return undef if ($@);
 	return ($host_view, $values);
@@ -708,9 +724,9 @@ sub return_host_vmware_performance_values {
 	die "VMware machine \"" . $vmname . "\" does not exist\n" if (!@$vm_view);
 	die "VMware machine \"" . $vmname . "\" is not running. Current state is \"" . $$vm_view[0]->get_property('runtime.powerState')->val . "\"\n" if ($$vm_view[0]->get_property('runtime.powerState')->val ne "poweredOn");
 
-	my $timestamp = undef;
-	$timestamp = time() if (defined($timeshift));
-	$values = generic_performance_values($vm_view, $timestamp, @_);
+	my $perfargs = shift(@_);
+	$perfargs->{timestamp} = time() if (exists($perfargs->{timeshift}));
+	$values = generic_performance_values($vm_view, $perfargs, @_);
 
 	return $@ if ($@);
 	return ($vm_view, $values);
@@ -722,9 +738,9 @@ sub return_dc_performance_values {
 	die "Runtime error\n" if (!defined($host_views));
 	die "Datacenter does not contain any hosts\n" if (!@$host_views);
 
-	my $timestamp = undef;
-	$timestamp = time() if (defined($timeshift));
-	$values = generic_performance_values($host_views, $timestamp, @_);
+	my $perfargs = shift(@_);
+	$perfargs->{timestamp} = time() if (exists($perfargs->{timeshift}));
+	$values = generic_performance_values($host_views, $perfargs, @_);
 
 	return undef if ($@);
 	return ($host_views, $values);
@@ -737,9 +753,10 @@ sub return_cluster_performance_values {
 	die "Runtime error\n" if (!defined($cluster_view));
 	die "Cluster \"" . $cluster_name . "\" does not exist\n" if (!@$cluster_view);
 
-	my $timestamp = undef;
-	$timestamp = time() if (defined($timeshift));
-	$values = generic_performance_values($cluster_view, $timestamp, @_);
+	my $perfargs = shift(@_);
+	die "Since cluster does not have realtime stats interval other than 20(default value) is mandatory\n" if (!exists($perfargs->{interval}));
+	$perfargs->{timestamp} = time() if (exists($perfargs->{timeshift}));
+	$values = generic_performance_values($cluster_view, $perfargs, @_);
 
 	return undef if ($@);
 	return $values;
@@ -748,7 +765,7 @@ sub return_cluster_performance_values {
 # Temporary solution to overcome zeros in network output
 sub return_host_temporary_vc_4_1_network_performance_values {
 	my @values;
-	my ($host_name, @list) = @_;
+	my ($host_name, $perfargs, @list) = @_;
 
 	my $host_view = Vim::find_entity_views(view_type => 'HostSystem', filter => $host_name, properties => [ 'name', 'runtime.inMaintenanceMode', 'summary.config.product.version', 'configManager.dateTimeSystem' ]); # Added properties named argument.
 	die "Runtime error\n" if (!defined($host_view));
@@ -757,8 +774,10 @@ sub return_host_temporary_vc_4_1_network_performance_values {
 	my $software_version = $$host_view[0]->get_property('summary.config.product.version');
 	return undef if (substr($software_version, 0, 4) ne '4.1.');
 
-	my $timestamp = undef;
-	$timestamp = str2time(Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime()) if (defined($timeshift));
+	my $timeshift = $perfargs->{timeshift};
+	my $interval = $perfargs->{interval};
+	my $maxsamples = $perfargs->{maxsamples};
+	my $timestamp = defined($timeshift) ? str2time(Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime()) : undef;
 
 	my $perfMgr = Vim::get_view(mo_ref => Vim::get_service_content()->perfManager, properties => [ 'perfCounter' ]);
 	my $metrices = get_key_metrices($perfMgr, 'net', @list);
@@ -773,7 +792,7 @@ sub return_host_temporary_vc_4_1_network_performance_values {
 		my $startTime = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
 		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, startTime => $startTime, endtime => $endTime)) foreach (@$host_view);
 	} else {
-		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => 1)) foreach (@$host_view);
+		push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples)) foreach (@$host_view);
 	}
 	my $perf_data = $perfMgr->QueryPerf(querySpec => \@perf_query_spec);
 	$amount *= @$perf_data;
@@ -1020,7 +1039,7 @@ sub host_cpu_info
 			}
 			else
 			{
-				$values = return_host_performance_values($host, 'cpu', ('usage.average'));
+				$values = return_host_performance_values($host, $defperfargs, 'cpu', ('usage.average'));
 				$value = simplify_number(convert_number($$values[0][0]->value) * 0.01) if (defined($values));
 			}
 			if (defined($value))
@@ -1043,7 +1062,7 @@ sub host_cpu_info
 			}
 			else
 			{
-				$values = return_host_performance_values($host, 'cpu', ('usagemhz.average'));
+				$values = return_host_performance_values($host, $defperfargs, 'cpu', ('usagemhz.average'));
 				$value = simplify_number(convert_number($$values[0][0]->value)) if (defined($values));
 			}
 			if (defined($value))
@@ -1078,7 +1097,7 @@ sub host_cpu_info
 		}
 		else
 		{
-			$values = return_host_performance_values($host, 'cpu', ('usagemhz.average', 'usage.average'));
+			$values = return_host_performance_values($host, $defperfargs, 'cpu', ('usagemhz.average', 'usage.average'));
 			if ($values) {
 				$value1 = simplify_number(convert_number($$values[0][0]->value));
 				$value2 = simplify_number(convert_number($$values[0][1]->value) * 0.01);
@@ -1124,7 +1143,7 @@ sub host_mem_info
 			}
 			else
 			{
-				$values = return_host_performance_values($host, 'mem', ('usage.average'));
+				$values = return_host_performance_values($host, $defperfargs, 'mem', ('usage.average'));
 				$value = simplify_number(convert_number($$values[0][0]->value) * 0.01) if (defined($values));
 			}
 			if (defined($value))
@@ -1147,7 +1166,7 @@ sub host_mem_info
 			}
 			else
 			{
-				$values = return_host_performance_values($host, 'mem', ('consumed.average'));
+				$values = return_host_performance_values($host, $defperfargs, 'mem', ('consumed.average'));
 				$value = simplify_number(convert_number($$values[0][0]->value) / 1024) if (defined($values));
 			}
 			if (defined($value))
@@ -1160,7 +1179,7 @@ sub host_mem_info
 		elsif ($subcommand eq "SWAP")
 		{
 			my $host_view;
-			($host_view, $values) = return_host_performance_values($host, 'mem', ('swapused.average'));
+			($host_view, $values) = return_host_performance_values($host, $defperfargs, 'mem', ('swapused.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -1177,7 +1196,7 @@ sub host_mem_info
 					{
 						push(@vms, $vm) if ($vm->get_property('runtime.powerState')->val eq "poweredOn");
 					}
-					$values = generic_performance_values(\@vms, undef, 'mem', ('swapped.average'));
+					$values = generic_performance_values(\@vms, $defperfargs, 'mem', ('swapped.average'));
 					if (defined($values))
 					{
 						foreach my $index (0..@vms-1) {
@@ -1192,7 +1211,7 @@ sub host_mem_info
 		}
 		elsif ($subcommand eq "OVERHEAD")
 		{
-			$values = return_host_performance_values($host, 'mem', ('overhead.average'));
+			$values = return_host_performance_values($host, $defperfargs, 'mem', ('overhead.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -1203,7 +1222,7 @@ sub host_mem_info
 		}
 		elsif ($subcommand eq "OVERALL")
 		{
-			$values = return_host_performance_values($host, 'mem', ('consumed.average', 'overhead.average'));
+			$values = return_host_performance_values($host, $defperfargs, 'mem', ('consumed.average', 'overhead.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number((convert_number($$values[0][0]->value) + convert_number($$values[0][1]->value)) / 1024);
@@ -1215,7 +1234,7 @@ sub host_mem_info
 		elsif ($subcommand eq "MEMCTL")
 		{
 			my $host_view;
-			($host_view, $values) = return_host_performance_values($host, 'mem', ('vmmemctl.average'));
+			($host_view, $values) = return_host_performance_values($host, $defperfargs, 'mem', ('vmmemctl.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -1232,7 +1251,7 @@ sub host_mem_info
 					{
 						push(@vms, $vm) if ($vm->get_property('runtime.powerState')->val eq "poweredOn");
 					}
-					$values = generic_performance_values(\@vms, undef, 'mem', ('vmmemctl.average'));
+					$values = generic_performance_values(\@vms, $defperfargs, 'mem', ('vmmemctl.average'));
 					if (defined($values))
 					{
 						foreach my $index (0..@vms-1) {
@@ -1253,7 +1272,7 @@ sub host_mem_info
 	}
 	else
 	{
-		$values = return_host_performance_values($host, 'mem', ('consumed.average', 'usage.average', 'overhead.average', 'swapused.average', 'vmmemctl.average'));
+		$values = return_host_performance_values($host, $defperfargs, 'mem', ('consumed.average', 'usage.average', 'overhead.average', 'swapused.average', 'vmmemctl.average'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -1285,14 +1304,14 @@ sub host_net_info
 	{
 		if ($subcommand eq "USAGE")
 		{
-			$values = return_host_temporary_vc_4_1_network_performance_values($host, ('received.average:*', 'transmitted.average:*'));
+			$values = return_host_temporary_vc_4_1_network_performance_values($host, $defperfargs, ('received.average:*', 'transmitted.average:*'));
 			if ($values)
 			{
 				$$values[0][0]{"value"} += $$values[0][1]{"value"};
 			}
 			else
 			{
-				$values = return_host_performance_values($host, 'net', ('usage.average'));
+				$values = return_host_performance_values($host, $defperfargs, 'net', ('usage.average'));
 			}
 			if (defined($values))
 			{
@@ -1304,8 +1323,8 @@ sub host_net_info
 		}
 		elsif ($subcommand eq "RECEIVE")
 		{
-			$values = return_host_temporary_vc_4_1_network_performance_values($host, ('received.average:*'));
-			$values = return_host_performance_values($host, 'net', ('received.average')) if (!$values);
+			$values = return_host_temporary_vc_4_1_network_performance_values($host, $defperfargs, ('received.average:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'net', ('received.average')) if (!$values);
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -1316,8 +1335,8 @@ sub host_net_info
 		}
 		elsif ($subcommand eq "SEND")
 		{
-			$values = return_host_temporary_vc_4_1_network_performance_values($host, ('transmitted.average:*'));
-			$values = return_host_performance_values($host, 'net', ('transmitted.average')) if (!$values);
+			$values = return_host_temporary_vc_4_1_network_performance_values($host, $defperfargs, ('transmitted.average:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'net', ('transmitted.average')) if (!$values);
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -1397,7 +1416,7 @@ sub host_net_info
 	else
 	{
 		my $host_view;
-		($host_view, $values) = return_host_performance_values($host, 'net', ('received.average', 'transmitted.average'));
+		($host_view, $values) = return_host_performance_values($host, $defperfargs, 'net', ('received.average', 'transmitted.average'));
 		$output = '';
 		if (defined($values))
 		{
@@ -1490,7 +1509,7 @@ sub host_disk_io_info
 	{
 		if ($subcommand eq "ABORTED")
 		{
-			$values = return_host_performance_values($host, 'disk', ('commandsAborted.summation:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'disk', ('commandsAborted.summation:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value), 0);
@@ -1501,7 +1520,7 @@ sub host_disk_io_info
 		}
 		elsif ($subcommand eq "RESETS")
 		{
-			$values = return_host_performance_values($host, 'disk', ('busResets.summation:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'disk', ('busResets.summation:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value), 0);
@@ -1512,7 +1531,7 @@ sub host_disk_io_info
 		}
 		elsif ($subcommand eq "READ")
 		{
-			$values = return_host_performance_values($host, 'disk', ('totalReadLatency.average:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'disk', ('totalReadLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value), 0);
@@ -1523,7 +1542,7 @@ sub host_disk_io_info
 		}
 		elsif ($subcommand eq "WRITE")
 		{
-			$values = return_host_performance_values($host, 'disk', ('totalWriteLatency.average:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'disk', ('totalWriteLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value), 0);
@@ -1534,7 +1553,7 @@ sub host_disk_io_info
 		}
 		elsif ($subcommand eq "KERNEL")
 		{
-			$values = return_host_performance_values($host, 'disk', ('kernelLatency.average:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'disk', ('kernelLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value), 0);
@@ -1545,7 +1564,7 @@ sub host_disk_io_info
 		}
 		elsif ($subcommand eq "DEVICE")
 		{
-			$values = return_host_performance_values($host, 'disk', ('deviceLatency.average:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'disk', ('deviceLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value), 0);
@@ -1556,7 +1575,7 @@ sub host_disk_io_info
 		}
 		elsif ($subcommand eq "QUEUE")
 		{
-			$values = return_host_performance_values($host, 'disk', ('queueLatency.average:*'));
+			$values = return_host_performance_values($host, $defperfargs, 'disk', ('queueLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value), 0);
@@ -1573,7 +1592,7 @@ sub host_disk_io_info
 	}
 	else
 	{
-		$values = return_host_performance_values($host, 'disk', ('commandsAborted.summation:*', 'busResets.summation:*', 'totalReadLatency.average:*', 'totalWriteLatency.average:*', 'kernelLatency.average:*', 'deviceLatency.average:*', 'queueLatency.average:*'));
+		$values = return_host_performance_values($host, $defperfargs, 'disk', ('commandsAborted.summation:*', 'busResets.summation:*', 'totalReadLatency.average:*', 'totalWriteLatency.average:*', 'kernelLatency.average:*', 'deviceLatency.average:*', 'queueLatency.average:*'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value), 0);
@@ -2498,7 +2517,7 @@ sub host_uptime_info
 	}
 	else
 	{
-		$values = return_host_performance_values($host, 'sys', ('uptime.latest'));
+		$values = return_host_performance_values($host, $defperfargs, 'sys', ('uptime.latest'));
 		$value = simplify_number(convert_number($$values[0][0]->value), 0) if (defined($values));
 	}
 	if (defined($value))
@@ -2587,7 +2606,7 @@ sub vm_cpu_info
 	{
 		if ($subcommand eq "USAGE")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'cpu', ('usage.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'cpu', ('usage.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) * 0.01);
@@ -2598,7 +2617,7 @@ sub vm_cpu_info
 		}
 		elsif ($subcommand eq "USAGEMHZ")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'cpu', ('usagemhz.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'cpu', ('usagemhz.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -2609,7 +2628,7 @@ sub vm_cpu_info
 		}
 		elsif ($subcommand eq "WAIT")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'cpu', ('wait.summation:*'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'cpu', ('wait.summation:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -2620,7 +2639,7 @@ sub vm_cpu_info
 		}
 		elsif ($subcommand eq "READY")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'cpu', ('ready.summation:*'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'cpu', ('ready.summation:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -2637,7 +2656,7 @@ sub vm_cpu_info
 	}
 	else
 	{
-		$values = return_host_vmware_performance_values($vmname, 'cpu', ('usagemhz.average', 'usage.average', 'wait.summation:*', 'ready.summation:*'));
+		$values = return_host_vmware_performance_values($vmname, $defperfargs, 'cpu', ('usagemhz.average', 'usage.average', 'wait.summation:*', 'ready.summation:*'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value));
@@ -2667,7 +2686,7 @@ sub vm_mem_info
 	{
 		if ($subcommand eq "USAGE")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('usage.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('usage.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) * 0.01);
@@ -2678,7 +2697,7 @@ sub vm_mem_info
 		}
 		elsif ($subcommand eq "USAGEMB")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('consumed.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('consumed.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2689,7 +2708,7 @@ sub vm_mem_info
 		}
 		elsif ($subcommand eq "SWAP")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('swapped.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('swapped.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2700,7 +2719,7 @@ sub vm_mem_info
 		}
 		elsif ($subcommand eq "SWAPIN")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('swapin.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('swapin.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2711,7 +2730,7 @@ sub vm_mem_info
 		}
 		elsif ($subcommand eq "SWAPOUT")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('swapout.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('swapout.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2722,7 +2741,7 @@ sub vm_mem_info
 		}
 		elsif ($subcommand eq "OVERHEAD")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('overhead.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('overhead.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2733,7 +2752,7 @@ sub vm_mem_info
 		}
 		elsif ($subcommand eq "OVERALL")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('consumed.average', 'overhead.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('consumed.average', 'overhead.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number((convert_number($$values[0][0]->value) + convert_number($$values[0][1]->value)) / 1024);
@@ -2744,7 +2763,7 @@ sub vm_mem_info
 		}
 		elsif ($subcommand eq "ACTIVE")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('active.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('active.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2755,7 +2774,7 @@ sub vm_mem_info
 		}
 		elsif ($subcommand eq "MEMCTL")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'mem', ('vmmemctl.average'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('vmmemctl.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2772,7 +2791,7 @@ sub vm_mem_info
 	}
 	else
 	{
-		$values = return_host_vmware_performance_values($vmname, 'mem', ('consumed.average', 'usage.average', 'overhead.average', 'active.average', 'swapped.average', 'swapin.average', 'swapout.average', 'vmmemctl.average'));
+		$values = return_host_vmware_performance_values($vmname, $defperfargs, 'mem', ('consumed.average', 'usage.average', 'overhead.average', 'active.average', 'swapped.average', 'swapin.average', 'swapout.average', 'vmmemctl.average'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2810,7 +2829,7 @@ sub vm_net_info
 	{
 		if ($subcommand eq "USAGE")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'net', ('usage.average:*'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'net', ('usage.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -2821,7 +2840,7 @@ sub vm_net_info
 		}
 		elsif ($subcommand eq "RECEIVE")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'net', ('received.average:*'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'net', ('received.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -2832,7 +2851,7 @@ sub vm_net_info
 		}
 		elsif ($subcommand eq "SEND")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'net', ('transmitted.average:*'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'net', ('transmitted.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -2849,7 +2868,7 @@ sub vm_net_info
 	}
 	else
 	{
-		$values = return_host_vmware_performance_values($vmname, 'net', ('received.average:*', 'transmitted.average:*'));
+		$values = return_host_vmware_performance_values($vmname, $defperfargs, 'net', ('received.average:*', 'transmitted.average:*'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value));
@@ -2875,7 +2894,7 @@ sub vm_disk_io_info
 	{
 		if ($subcommand eq "USAGE")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'disk', ('usage.average:*'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'disk', ('usage.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2886,7 +2905,7 @@ sub vm_disk_io_info
 		}
 		elsif ($subcommand eq "READ")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'disk', ('read.average:*'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'disk', ('read.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2897,7 +2916,7 @@ sub vm_disk_io_info
 		}
 		elsif ($subcommand eq "WRITE")
 		{
-			$values = return_host_vmware_performance_values($vmname, 'disk', ('write.average:*'));
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'disk', ('write.average:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -2914,7 +2933,7 @@ sub vm_disk_io_info
 	}
 	else
 	{
-		$values = return_host_vmware_performance_values($vmname, 'disk', ('usage.average:*', 'read.average:*', 'write.average:*'));
+		$values = return_host_vmware_performance_values($vmname, $defperfargs, 'disk', ('usage.average:*', 'read.average:*', 'write.average:*'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -3145,7 +3164,7 @@ sub dc_cpu_info
 			}
 			else
 			{
-				$values = return_dc_performance_values('cpu', ('usage.average'));
+				$values = return_dc_performance_values($defperfargs, 'cpu',  ('usage.average'));
 				grep($value += convert_number($$_[0]->value) * 0.01, @$values) if (defined($values));
 				$value = simplify_number($value / @$values) if (defined($value));
 			}
@@ -3174,7 +3193,7 @@ sub dc_cpu_info
 			}
 			else
 			{
-				$values = return_dc_performance_values('cpu', ('usagemhz.average'));
+				$values = return_dc_performance_values($defperfargs, 'cpu', ('usagemhz.average'));
 				grep($value += convert_number($$_[0]->value), @$values);
 				$value = simplify_number($value) if (defined($value));
 			}
@@ -3213,7 +3232,7 @@ sub dc_cpu_info
 		}
 		else
 		{
-			$values = return_dc_performance_values('cpu', ('usagemhz.average', 'usage.average'));
+			$values = return_dc_performance_values($defperfargs, 'cpu', ('usagemhz.average', 'usage.average'));
 			grep($value1 += convert_number($$_[0]->value), @$values);
 			grep($value2 += convert_number($$_[1]->value) * 0.01, @$values);
 			$value1 = simplify_number($value1);
@@ -3262,7 +3281,7 @@ sub dc_mem_info
 			}
 			else
 			{
-				$values = return_dc_performance_values('mem', ('usage.average'));
+				$values = return_dc_performance_values($defperfargs, 'mem', ('usage.average'));
 				grep($value += convert_number($$_[0]->value) * 0.01, @$values);
 				$value = simplify_number($value / @$values) if (defined($value));
 			}
@@ -3291,7 +3310,7 @@ sub dc_mem_info
 			}
 			else
 			{
-				$values = return_dc_performance_values('mem', ('consumed.average'));
+				$values = return_dc_performance_values($defperfargs, 'mem', ('consumed.average'));
 				grep($value += convert_number($$_[0]->value) / 1024, @$values);
 				$value = simplify_number($value) if (defined($value));
 			}
@@ -3304,7 +3323,7 @@ sub dc_mem_info
 		}
 		elsif ($subcommand eq "SWAP")
 		{
-			$values = return_dc_performance_values('mem', ('swapused.average'));
+			$values = return_dc_performance_values($defperfargs, 'mem', ('swapused.average'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3317,7 +3336,7 @@ sub dc_mem_info
 		}
 		elsif ($subcommand eq "OVERHEAD")
 		{
-			$values = return_dc_performance_values('mem', ('overhead.average'));
+			$values = return_dc_performance_values($defperfargs, 'mem', ('overhead.average'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3330,7 +3349,7 @@ sub dc_mem_info
 		}
 		elsif ($subcommand eq "OVERALL")
 		{
-			$values = return_dc_performance_values('mem', ('consumed.average', 'overhead.average'));
+			$values = return_dc_performance_values($defperfargs, 'mem', ('consumed.average', 'overhead.average'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3343,7 +3362,7 @@ sub dc_mem_info
 		}
 		elsif ($subcommand eq "MEMCTL")
 		{
-			$values = return_dc_performance_values('mem', ('vmmemctl.average'));
+			$values = return_dc_performance_values($defperfargs, 'mem', ('vmmemctl.average'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3362,7 +3381,7 @@ sub dc_mem_info
 	}
 	else
 	{
-		$values = return_dc_performance_values('mem', ('consumed.average', 'usage.average', 'overhead.average', 'swapused.average', 'vmmemctl.average'));
+		$values = return_dc_performance_values($defperfargs, 'mem', ('consumed.average', 'usage.average', 'overhead.average', 'swapused.average', 'vmmemctl.average'));
 		if (defined($values))
 		{
 			my $value1 = 0;
@@ -3404,7 +3423,7 @@ sub dc_net_info
 	{
 		if ($subcommand eq "USAGE")
 		{
-			$values = return_dc_performance_values('net', ('usage.average:*'));
+			$values = return_dc_performance_values($defperfargs, 'net', ('usage.average:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3417,7 +3436,7 @@ sub dc_net_info
 		}
 		elsif ($subcommand eq "RECEIVE")
 		{
-			$values = return_dc_performance_values('net', ('received.average:*'));
+			$values = return_dc_performance_values($defperfargs, 'net', ('received.average:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3430,7 +3449,7 @@ sub dc_net_info
 		}
 		elsif ($subcommand eq "SEND")
 		{
-			$values = return_dc_performance_values('net', ('transmitted.average:*'));
+			$values = return_dc_performance_values($defperfargs, 'net', ('transmitted.average:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3449,7 +3468,7 @@ sub dc_net_info
 	}
 	else
 	{
-		$values = return_dc_performance_values('net', ('received.average:*', 'transmitted.average:*'));
+		$values = return_dc_performance_values($defperfargs, 'net', ('received.average:*', 'transmitted.average:*'));
 		if (defined($values))
 		{
 			my $value1 = 0;
@@ -3495,7 +3514,7 @@ sub dc_disk_io_info
 	{
 		if ($subcommand eq "ABORTED")
 		{
-			$values = return_dc_performance_values('disk', ('commandsAborted.summation:*'));
+			$values = return_dc_performance_values($defperfargs, 'disk', ('commandsAborted.summation:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3508,7 +3527,7 @@ sub dc_disk_io_info
 		}
 		elsif ($subcommand eq "RESETS")
 		{
-			$values = return_dc_performance_values('disk', ('busResets.summation:*'));
+			$values = return_dc_performance_values($defperfargs, 'disk', ('busResets.summation:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3521,7 +3540,7 @@ sub dc_disk_io_info
 		}
 		elsif ($subcommand eq "READ")
 		{
-			$values = return_dc_performance_values('disk', ('totalReadLatency.average:*'));
+			$values = return_dc_performance_values($defperfargs, 'disk', ('totalReadLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3534,7 +3553,7 @@ sub dc_disk_io_info
 		}
 		elsif ($subcommand eq "WRITE")
 		{
-			$values = return_dc_performance_values('disk', ('totalWriteLatency.average:*'));
+			$values = return_dc_performance_values($defperfargs, 'disk', ('totalWriteLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3547,7 +3566,7 @@ sub dc_disk_io_info
 		}
 		elsif ($subcommand eq "KERNEL")
 		{
-			$values = return_dc_performance_values('disk', ('kernelLatency.average:*'));
+			$values = return_dc_performance_values($defperfargs, 'disk', ('kernelLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3560,7 +3579,7 @@ sub dc_disk_io_info
 		}
 		elsif ($subcommand eq "DEVICE")
 		{
-			$values = return_dc_performance_values('disk', ('deviceLatency.average:*'));
+			$values = return_dc_performance_values($defperfargs, 'disk', ('deviceLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3573,7 +3592,7 @@ sub dc_disk_io_info
 		}
 		elsif ($subcommand eq "QUEUE")
 		{
-			$values = return_dc_performance_values('disk', ('queueLatency.average:*'));
+			$values = return_dc_performance_values($defperfargs, 'disk', ('queueLatency.average:*'));
 			if (defined($values))
 			{
 				my $value = 0;
@@ -3592,7 +3611,7 @@ sub dc_disk_io_info
 	}
 	else
 	{
-		$values = return_dc_performance_values('disk', ('commandsAborted.summation:*', 'busResets.summation:*', 'totalReadLatency.average:*', 'totalWriteLatency.average:*', 'kernelLatency.average:*', 'deviceLatency.average:*', 'queueLatency.average:*'));
+		$values = return_dc_performance_values($defperfargs, 'disk', ('commandsAborted.summation:*', 'busResets.summation:*', 'totalReadLatency.average:*', 'totalWriteLatency.average:*', 'kernelLatency.average:*', 'deviceLatency.average:*', 'queueLatency.average:*'));
 		if (defined($values))
 		{
 			my $value1 = 0;
@@ -3929,7 +3948,7 @@ sub cluster_cpu_info
 	{
 		if ($subcommand eq "USAGE")
 		{
-			$values = return_cluster_performance_values($cluster, 'cpu', ('usage.average'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'cpu', ('usage.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) * 0.01);
@@ -3940,7 +3959,7 @@ sub cluster_cpu_info
 		}
 		elsif ($subcommand eq "USAGEMHZ")
 		{
-			$values = return_cluster_performance_values($cluster, 'cpu', ('usagemhz.average'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'cpu', ('usagemhz.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -3957,7 +3976,7 @@ sub cluster_cpu_info
 	}
 	else
 	{
-		$values = return_cluster_performance_values($cluster, 'cpu', ('usagemhz.average', 'usage.average'));
+		$values = return_cluster_performance_values($cluster, $defperfargs, 'cpu', ('usagemhz.average', 'usage.average'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value));
@@ -3986,7 +4005,7 @@ sub cluster_mem_info
 	{
 		if ($subcommand eq "USAGE")
 		{
-			$values = return_cluster_performance_values($cluster, 'mem', ('usage.average'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'mem', ('usage.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) * 0.01);
@@ -3997,7 +4016,7 @@ sub cluster_mem_info
 		}
 		elsif ($subcommand eq "USAGEMB")
 		{
-			$values = return_cluster_performance_values($cluster, 'mem', ('consumed.average'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'mem', ('consumed.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -4009,7 +4028,7 @@ sub cluster_mem_info
 		elsif ($subcommand eq "SWAP")
 		{
 			my $cluster_view;
-			($cluster_view, $values) = return_cluster_performance_values($cluster, 'mem', ('swapused.average'));
+			($cluster_view, $values) = return_cluster_performance_values($cluster, $defperfargs, 'mem', ('swapused.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -4026,7 +4045,7 @@ sub cluster_mem_info
 					{
 						push(@vms, $vm) if ($vm->get_property('runtime.powerState')->val eq "poweredOn");
 					}
-					$values = generic_performance_values(\@vms, undef, 'mem', ('swapped.average'));
+					$values = generic_performance_values(\@vms, $defperfargs, 'mem', ('swapped.average'));
 					if (defined($values))
 					{
 						foreach my $index (0..@vms-1) {
@@ -4042,7 +4061,7 @@ sub cluster_mem_info
 		elsif ($subcommand eq "MEMCTL")
 		{
 			my $cluster_view;
-			($cluster_view, $values) = return_cluster_performance_values($cluster, 'mem', ('vmmemctl.average'));
+			($cluster_view, $values) = return_cluster_performance_values($cluster, $defperfargs, 'mem', ('vmmemctl.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -4059,7 +4078,7 @@ sub cluster_mem_info
 					{
 						push(@vms, $vm) if ($vm->get_property('runtime.powerState')->val eq "poweredOn");
 					}
-					$values = generic_performance_values(\@vms, undef, 'mem', ('vmmemctl.average'));
+					$values = generic_performance_values(\@vms, $defperfargs, 'mem', ('vmmemctl.average'));
 					if (defined($values))
 					{
 						foreach my $index (0..@vms-1) {
@@ -4080,7 +4099,7 @@ sub cluster_mem_info
 	}
 	else
 	{
-		$values = return_cluster_performance_values($cluster, 'mem', ('consumed.average', 'usage.average', 'overhead.average', 'swapused.average', 'vmmemctl.average'));
+		$values = return_cluster_performance_values($cluster, $defperfargs, 'mem', ('consumed.average', 'usage.average', 'overhead.average', 'swapused.average', 'vmmemctl.average'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -4112,7 +4131,7 @@ sub cluster_cluster_info
 	{
 		if ($subcommand eq "EFFECTIVECPU")
 		{
-			$values = return_cluster_performance_values($cluster, 'clusterServices', ('effectivecpu.average'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'clusterServices', ('effectivecpu.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) * 0.01);
@@ -4123,7 +4142,7 @@ sub cluster_cluster_info
 		}
 		elsif ($subcommand eq "EFFECTIVEMEM")
 		{
-			$values = return_cluster_performance_values($cluster, 'clusterServices', ('effectivemem.average'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'clusterServices', ('effectivemem.average'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -4134,7 +4153,7 @@ sub cluster_cluster_info
 		}
 		elsif ($subcommand eq "FAILOVER")
 		{
-			$values = return_cluster_performance_values($cluster, 'clusterServices', ('failover.latest:*'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'clusterServices', ('failover.latest:*'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
@@ -4145,7 +4164,7 @@ sub cluster_cluster_info
 		}
 		elsif ($subcommand eq "CPUFAIRNESS")
 		{
-			$values = return_cluster_performance_values($cluster, 'clusterServices', ('cpufairness.latest'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'clusterServices', ('cpufairness.latest'));
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
@@ -4156,7 +4175,7 @@ sub cluster_cluster_info
 		}
 		elsif ($subcommand eq "MEMFAIRNESS")
 		{
-			$values = return_cluster_performance_values($cluster, 'clusterServices', ('memfairness.latest'));
+			$values = return_cluster_performance_values($cluster, $defperfargs, 'clusterServices', ('memfairness.latest'));
 			if (defined($values))
 			{
 				my $value = simplify_number((convert_number($$values[0][0]->value)));
@@ -4173,7 +4192,7 @@ sub cluster_cluster_info
 	}
 	else
 	{
-		$values = return_cluster_performance_values($cluster, 'clusterServices', ('effectivecpu.average', 'effectivemem.average'));
+		$values = return_cluster_performance_values($cluster, $defperfargs, 'clusterServices', ('effectivecpu.average', 'effectivemem.average'));
 		if (defined($values))
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value));
