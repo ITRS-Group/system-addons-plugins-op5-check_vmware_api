@@ -96,7 +96,7 @@ eval {
 } or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware Infrastructure (VI) Perl Toolkit\', available at http://www.vmware.com/download/sdk/\n $perl_module_instructions");
 
 $PROGNAME = basename($0);
-$VERSION = '0.6.0';
+$VERSION = '0.7.0';
 
 my $np = Nagios::Plugin->new(
   usage => "Usage: %s -D <data_center> | -H <host_name> [ -C <cluster_name> ] [ -N <vm_name> ]\n"
