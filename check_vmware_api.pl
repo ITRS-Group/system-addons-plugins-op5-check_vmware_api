@@ -869,14 +869,19 @@ sub simplify_number
 sub convert_number
 {
 	my @vals = split(/,/, shift(@_));
-	my $a = $vals[0];
-	my $b = $vals[-1];
+	my $res = 0;
 
-	if (defined($a)) {
-		return $a if (!defined($b) || (($b < 0) && ($a >= 0)));
+	while (@vals) {
+		my $value = pop(@vals);
+		$value =~ s/^\s+//;
+		$value =~ s/\s+$//;
+		if (defined($value) && $value ne '') {
+			return $value if ($value >= 0);
+			$res = $value if ($res == 0);
+		}
 	}
 
-	return defined($b) ? $b : 0;
+	return $res;
 }
 
 sub check_percantage
