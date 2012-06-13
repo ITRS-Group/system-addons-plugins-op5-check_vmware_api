@@ -4188,7 +4188,7 @@ sub cluster_cluster_info
 			$values = return_cluster_performance_values($cluster, $defperfargs, 'clusterServices', ('failover.latest:*'));
 			if (defined($values))
 			{
-				my $value = simplify_number(convert_number($$values[0][0]->value) / 1024);
+				my $value = simplify_number(convert_number($$values[0][0]->value));
 				$np->add_perfdata(label => "failover", value => $value, threshold => $np->threshold);
 				$output = "failover=" . $value . " ";
 				$res = $np->check_threshold(check => $value);
