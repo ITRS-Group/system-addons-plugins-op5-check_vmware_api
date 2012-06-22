@@ -347,7 +347,8 @@ $np->add_arg(
   spec => 'interval|i=s',
   help => "-i, --interval=<sampling period> \n"
 	. "   Sampling Period in seconds. Basic historic intervals: 300, 1800, 7200 or 86400. See config for any changes.\n"
-    . '   Default value is 20 (realtime). Since cluster does not have realtime stats interval other than 20(default realtime) is mandatory',
+    . "   Supports literval values to autonegotiate interval value: r - realtime interval, h<number> - historical interval specified by position.\n"
+    . '   Default value is 20 (realtime). Since cluster does not have realtime stats interval other than 20(default realtime) is mandatory.',
   required => 0,
 );
 
