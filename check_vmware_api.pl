@@ -3732,9 +3732,6 @@ sub dc_runtime_info
 	my $res = CRITICAL;
 	my $output = 'DC RUNTIME Unknown error';
 	my $runtime;
-	my $dc_view = Vim::find_entity_view(view_type => 'Datacenter', properties => ['name', 'overallStatus', 'configIssue']);
-
-	die "There are no Datacenter\n" if (!defined($dc_view));
 
 	if (defined($subcommand))
 	{
@@ -3910,35 +3907,54 @@ sub dc_runtime_info
 		}
 		elsif ($subcommand eq "STATUS")
 		{
-			if (defined($dc_view->overallStatus))
-			{
-				my $status = $dc_view->overallStatus->val;
-				$output = "overall status=" . $status;
-				$res = check_health_state($status);
+			my $dc_views = Vim::find_entity_views(view_type => 'Datacenter', properties => ['name', 'overallStatus']);
+			die "There are no Datacenter\n" if (!defined($dc_views));
+
+			$res = OK;
+			$output = '';
+			foreach my $dc (@$dc_views) {
+				if (defined($dc->overallStatus))
+				{
+					my $status = $dc->overallStatus->val;
+					$output .= $dc->name . " overall status=" . $status . ", ";
+					$status = check_health_state($status);
+					$res = UNKNOWN if ($status == UNKNOWN);
+					$res = Nagios::Plugin::Functions::max_state($res, $status) if (($res != UNKNOWN) || ($status != OK));
+				}
+				else
+				{
+					$output .= "Insufficient rights to access " . $dc->name . " status info on the DC, ";
+					$res = Nagios::Plugin::Functions::max_state($res, WARNING);
+				}
 			}
-			else
-			{
-				$output = "Insufficient rights to access status info on the DC\n";
-				$res = WARNING;
+			if ($output) {
+				chop($output);
+				chop($output);
 			}
 		}
 		elsif ($subcommand eq "ISSUES")
 		{
-			my $issues = $dc_view->configIssue;
-			my $issues_count = 0;
+			my $dc_views = Vim::find_entity_views(view_type => 'Datacenter', properties => ['name', 'configIssue']);
+			die "There are no Datacenter\n" if (!defined($dc_views));
 
+			my $issues_count = 0;
 			$output = '';
-			if (defined($issues))
-			{
-				foreach (@$issues)
+
+			foreach my $dc (@$dc_views) {
+				my $issues = $dc->configIssue;
+
+				if (defined($issues))
 				{
-					if (defined($blacklist))
+					foreach (@$issues)
 					{
-						my $name = ref($_);
-						next if ($blacklist =~ m/(^|\s|\t|,)\Q$name\E($|\s|\t|,)/);
+						if (defined($blacklist))
+						{
+							my $name = ref($_);
+							next if ($blacklist =~ m/(^|\s|\t|,)\Q$name\E($|\s|\t|,)/);
+						}
+						$output .= format_issue($_) . "(" . $dc->name . "); ";
+						$issues_count++;
 					}
-					$output .= format_issue($_) . "; ";
-					$issues_count++;
 				}
 			}
 
@@ -3957,8 +3973,10 @@ sub dc_runtime_info
 	}
 	else
 	{
+		my $dc_views = Vim::find_entity_views(view_type => 'Datacenter', properties => ['name', 'overallStatus', 'configIssue']);
+		die "There are no Datacenter\n" if (!defined($dc_views));
 		my %host_maintenance_state = (0 => "no", 1 => "yes");
-		my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', begin_entity => $dc_view, properties => ['name', 'runtime.powerState']);
+		my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', properties => ['name', 'runtime.powerState']);
 		die "Runtime error\n" if (!defined($vm_views));
 		my $up = 0;
 
@@ -3993,12 +4011,21 @@ sub dc_runtime_info
 		$np->add_perfdata(label => "hostcount", value => $up, uom => 'units');
 
 		$res = OK;
-		$output .= "overall status=" . $dc_view->overallStatus->val . ", " if (defined($dc_view->overallStatus));
-		my $issues = $dc_view->configIssue;
-		if (defined($issues))
+
+		foreach my $dc (@$dc_views) {
+			$output .= $dc->name . " overall status=" . $dc->overallStatus->val . ", " if (defined($dc->overallStatus));
+		}
+
+		my $issue_count = 0;
+		foreach my $dc (@$dc_views) {
+			my $issues = $dc->configIssue;
+			$issue_count += @$issues if (defined($issues));
+		}
+
+		if ($issue_count)
 		{
-			$output .= @$issues . " config issue(s)";
-			$np->add_perfdata(label => "config_issues", value => "" . @$issues);
+			$output .= $issue_count . " config issue(s)";
+			$np->add_perfdata(label => "config_issues", value => $issue_count);
 		}
 		else
 		{
