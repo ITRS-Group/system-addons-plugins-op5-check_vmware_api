@@ -3566,11 +3566,16 @@ sub dc_list_vm_volumes_info
 {
 	my ($np, $subcommand, $blacklist, $perc, $addopts) = @_;
 
-	my $dc_view = Vim::find_entity_view(view_type => 'Datacenter', properties => ['datastore']);
+	my $dc_views = Vim::find_entity_views(view_type => 'Datacenter', properties => ['datastore']);
+	die "There are no Datacenter\n" if (!defined($dc_views));
 
-	die "There are no Datacenter\n" if (!defined($dc_view));
+	my @datastores;
+	foreach my $dc (@$dc_views)
+	{
+		push(@datastores, @{$dc->datastore}) if (defined($dc->datastore));
+	}
 
-	return datastore_volumes_info($dc_view->datastore, $np, $subcommand, $blacklist, $perc, $addopts);
+	return datastore_volumes_info(\@datastores, $np, $subcommand, $blacklist, $perc, $addopts);
 }
 
 sub dc_disk_io_info
