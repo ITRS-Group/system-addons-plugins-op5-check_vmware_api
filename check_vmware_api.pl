@@ -1977,7 +1977,7 @@ sub host_runtime_info
 						}
 
 						my $state = check_health_state($_->healthState->key);
-						$_->name =~ m/(.*?)\sTemp\s+-.+/;
+						$_->name =~ m/(.*?)\sTemp\s.+/;
 						my $itemref = {
 							name => $1,
 							power10 => $_->unitModifier,
