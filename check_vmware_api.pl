@@ -171,6 +171,7 @@ my $np = Nagios::Plugin->new(
     . "            + health - checks cpu/storage/memory/sensor status\n"
     . "            + storagehealth - storage status check\n"
     . "            + temperature - temperature sensors\n"
+    . "            + sensor - threshold specified sensor\n"
     . "            + maintenance - shows whether host is in maintenance mode\n"
     . "            + list(vm) - list of VMWare machines and their statuses\n"
     . "        * service - shows Host service info\n"
