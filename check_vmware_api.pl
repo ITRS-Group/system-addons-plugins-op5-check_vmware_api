@@ -2032,6 +2032,34 @@ sub host_runtime_info
 				$output = "Temperature status unavailable";
 			}
 		}
+		elsif ($subcommand eq "SENSOR")
+		{
+			die "Provide sensor name as -o argument\n" if (!$addopts);
+			$output = '';
+			if(defined($runtime->healthSystemRuntime))
+			{
+				my $numericSensorInfo = $runtime->healthSystemRuntime->systemHealthInfo->numericSensorInfo;
+
+				if (defined($numericSensorInfo))
+				{
+					foreach (@$numericSensorInfo)
+					{
+						next if ($_->name ne $addopts);
+						my $value = $_->currentReading * 10 ** $_->unitModifier;
+						$output = "sensor '" . $addopts . "' = " . $value . (defined($_->baseUnits) ? " " . $_->baseUnits : "");
+						$res = $np->check_threshold(check => $value);
+						$np->add_perfdata(label => $_->name, value => $value, threshold => $np->threshold);
+						last;
+					}
+				}
+				$output = "Can not find sensor by name '" . $addopts . "'" if (!$output);
+			}
+			else
+			{
+				$res = UNKNOWN;
+				$output = "System health status unavailable";
+			}
+		}
 		elsif ($subcommand eq "MAINTENANCE")
 		{
 			my %host_maintenance_state = (0 => "no", 1 => "yes");
