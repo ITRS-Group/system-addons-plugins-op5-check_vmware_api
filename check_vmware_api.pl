@@ -2043,17 +2043,44 @@ sub host_runtime_info
 
 				if (defined($numericSensorInfo))
 				{
-					foreach (@$numericSensorInfo)
+					if ($addopts eq "listall")
 					{
-						next if ($_->name ne $addopts);
-						my $value = $_->currentReading * 10 ** $_->unitModifier;
-						$output = "sensor '" . $addopts . "' = " . $value . (defined($_->baseUnits) ? " " . $_->baseUnits : "");
-						$res = $np->check_threshold(check => $value);
-						$np->add_perfdata(label => $_->name, value => $value, threshold => $np->threshold);
-						last;
+						foreach (@$numericSensorInfo)
+						{
+							$output .= "'" . $_->name . "', ";
+						}
+						if ($output)
+						{
+							chop($output);
+							chop($output);
+							$output = "numeric sensor list :" . $output;
+						}
+						else
+						{
+							$output = "numeric sensors unavailable";
+						}
+					}
+					else
+					{
+						foreach (@$numericSensorInfo)
+						{
+							if ($_->name =~ $addopts)
+							{
+								my $value = $_->currentReading * 10 ** $_->unitModifier;
+								$output = "sensor '" . $_->name . "' = " . $value . (defined($_->baseUnits) ? " " . $_->baseUnits : "");
+								$res = $np->check_threshold(check => $value);
+								$np->add_perfdata(label => $_->name, value => $value, threshold => $np->threshold);
+								last;
+							}
+						}
+						$output = "Can not find sensor by name '" . $addopts . "'" if (!$output);
 					}
 				}
-				$output = "Can not find sensor by name '" . $addopts . "'" if (!$output);
+				else
+				{
+					$res = UNKNOWN;
+					$output = "System numeric sensors status unavailable";
+				}
 			}
 			else
 			{
