@@ -773,14 +773,15 @@ sub generic_performance_values {
 sub return_host_performance_values {
 	my $values;
 	my $host_name = shift(@_);
-	my $host_view = Vim::find_entity_views(view_type => 'HostSystem', filter => $host_name, properties => ($timeshift ? [ 'name', 'runtime.inMaintenanceMode', 'configManager.dateTimeSystem' ] : [ 'name', 'runtime.inMaintenanceMode']) ); # Added properties named argument.
+	my $perfargs = shift(@_);
+	my $timeshift = $perfargs->{timeshift};
+	my $host_view = Vim::find_entity_views(view_type => 'HostSystem', filter => $host_name, properties => (defined($timeshift) ? [ 'name', 'runtime.inMaintenanceMode', 'configManager.dateTimeSystem' ] : [ 'name', 'runtime.inMaintenanceMode']) ); # Added properties named argument.
 	die "Runtime error\n" if (!defined($host_view));
 	die "Host \"" . $$host_name{"name"} . "\" does not exist\n" if (!@$host_view);
 	die {msg => ("NOTICE: \"" . $$host_view[0]->name . "\" is in maintenance mode, check skipped\n"), code => OK} if (uc($$host_view[0]->get_property('runtime.inMaintenanceMode')) eq "TRUE");
 
 	# Timestamp is required for some Hosts in vCenter(Datacenter), this could fix 'Unknown error' type of issues
-	my $perfargs = shift(@_);
-	$perfargs->{timestamp} = str2time(Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime()) if (exists($perfargs->{timeshift}));
+	$perfargs->{timestamp} = str2time(Vim::get_view(mo_ref => $$host_view[0]->get_property('configManager.dateTimeSystem'))->QueryDateTime()) if (defined($timeshift));
 	$values = generic_performance_values($host_view, $perfargs, @_);
 
 	return undef if ($@);
