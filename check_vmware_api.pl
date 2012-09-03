@@ -388,8 +388,11 @@ my $trace = $np->opts->trace;
 my $timeshift = $np->opts->timestamp;
 my $interval = $np->opts->interval;
 my $maxsamples = $np->opts->maxsamples;
+my $timeout = $np->opts->timeout;
 my $percw;
 my $percc;
+
+alarm($timeout) if $timeout;
 
 $output = "Unknown ERROR!";
 $result = CRITICAL;
