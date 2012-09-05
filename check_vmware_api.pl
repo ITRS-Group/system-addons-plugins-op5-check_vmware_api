@@ -1044,6 +1044,7 @@ sub datastore_volumes_info
 
 			if ($store->summary->accessible)
 			{
+				$store->RefreshDatastoreStorageInfo() if ($store->can("RefreshDatastoreStorageInfo"));
 				my $value1 = simplify_number(convert_number($store->summary->freeSpace) / 1024 / 1024);
 				my $value2 = convert_number($store->summary->capacity);
 				$value2 = simplify_number(convert_number($store->info->freeSpace) / $value2 * 100) if ($value2 > 0);
