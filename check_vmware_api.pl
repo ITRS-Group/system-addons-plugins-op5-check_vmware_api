@@ -2447,9 +2447,10 @@ sub host_storage_info
 							$count++;
 						}
 
-						$count++ if (uc($pathState) eq "ACTIVE");
-						$res = UNKNOWN if ((uc($pathState) eq "UNKNOWN") && ($res == OK));
-						$res = CRITICAL if (uc($pathState) eq "DEAD");
+						$normalizedPathState = uc($pathState);
+						$count++ if ($normalizedPathState eq "ACTIVE");
+						$res = UNKNOWN if (($res == OK) && ($normalizedPathState eq "UNKNOWN"));
+						$res = CRITICAL if ($normalizedPathState eq "DEAD");
 						$output .= $name . " <" . $pathState . ">; ";
 					}
 				}
