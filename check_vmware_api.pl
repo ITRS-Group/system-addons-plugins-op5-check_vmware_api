@@ -2447,7 +2447,7 @@ sub host_storage_info
 							$count++;
 						}
 
-						$normalizedPathState = uc($pathState);
+						my $normalizedPathState = uc($pathState);
 						$count++ if ($normalizedPathState eq "ACTIVE");
 						$res = UNKNOWN if (($res == OK) && ($normalizedPathState eq "UNKNOWN"));
 						$res = CRITICAL if ($normalizedPathState eq "DEAD");
