@@ -338,7 +338,7 @@ $np->add_arg(
 );
 
 $np->add_arg(
-  spec => 'timestamp|T=s',
+  spec => 'timestamp|T=i',
   help => "-T, --timestamp=<timeshift> \n"
     . '   Timeshift in seconds that could fix issues with "Unknown error". Use values like 5, 10, 20, etc',
   required => 0,
