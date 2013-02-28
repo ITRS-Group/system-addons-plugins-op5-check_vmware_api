@@ -4,11 +4,11 @@
 #
 # License: GPL
 # Copyright (c) 2008 op5 AB
-# Author: Kostyantyn Hushchyn <dev@op5.com>
+# Author: Kostyantyn Hushchyn <op5-users@lists.op5.com>
 # Contributor(s): Patrick Müller, Jeremy Martin, Eric Jonsson, stumpr, John Cavanaugh, Libor Klepac, maikmayers, Steffen Poulsen, Mark Elliott, simeg, sebastien.prudhomme, Raphael Schitz
 #
 # For direct contact with any of the op5 developers send a mail to
-# dev@op5.com
+# op5-users@lists.op5.com
 # Discussions are directed to the mailing list op5-users@op5.com,
 # see http://lists.op5.com/mailman/listinfo/op5-users
 #
