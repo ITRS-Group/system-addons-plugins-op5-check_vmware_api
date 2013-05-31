@@ -38,8 +38,11 @@ To be able to use the plugin you need to install VMware vSphere SDK for Perl.
 %install
 mkdir -p %buildroot/opt/plugins
 cp check_vmware_api.pl %buildroot/opt/plugins/check_vmware_api.pl
-ln -s %buildroot/opt/plugins/check_vmware_api.pl %buildroot/opt/plugins/check_vmware_api
-ln -s %buildroot/opt/plugins/check_vmware_api %buildroot/opt/plugins/check_esx3
+
+pushd %buildroot%prefix
+	ln -s check_vmware_api.pl check_vmware_api
+	ln -s check_vmware_api check_esx3
+popd
 
 %clean
 rm -rf %buildroot
