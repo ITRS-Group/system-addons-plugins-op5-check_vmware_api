@@ -393,7 +393,7 @@ $np->add_arg(
   help => "-w, --warning=THRESHOLD\n"
     . "   Warning threshold. See\n"
     . "   http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT\n"
-    . '   for the threshold format.',
+    . '   for the threshold format. By default, no threshold is set.',
   required => 0,
 );
 
@@ -402,7 +402,7 @@ $np->add_arg(
   help => "-c, --critical=THRESHOLD\n"
     . "   Critical threshold. See\n"
     . "   http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT\n"
-    . '   for the threshold format.',
+    . '   for the threshold format. By default, no threshold is set.',
   required => 0,
 );
 
