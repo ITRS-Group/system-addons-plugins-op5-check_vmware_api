@@ -200,7 +200,7 @@ my $np = Nagios::Plugin->new(
     . "                T (value) - timeshift to detemine if we need to refresh\n"
     . "        * runtime - shows runtime info\n"
     . "            + con - connection state\n"
-    . "            + health - checks cpu/storage/memory/sensor status\n"
+    . "            + health - checks cpu/storage/memory/sensor status and propagates worst state\n"
     . "                o listitems - list all available sensors(use for listing purpose only)\n"
     . "                o blackregexpflag - whether to treat blacklist as regexp\n"
     . "                b - blacklist status objects\n"
@@ -1997,7 +1997,6 @@ sub host_runtime_info
 						}
 					}
 				}
-				$res = $np->check_threshold(check => $AlertCount);
 			}
 			else
 			{
