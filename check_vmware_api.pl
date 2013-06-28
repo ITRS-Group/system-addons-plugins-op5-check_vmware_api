@@ -4404,7 +4404,7 @@ sub cluster_cluster_info
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) * 0.01);
 				$np->add_perfdata(label => "effective cpu", value => $value, uom => 'MHz', threshold => $np->threshold);
-				$output = "effective cpu=" . $value . " %";
+				$output = "effective cpu=" . $value . " MHz";
 				$res = $np->check_threshold(check => $value);
 			}
 		}
