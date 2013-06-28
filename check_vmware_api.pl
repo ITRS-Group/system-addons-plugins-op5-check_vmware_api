@@ -1252,7 +1252,7 @@ sub host_cpu_info
 			}
 			if (defined($value))
 			{
-				$np->add_perfdata(label => "cpu_usagemhz", value => $value, uom => 'Mhz', threshold => $np->threshold);
+				$np->add_perfdata(label => "cpu_usagemhz", value => $value, uom => 'MHz', threshold => $np->threshold);
 				$output = "cpu usagemhz=" . $value . " MHz";
 				$res = $np->check_threshold(check => $value);
 			}
@@ -1290,7 +1290,7 @@ sub host_cpu_info
 		}
 		if (defined($value1) && defined($value2))
 		{
-			$np->add_perfdata(label => "cpu_usagemhz", value => $value1, uom => 'Mhz', threshold => $np->threshold);
+			$np->add_perfdata(label => "cpu_usagemhz", value => $value1, uom => 'MHz', threshold => $np->threshold);
 			$np->add_perfdata(label => "cpu_usage", value => $value2, uom => '%', threshold => $np->threshold);
 			$res = OK;
 			$output = "cpu usage=" . $value1 . " MHz (" . $value2 . "%)";
@@ -2862,7 +2862,7 @@ sub vm_cpu_info
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
-				$np->add_perfdata(label => "cpu_usagemhz", value => $value, uom => 'Mhz', threshold => $np->threshold);
+				$np->add_perfdata(label => "cpu_usagemhz", value => $value, uom => 'MHz', threshold => $np->threshold);
 				$output = "\"$vmname\" cpu usage=" . $value . " MHz";
 				$res = $np->check_threshold(check => $value);
 			}
@@ -2904,7 +2904,7 @@ sub vm_cpu_info
 			my $value2 = simplify_number(convert_number($$values[0][1]->value) * 0.01);
 			my $value3 = simplify_number(convert_number($$values[0][2]->value));
 			my $value4 = simplify_number(convert_number($$values[0][3]->value));
-			$np->add_perfdata(label => "cpu_usagemhz", value => $value1, uom => 'Mhz', threshold => $np->threshold);
+			$np->add_perfdata(label => "cpu_usagemhz", value => $value1, uom => 'MHz', threshold => $np->threshold);
 			$np->add_perfdata(label => "cpu_usage", value => $value2, uom => '%', threshold => $np->threshold);
 			$np->add_perfdata(label => "cpu_wait", value => $value3, uom => 'ms', threshold => $np->threshold);
 			$np->add_perfdata(label => "cpu_ready", value => $value4, uom => 'ms', threshold => $np->threshold);
@@ -3440,7 +3440,7 @@ sub dc_cpu_info
 			}
 			if (defined($value))
 			{
-				$np->add_perfdata(label => "cpu_usagemhz", value => $value, uom => 'Mhz', threshold => $np->threshold);
+				$np->add_perfdata(label => "cpu_usagemhz", value => $value, uom => 'MHz', threshold => $np->threshold);
 				$output = "cpu usagemhz=" . $value . " MHz";
 				$res = $np->check_threshold(check => $value);
 			}
@@ -3481,7 +3481,7 @@ sub dc_cpu_info
 		}
 		if (defined($value1) && defined($value2))
 		{
-			$np->add_perfdata(label => "cpu_usagemhz", value => $value1, uom => 'Mhz', threshold => $np->threshold);
+			$np->add_perfdata(label => "cpu_usagemhz", value => $value1, uom => 'MHz', threshold => $np->threshold);
 			$np->add_perfdata(label => "cpu_usage", value => $value2, uom => '%', threshold => $np->threshold);
 			$res = OK;
 			$output = "cpu usage=" . $value1 . " MHz (" . $value2 . "%)";
@@ -4231,7 +4231,7 @@ sub cluster_cpu_info
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value));
-				$np->add_perfdata(label => "cpu_usagemhz", value => $value, uom => 'Mhz', threshold => $np->threshold);
+				$np->add_perfdata(label => "cpu_usagemhz", value => $value, uom => 'MHz', threshold => $np->threshold);
 				$output = "cpu usagemhz=" . $value . " MHz";
 				$res = $np->check_threshold(check => $value);
 			}
@@ -4249,7 +4249,7 @@ sub cluster_cpu_info
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value));
 			my $value2 = simplify_number(convert_number($$values[0][1]->value) * 0.01);
-			$np->add_perfdata(label => "cpu_usagemhz", value => $value1, uom => 'Mhz', threshold => $np->threshold);
+			$np->add_perfdata(label => "cpu_usagemhz", value => $value1, uom => 'MHz', threshold => $np->threshold);
 			$np->add_perfdata(label => "cpu_usage", value => $value2, uom => '%', threshold => $np->threshold);
 			$res = OK;
 			$output = "cpu usage=" . $value1 . " MHz (" . $value2 . "%)";
@@ -4403,7 +4403,7 @@ sub cluster_cluster_info
 			if (defined($values))
 			{
 				my $value = simplify_number(convert_number($$values[0][0]->value) * 0.01);
-				$np->add_perfdata(label => "effective cpu", value => $value, uom => 'Mhz', threshold => $np->threshold);
+				$np->add_perfdata(label => "effective cpu", value => $value, uom => 'MHz', threshold => $np->threshold);
 				$output = "effective cpu=" . $value . " %";
 				$res = $np->check_threshold(check => $value);
 			}
@@ -4465,10 +4465,10 @@ sub cluster_cluster_info
 		{
 			my $value1 = simplify_number(convert_number($$values[0][0]->value));
 			my $value2 = simplify_number(convert_number($$values[0][1]->value) / 1024);
-			$np->add_perfdata(label => "effective cpu", value => $value1, uom => 'Mhz', threshold => $np->threshold);
+			$np->add_perfdata(label => "effective cpu", value => $value1, uom => 'MHz', threshold => $np->threshold);
 			$np->add_perfdata(label => "effective mem", value => $value2, uom => 'MB', threshold => $np->threshold);
 			$res = OK;
-			$output = "effective cpu=" . $value1 . " Mhz, effective Mem=" . $value2 . " MB";
+			$output = "effective cpu=" . $value1 . " MHz, effective Mem=" . $value2 . " MB";
 		}
 	}
 
