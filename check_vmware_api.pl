@@ -4532,7 +4532,7 @@ sub cluster_runtime_info
 				$host->update_view_data(['name', 'runtime.powerState']);
 				my $host_state = $host_state_strings{$host->get_property('runtime.powerState')->val};
 				$unknown += $host_state eq "UNKNOWN";
-				if ($host_state eq "UP" || $host_state eq "Maintenance Mode") {
+				if ($host_state eq "UP" && $host_state eq "Maintenance Mode") {
 					$up++;
 					$output .= $host->name . "(UP), ";
 				} else
