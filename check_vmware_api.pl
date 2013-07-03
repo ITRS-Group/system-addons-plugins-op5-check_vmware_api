@@ -40,14 +40,18 @@ use Nagios::Plugin;
 use File::Basename;
 use HTTP::Date;
 my $perl_module_instructions="
-Download the latest version of Perl Toolkit from VMware support page.
-In this example we use VMware-vSphere-SDK-for-Perl-4.0.0-161974.x86_64.tar.gz,
-but the instructions should apply to newer versions as well.
+Download the latest version of the vSphere SDK for Perl from VMware.
+In this example we use VMware-vSphere-Perl-SDK-5.1.0-780721.x86_64.tar.gz,
+but the instructions should apply to other versions as well.
 
-Upload the file to your op5 Monitor server's /root dir and execute:
+You may need to install additional packages and Perl modules on your server,
+see http://www.op5.com/how-to/how-to-install-vmware-vsphere-sdk-perl-5-1/ for
+more information and package names for op5 APS / CentOS 6 / RHEL 6.
+
+Upload the .tar.gz file to your op5 Monitor server's /root dir and execute:
 
     cd /root
-    tar xvzf VMware-vSphere-SDK-for-Perl-4.0.0-161974.x86_64.tar.gz
+    tar xvzf VMware-vSphere-Perl-SDK-5.1.0-780721.x86_64.tar.gz
     cd vmware-vsphere-cli-distrib/
     ./vmware-install.pl
 
@@ -55,9 +59,7 @@ Follow the on screen instructions, described below:
 
   \"Creating a new vSphere CLI installer database using the tar4 format.
 
-  Installing vSphere CLI.
-
-  Installing version 161974 of vSphere CLI
+  Installing vSphere CLI 5.1.0 build-780721 for Linux.
 
   You must read and accept the vSphere CLI End User License Agreement to
   continue.
@@ -70,37 +72,41 @@ Follow the on screen instructions, described below:
 
     yes
 
-
-  \"The following Perl modules were found on the system but may be too old to work
-  with VIPerl:
-
-  Crypt::SSLeay
-  Compress::Zlib\"
-
   \"In which directory do you want to install the executable files? [/usr/bin]\"
 
     <ENTER>
 
   \"Please wait while copying vSphere CLI files...
 
-  The installation of vSphere CLI 4.0.0 build-161974 for Linux completed
+  The installation of vSphere CLI 5.1.0 build-780721 for Linux completed
   successfully. You can decide to remove this software from your system at any
   time by invoking the following command:
   \"/usr/bin/vmware-uninstall-vSphere-CLI.pl\".
 
   This installer has successfully installed both vSphere CLI and the vSphere SDK
   for Perl.
+
+  The following Perl modules were found on the system but may be too old to work 
+  with vSphere CLI:
+
+  Compress::Zlib 2.037 or newer 
+  Compress::Raw::Zlib 2.037 or newer 
+  version 0.78 or newer 
+  IO::Compress::Base 2.037 or newer 
+  IO::Compress::Zlib::Constants 2.037 or newer 
+  LWP::Protocol::https 5.805 or newer 
+
   Enjoy,
 
   --the VMware team\"
 
-Note: \"Crypt::SSLeay\" and \"Compress::Zlib\" are not needed for check_vmware_api to work.
+Note: None of the Perl modules mentioned as \"may be too old\" are needed for check_vmware_api to work.
 ";
 
 
 eval {
 	require VMware::VIRuntime;
-} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware Infrastructure (VI) Perl Toolkit\', available at http://www.vmware.com/download/sdk/\n $perl_module_instructions");
+} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions");
 
 $PROGNAME = basename($0);
 $VERSION = '0.7.0';
@@ -115,7 +121,7 @@ my $np = Nagios::Plugin->new(
   version => $VERSION,
   plugin  => $PROGNAME,
   shortname => uc($PROGNAME),
-  blurb => 'VMWare Infrastructure plugin',
+  blurb => 'VMware ESX/vSphere plugin',
   extra   => "Supported commands(^ - blank or not specified parameter, o - options, T - timeshift value, b - blacklist) :\n"
     . "    VM specific :\n"
     . "        * cpu - shows cpu info\n"
@@ -340,7 +346,7 @@ my $np = Nagios::Plugin->new(
     . "                o blacklistregexp - whether to treat blacklist as regexp\n"
     . "                b - blacklist VMFS's\n"
     . "                T (value) - timeshift to detemine if we need to refresh\n"
-    . "\n\nCopyright (c) 2008 op5",
+    . "\n\nCopyright (c) 2008-2013 op5",
   timeout => 30,
 );
 
