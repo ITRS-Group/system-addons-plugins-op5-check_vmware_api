@@ -4627,12 +4627,19 @@ sub cluster_runtime_info
 		my ($cpuStatusInfo, $storageStatusInfo, $memoryStatusInfo, $numericSensorInfo);
 
 		$res = OK;
-		$output .= ", overall status=" . $cluster_view->overallStatus->val . ", " if (defined($cluster_view->overallStatus));
+
+		if (defined($cluster_view->overallStatus))
+		{
+			my $overallstatus = $cluster_view->overallStatus->val;
+			$res = check_health_state($overallstatus);
+			$output .= ", overall status=" . $overallstatus . ", ";
+		}
 
 		my $issues = $cluster_view->configIssue;
 		if (defined($issues))
 		{
 			$output .= @$issues . " config issue(s)";
+			$res = WARNING if ($res == OK);
 		}
 		else
 		{
