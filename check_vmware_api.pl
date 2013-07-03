@@ -1,15 +1,22 @@
 #!/usr/bin/perl -w
 #
-# Nagios plugin to monitor vmware ESX and vSphere servers
+# Nagios plugin to monitor VMware ESX and vSphere servers
 #
 # License: GPL
-# Copyright (c) 2008 op5 AB
-# Author: Kostyantyn Hushchyn <op5-users@lists.op5.com>
-# Contributor(s): Patrick Müller, Jeremy Martin, Eric Jonsson, stumpr, John Cavanaugh, Libor Klepac, maikmayers, Steffen Poulsen, Mark Elliott, simeg, sebastien.prudhomme, Raphael Schitz
+# Copyright (c) 2008-2013 op5 AB
+# Author: Kostyantyn Hushchyn and op5 <op5-users@lists.op5.com>
 #
-# For direct contact with any of the op5 developers send a mail to
+# Contributors:
+#
+# Patrick Müller, Jeremy Martin, Eric Jonsson, stumpr,
+# John Cavanaugh, Libor Klepac, maikmayers, Steffen Poulsen,
+# Mark Elliott, simeg, sebastien.prudhomme, Raphael Schitz,
+# Mattias Bergsten
+#
+# For direct contact with any of the op5 developers, send an email to
 # op5-users@lists.op5.com
-# Discussions are directed to the mailing list op5-users@op5.com,
+#
+# Discussions are directed to the mailing list op5-users@lists.op5.com,
 # see http://lists.op5.com/mailman/listinfo/op5-users
 #
 # This program is free software; you can redistribute it and/or modify
