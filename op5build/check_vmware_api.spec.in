@@ -1,5 +1,5 @@
 Summary: An op5 Monitor plugin to monitor VMware virtualization environment
-Name: check_vmware_api
+Name: monitor-plugin-check_vmware_api
 Version: @@VERSION@@
 Release: @@RELEASE@@
 License: GPL
