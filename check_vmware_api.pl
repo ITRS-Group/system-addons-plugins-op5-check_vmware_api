@@ -4155,16 +4155,20 @@ sub dc_runtime_info
 		my $dc_views = Vim::find_entity_views(view_type => 'Datacenter', properties => ['name', 'overallStatus', 'configIssue']);
 		die "There are no Datacenter\n" if (!defined($dc_views));
 		my %host_maintenance_state = (0 => "no", 1 => "yes");
-		my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', properties => ['name', 'runtime.powerState']);
+		my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', properties => ['name', 'runtime.powerState', 'config.template']);
 		die "Runtime error\n" if (!defined($vm_views));
 		my $up = 0;
+		my $templ = 0;
 
 		if (@$vm_views)
 		{
+			my $totalvms = @$vm_views;
 			foreach my $vm (@$vm_views) {
 				$up += $vm->get_property('runtime.powerState')->val eq "poweredOn";
+				$templ += $vm->{'config.template'} eq "true";
 			}
-			$output = $up . "/" . @$vm_views . " VMs up, ";
+			$totalvms -= $templ;
+			$output = $up . "/" . $totalvms . " VMs up (" . $templ . " templates), ";
 		}
 		else
 		{
