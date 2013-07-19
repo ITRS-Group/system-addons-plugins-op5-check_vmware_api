@@ -822,7 +822,7 @@ sub generic_performance_values {
 		if ($interval eq "r") {
 			foreach (@$views) {
 				my $summary = $perfMgr->QueryPerfProviderSummary(entity => $_);
-				die "Realtime interval is not supported or enabled\n" unless ($summary && $summary->currentSupported);
+				die "Realtime interval is not supported or not enabled\n" unless ($summary && $summary->currentSupported);
 				$interval = $summary->refreshRate;
 				push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples, startTime => $startTime, endTime => $endTime));
 			}
@@ -830,11 +830,11 @@ sub generic_performance_values {
 			my $index = substr($interval, 1, -1);
 			foreach (@$views) {
 				my $summary = $perfMgr->QueryPerfProviderSummary(entity => $_);
-				die "Historcal intervals are not supported\n" unless ($summary && $summary->summarySupported);
+				die "Historical intervals are not supported\n" unless ($summary && $summary->summarySupported);
 				my $historic_intervals = $perfMgr->historicalInterval;
-				die "Historcal interval [$index] is not present(max value " . @{$historic_intervals} . ")\n" unless (($index >= 0) && ($index < @{$historic_intervals}));
+				die "Historical interval [$index] is not present (max value " . @{$historic_intervals} . ")\n" unless (($index >= 0) && ($index < @{$historic_intervals}));
 				my $perf_interval = $$historic_intervals[$index];
-				die "Historcal interval [$index] is disabled\n" unless ($perf_interval->enabled);
+				die "Historical interval [$index] is disabled\n" unless ($perf_interval->enabled);
 				$interval = $perf_interval->key;
 				push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples, startTime => $startTime, endTime => $endTime));
 			}
@@ -845,7 +845,7 @@ sub generic_performance_values {
 		if ($interval eq "r") {
 			foreach (@$views) {
 				my $summary = $perfMgr->QueryPerfProviderSummary(entity => $_);
-				die "Realtime interval is not supported or enabled\n" unless ($summary && $summary->currentSupported);
+				die "Realtime interval is not supported or not enabled\n" unless ($summary && $summary->currentSupported);
 				$interval = $summary->refreshRate;
 				push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples));
 			}
@@ -853,11 +853,11 @@ sub generic_performance_values {
 			my $index = substr($interval, 1, -1);
 			foreach (@$views) {
 				my $summary = $perfMgr->QueryPerfProviderSummary(entity => $_);
-				die "Historcal intervals are not supported\n" unless ($summary && $summary->summarySupported);
+				die "Historical intervals are not supported\n" unless ($summary && $summary->summarySupported);
 				my $historic_intervals = $perfMgr->historicalInterval;
-				die "Historcal interval [$index] is not present(max value " . @{$historic_intervals} . ")\n" unless (($index >= 0) && ($index < @{$historic_intervals}));
+				die "Historical interval [$index] is not present (max value " . @{$historic_intervals} . ")\n" unless (($index >= 0) && ($index < @{$historic_intervals}));
 				my $perf_interval = $$historic_intervals[$index];
-				die "Historcal interval [$index] is disabled\n" unless ($perf_interval->enabled);
+				die "Historical interval [$index] is disabled\n" unless ($perf_interval->enabled);
 				$interval = $perf_interval->key;
 				push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples));
 			}
