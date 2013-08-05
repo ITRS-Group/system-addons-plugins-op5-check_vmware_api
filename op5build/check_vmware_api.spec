@@ -34,6 +34,7 @@ To be able to use the plugin you need to install VMware vSphere SDK for Perl.
 %setup -q
 
 %build
+%__make test
 
 %install
 mkdir -p %buildroot/opt/plugins

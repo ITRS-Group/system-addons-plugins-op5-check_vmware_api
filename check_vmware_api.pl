@@ -4670,10 +4670,3 @@ sub cluster_list_vm_volumes_info
 
 	return datastore_volumes_info($cluster_view->datastore, $np, $subcommand, $blacklist, $perc, $addopts);
 }
-
-
-sub test
-{
-
-	return Vim::find_entity_view(view_type => 'ClusterComputeResource', filter => {name=> "foo" }, properties => ['name', 'datastore']);
-}
