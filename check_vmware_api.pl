@@ -32,6 +32,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+package CheckVMwareAPI;
 use strict;
 use warnings;
 use vars qw($PROGNAME $VERSION $output $values $result $defperfargs);
@@ -4668,4 +4669,11 @@ sub cluster_list_vm_volumes_info
 	die "Insufficient rights to access Datastores on the Host\n" if (!defined($cluster_view->datastore));
 
 	return datastore_volumes_info($cluster_view->datastore, $np, $subcommand, $blacklist, $perc, $addopts);
+}
+
+
+sub test
+{
+
+	return Vim::find_entity_view(view_type => 'ClusterComputeResource', filter => {name=> "foo" }, properties => ['name', 'datastore']);
 }
