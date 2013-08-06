@@ -40,6 +40,7 @@ use Nagios::Plugin::Functions qw(%STATUS_TEXT);
 use Nagios::Plugin;
 use File::Basename;
 use HTTP::Date;
+use Data::Dumper qw(Dumper);
 my $perl_module_instructions="
 Download the latest version of the vSphere SDK for Perl from VMware.
 In this example we use VMware-vSphere-Perl-SDK-5.1.0-780721.x86_64.tar.gz,
@@ -104,670 +105,671 @@ Follow the on screen instructions, described below:
 Note: None of the Perl modules mentioned as \"may be too old\" are needed for check_vmware_api to work.
 ";
 
+sub main {
+	eval {
+		require VMware::VIRuntime;
+	} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions");
 
-eval {
-	require VMware::VIRuntime;
-} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions");
+	$PROGNAME = basename($0);
+	$VERSION = '0.7.1';
 
-$PROGNAME = basename($0);
-$VERSION = '0.7.1';
+	my $np = Nagios::Plugin->new(
+		usage => "Usage: %s -D <data_center> | -H <host_name> [ -C <cluster_name> ] [ -N <vm_name> ]\n"
+		. "    -u <user> -p <pass> | -f <authfile>\n"
+		. "    -l <command> [ -s <subcommand> ] [ -T <timeshift> ] [ -i <interval> ]\n"
+		. "    [ -x <black_list> ] [ -o <additional_options> ]\n"
+		. "    [ -t <timeout> ] [ -w <warn_range> ] [ -c <crit_range> ]\n"
+		. '    [ -V ] [ -h ]',
+		version => $VERSION,
+		plugin  => $PROGNAME,
+		shortname => uc($PROGNAME),
+		blurb => 'VMware ESX/vSphere plugin',
+		extra   => "Supported commands(^ - blank or not specified parameter, o - options, T - timeshift value, b - blacklist) :\n"
+		. "    VM specific :\n"
+		. "        * cpu - shows cpu info\n"
+		. "            + usage - CPU usage in percentage\n"
+		. "            + usagemhz - CPU usage in MHz\n"
+		. "            + wait - CPU wait time in ms\n"
+		. "            + ready - CPU ready time in ms\n"
+		. "            ^ all cpu info(no thresholds)\n"
+		. "        * mem - shows mem info\n"
+		. "            + usage - mem usage in percentage\n"
+		. "            + usagemb - mem usage in MB\n"
+		. "            + swap - swap mem usage in MB\n"
+		. "            + swapin - swapin mem usage in MB\n"
+		. "            + swapout - swapout mem usage in MB\n"
+		. "            + overhead - additional mem used by VM Server in MB\n"
+		. "            + overall - overall mem used by VM Server in MB\n"
+		. "            + active - active mem usage in MB\n"
+		. "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
+		. "            ^ all mem info(except overall and no thresholds)\n"
+		. "        * net - shows net info\n"
+		. "            + usage - overall network usage in KBps(Kilobytes per Second)\n"
+		. "            + receive - receive in KBps(Kilobytes per Second)\n"
+		. "            + send - send in KBps(Kilobytes per Second)\n"
+		. "            ^ all net info(except usage and no thresholds)\n"
+		. "        * io - shows disk I/O info\n"
+		. "            + usage - overall disk usage in MB/s\n"
+		. "            + read - read latency in ms (totalReadLatency.average)\n"
+		. "            + write - write latency in ms (totalWriteLatency.average)\n"
+		. "            ^ all disk io info(no thresholds)\n"
+		. "        * runtime - shows runtime info\n"
+		. "            + con - connection state\n"
+		. "            + cpu - allocated CPU in MHz\n"
+		. "            + mem - allocated mem in MB\n"
+		. "            + state - virtual machine state (UP, DOWN, SUSPENDED)\n"
+		. "            + status - overall object status (gray/green/red/yellow)\n"
+		. "            + consoleconnections - console connections to VM\n"
+		. "            + guest - guest OS status, needs VMware Tools\n"
+		. "            + tools - VMWare Tools status\n"
+		. "            + issues - all issues for the host\n"
+		. "            ^ all runtime info(except con and no thresholds)\n"
+		. "    Host specific :\n"
+		. "        * cpu - shows cpu info\n"
+		. "            + usage - CPU usage in percentage\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "            + usagemhz - CPU usage in MHz\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "            ^ all cpu info\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "        * mem - shows mem info\n"
+		. "            + usage - mem usage in percentage\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "            + usagemb - mem usage in MB\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "            + swap - swap mem usage in MB\n"
+		. "                o listvm - turn on/off output list of swapping VM's\n"
+		. "            + overhead - additional mem used by VM Server in MB\n"
+		. "            + overall - overall mem used by VM Server in MB\n"
+		. "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
+		. "                o listvm - turn on/off output list of ballooning VM's\n"
+		. "            ^ all mem info(except overall and no thresholds)\n"
+		. "        * net - shows net info\n"
+		. "            + usage - overall network usage in KBps(Kilobytes per Second)\n"
+		. "            + receive - receive in KBps(Kilobytes per Second)\n"
+		. "            + send - send in KBps(Kilobytes per Second)\n"
+		. "            + nic - makes sure all active NICs are plugged in\n"
+		. "            ^ all net info(except usage and no thresholds)\n"
+		. "        * io - shows disk io info\n"
+		. "            + aborted - aborted commands count\n"
+		. "            + resets - bus resets count\n"
+		. "            + read - read latency in ms (totalReadLatency.average)\n"
+		. "            + write - write latency in ms (totalWriteLatency.average)\n"
+		. "            + kernel - kernel latency in ms\n"
+		. "            + device - device latency in ms\n"
+		. "            + queue - queue latency in ms\n"
+		. "            ^ all disk io info\n"
+		. "        * vmfs - shows Datastore info\n"
+		. "            + (name) - free space info for datastore with name (name)\n"
+		. "                o used - output used space instead of free\n"
+		. "                o breif - list only alerting volumes\n"
+		. "                o regexp - whether to treat name as regexp\n"
+		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
+		. "                b - blacklist VMFS's\n"
+		. "                T (value) - timeshift to detemine if we need to refresh\n"
+		. "            ^ all datastore info\n"
+		. "                o used - output used space instead of free\n"
+		. "                o breif - list only alerting volumes\n"
+		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
+		. "                b - blacklist VMFS's\n"
+		. "                T (value) - timeshift to detemine if we need to refresh\n"
+		. "        * runtime - shows runtime info\n"
+		. "            + con - connection state\n"
+		. "            + health - checks cpu/storage/memory/sensor status and propagates worst state\n"
+		. "                o listitems - list all available sensors(use for listing purpose only)\n"
+		. "                o blackregexpflag - whether to treat blacklist as regexp\n"
+		. "                b - blacklist status objects\n"
+		. "            + storagehealth - storage status check\n"
+		. "                o blackregexpflag - whether to treat blacklist as regexp\n"
+		. "                b - blacklist status objects\n"
+		. "            + temperature - temperature sensors\n"
+		. "                o blackregexpflag - whether to treat blacklist as regexp\n"
+		. "                b - blacklist status objects\n"
+		. "            + sensor - threshold specified sensor\n"
+		. "            + maintenance - shows whether host is in maintenance mode\n"
+		. "            + list(vm) - list of VMWare machines and their statuses\n"
+		. "            + status - overall object status (gray/green/red/yellow)\n"
+		. "            + issues - all issues for the host\n"
+		. "                b - blacklist issues\n"
+		. "            ^ all runtime info(health, storagehealth, temperature and sensor are represented as one value and no thresholds)\n"
+		. "        * service - shows Host service info\n"
+		. "            + (names) - check the state of one or several services specified by (names), syntax for (names):<service1>,<service2>,...,<serviceN>\n"
+		. "            ^ show all services\n"
+		. "        * storage - shows Host storage info\n"
+		. "            + adapter - list bus adapters\n"
+		. "                b - blacklist adapters\n"
+		. "            + lun - list SCSI logical units\n"
+		. "                b - blacklist LUN's\n"
+		. "            + path - list logical unit paths\n"
+		. "                b - blacklist paths\n"
+		. "            ^ show all storage info\n"
+		. "        * uptime - shows Host uptime\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "        * device - shows Host specific device info\n"
+		. "            + cd/dvd - list vm's with attached cd/dvd drives\n"
+		. "                o listall - list all available devices(use for listing purpose only)\n"
+		. "    DC specific :\n"
+		. "        * cpu - shows cpu info\n"
+		. "            + usage - CPU usage in percentage\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "            + usagemhz - CPU usage in MHz\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "            ^ all cpu info\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "        * mem - shows mem info\n"
+		. "            + usage - mem usage in percentage\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "            + usagemb - mem usage in MB\n"
+		. "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
+		. "            + swap - swap mem usage in MB\n"
+		. "            + overhead - additional mem used by VM Server in MB\n"
+		. "            + overall - overall mem used by VM Server in MB\n"
+		. "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
+		. "            ^ all mem info(except overall and no thresholds)\n"
+		. "        * net - shows net info\n"
+		. "            + usage - overall network usage in KBps(Kilobytes per Second)\n"
+		. "            + receive - receive in KBps(Kilobytes per Second)\n"
+		. "            + send - send in KBps(Kilobytes per Second)\n"
+		. "            ^ all net info(except usage and no thresholds)\n"
+		. "        * io - shows disk io info\n"
+		. "            + aborted - aborted commands count\n"
+		. "            + resets - bus resets count\n"
+		. "            + read - read latency in ms (totalReadLatency.average)\n"
+		. "            + write - write latency in ms (totalWriteLatency.average)\n"
+		. "            + kernel - kernel latency in ms\n"
+		. "            + device - device latency in ms\n"
+		. "            + queue - queue latency in ms\n"
+		. "            ^ all disk io info\n"
+		. "        * vmfs - shows Datastore info\n"
+		. "            + (name) - free space info for datastore with name (name)\n"
+		. "                o used - output used space instead of free\n"
+		. "                o breif - list only alerting volumes\n"
+		. "                o regexp - whether to treat name as regexp\n"
+		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
+		. "                b - blacklist VMFS's\n"
+		. "                T (value) - timeshift to detemine if we need to refresh\n"
+		. "            ^ all datastore info\n"
+		. "                o used - output used space instead of free\n"
+		. "                o breif - list only alerting volumes\n"
+		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
+		. "                b - blacklist VMFS's\n"
+		. "                T (value) - timeshift to detemine if we need to refresh\n"
+		. "        * runtime - shows runtime info\n"
+		. "            + list(vm) - list of VMWare machines and their statuses\n"
+		. "            + listhost - list of VMWare esx host servers and their statuses\n"
+		. "            + listcluster - list of VMWare clusters and their statuses\n"
+		. "            + tools - VMWare Tools status\n"
+		. "                b - blacklist VM's\n"
+		. "            + status - overall object status (gray/green/red/yellow)\n"
+		. "            + issues - all issues for the host\n"
+		. "                b - blacklist issues\n"
+		. "            ^ all runtime info(except cluster and tools and no thresholds)\n"
+		. "        * recommendations - shows recommendations for cluster\n"
+		. "            + (name) - recommendations for cluster with name (name)\n"
+		. "            ^ all clusters recommendations\n"
+		. "    Cluster specific :\n"
+		. "        * cpu - shows cpu info\n"
+		. "            + usage - CPU usage in percentage\n"
+		. "            + usagemhz - CPU usage in MHz\n"
+		. "            ^ all cpu info\n"
+		. "        * mem - shows mem info\n"
+		. "            + usage - mem usage in percentage\n"
+		. "            + usagemb - mem usage in MB\n"
+		. "            + swap - swap mem usage in MB\n"
+		. "                o listvm - turn on/off output list of swapping VM's\n"
+		. "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
+		. "                o listvm - turn on/off output list of ballooning VM's\n"
+		. "            ^ all mem info(plus overhead and no thresholds)\n"
+		. "        * cluster - shows cluster services info\n"
+		. "            + effectivecpu - total available cpu resources of all hosts within cluster\n"
+		. "            + effectivemem - total amount of machine memory of all hosts in the cluster\n"
+		. "            + failover - VMWare HA number of failures that can be tolerated\n"
+		. "            + cpufainess - fairness of distributed cpu resource allocation\n"
+		. "            + memfainess - fairness of distributed mem resource allocation\n"
+		. "            ^ only effectivecpu and effectivemem values for cluster services\n"
+		. "        * runtime - shows runtime info\n"
+		. "            + list(vm) - list of VMWare machines in cluster and their statuses\n"
+		. "            + listhost - list of VMWare esx host servers in cluster and their statuses\n"
+		. "            + status - overall cluster status (gray/green/red/yellow)\n"
+		. "            + issues - all issues for the cluster\n"
+		. "                b - blacklist issues\n"
+		. "            ^ all cluster runtime info\n"
+		. "        * vmfs - shows Datastore info\n"
+		. "            + (name) - free space info for datastore with name (name)\n"
+		. "                o used - output used space instead of free\n"
+		. "                o breif - list only alerting volumes\n"
+		. "                o regexp - whether to treat name as regexp\n"
+		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
+		. "                b - blacklist VMFS's\n"
+		. "                T (value) - timeshift to detemine if we need to refresh\n"
+		. "            ^ all datastore info\n"
+		. "                o used - output used space instead of free\n"
+		. "                o breif - list only alerting volumes\n"
+		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
+		. "                b - blacklist VMFS's\n"
+		. "                T (value) - timeshift to detemine if we need to refresh\n"
+		. "\n\nCopyright (c) 2008-2013 op5",
+		timeout => 30,
+	);
 
-my $np = Nagios::Plugin->new(
-  usage => "Usage: %s -D <data_center> | -H <host_name> [ -C <cluster_name> ] [ -N <vm_name> ]\n"
-    . "    -u <user> -p <pass> | -f <authfile>\n"
-    . "    -l <command> [ -s <subcommand> ] [ -T <timeshift> ] [ -i <interval> ]\n"
-    . "    [ -x <black_list> ] [ -o <additional_options> ]\n"
-    . "    [ -t <timeout> ] [ -w <warn_range> ] [ -c <crit_range> ]\n"
-    . '    [ -V ] [ -h ]',
-  version => $VERSION,
-  plugin  => $PROGNAME,
-  shortname => uc($PROGNAME),
-  blurb => 'VMware ESX/vSphere plugin',
-  extra   => "Supported commands(^ - blank or not specified parameter, o - options, T - timeshift value, b - blacklist) :\n"
-    . "    VM specific :\n"
-    . "        * cpu - shows cpu info\n"
-    . "            + usage - CPU usage in percentage\n"
-    . "            + usagemhz - CPU usage in MHz\n"
-    . "            + wait - CPU wait time in ms\n"
-    . "            + ready - CPU ready time in ms\n"
-    . "            ^ all cpu info(no thresholds)\n"
-    . "        * mem - shows mem info\n"
-    . "            + usage - mem usage in percentage\n"
-    . "            + usagemb - mem usage in MB\n"
-    . "            + swap - swap mem usage in MB\n"
-    . "            + swapin - swapin mem usage in MB\n"
-    . "            + swapout - swapout mem usage in MB\n"
-    . "            + overhead - additional mem used by VM Server in MB\n"
-    . "            + overall - overall mem used by VM Server in MB\n"
-    . "            + active - active mem usage in MB\n"
-    . "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
-    . "            ^ all mem info(except overall and no thresholds)\n"
-    . "        * net - shows net info\n"
-    . "            + usage - overall network usage in KBps(Kilobytes per Second)\n"
-    . "            + receive - receive in KBps(Kilobytes per Second)\n"
-    . "            + send - send in KBps(Kilobytes per Second)\n"
-    . "            ^ all net info(except usage and no thresholds)\n"
-    . "        * io - shows disk I/O info\n"
-    . "            + usage - overall disk usage in MB/s\n"
-    . "            + read - read latency in ms (totalReadLatency.average)\n"
-    . "            + write - write latency in ms (totalWriteLatency.average)\n"
-    . "            ^ all disk io info(no thresholds)\n"
-    . "        * runtime - shows runtime info\n"
-    . "            + con - connection state\n"
-    . "            + cpu - allocated CPU in MHz\n"
-    . "            + mem - allocated mem in MB\n"
-    . "            + state - virtual machine state (UP, DOWN, SUSPENDED)\n"
-    . "            + status - overall object status (gray/green/red/yellow)\n"
-    . "            + consoleconnections - console connections to VM\n"
-    . "            + guest - guest OS status, needs VMware Tools\n"
-    . "            + tools - VMWare Tools status\n"
-    . "            + issues - all issues for the host\n"
-    . "            ^ all runtime info(except con and no thresholds)\n"
-    . "    Host specific :\n"
-    . "        * cpu - shows cpu info\n"
-    . "            + usage - CPU usage in percentage\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "            + usagemhz - CPU usage in MHz\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "            ^ all cpu info\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "        * mem - shows mem info\n"
-    . "            + usage - mem usage in percentage\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "            + usagemb - mem usage in MB\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "            + swap - swap mem usage in MB\n"
-    . "                o listvm - turn on/off output list of swapping VM's\n"
-    . "            + overhead - additional mem used by VM Server in MB\n"
-    . "            + overall - overall mem used by VM Server in MB\n"
-    . "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
-    . "                o listvm - turn on/off output list of ballooning VM's\n"
-    . "            ^ all mem info(except overall and no thresholds)\n"
-    . "        * net - shows net info\n"
-    . "            + usage - overall network usage in KBps(Kilobytes per Second)\n"
-    . "            + receive - receive in KBps(Kilobytes per Second)\n"
-    . "            + send - send in KBps(Kilobytes per Second)\n"
-    . "            + nic - makes sure all active NICs are plugged in\n"
-    . "            ^ all net info(except usage and no thresholds)\n"
-    . "        * io - shows disk io info\n"
-    . "            + aborted - aborted commands count\n"
-    . "            + resets - bus resets count\n"
-    . "            + read - read latency in ms (totalReadLatency.average)\n"
-    . "            + write - write latency in ms (totalWriteLatency.average)\n"
-    . "            + kernel - kernel latency in ms\n"
-    . "            + device - device latency in ms\n"
-    . "            + queue - queue latency in ms\n"
-    . "            ^ all disk io info\n"
-    . "        * vmfs - shows Datastore info\n"
-    . "            + (name) - free space info for datastore with name (name)\n"
-    . "                o used - output used space instead of free\n"
-    . "                o breif - list only alerting volumes\n"
-    . "                o regexp - whether to treat name as regexp\n"
-    . "                o blacklistregexp - whether to treat blacklist as regexp\n"
-    . "                b - blacklist VMFS's\n"
-    . "                T (value) - timeshift to detemine if we need to refresh\n"
-    . "            ^ all datastore info\n"
-    . "                o used - output used space instead of free\n"
-    . "                o breif - list only alerting volumes\n"
-    . "                o blacklistregexp - whether to treat blacklist as regexp\n"
-    . "                b - blacklist VMFS's\n"
-    . "                T (value) - timeshift to detemine if we need to refresh\n"
-    . "        * runtime - shows runtime info\n"
-    . "            + con - connection state\n"
-    . "            + health - checks cpu/storage/memory/sensor status and propagates worst state\n"
-    . "                o listitems - list all available sensors(use for listing purpose only)\n"
-    . "                o blackregexpflag - whether to treat blacklist as regexp\n"
-    . "                b - blacklist status objects\n"
-    . "            + storagehealth - storage status check\n"
-    . "                o blackregexpflag - whether to treat blacklist as regexp\n"
-    . "                b - blacklist status objects\n"
-    . "            + temperature - temperature sensors\n"
-    . "                o blackregexpflag - whether to treat blacklist as regexp\n"
-    . "                b - blacklist status objects\n"
-    . "            + sensor - threshold specified sensor\n"
-    . "            + maintenance - shows whether host is in maintenance mode\n"
-    . "            + list(vm) - list of VMWare machines and their statuses\n"
-    . "            + status - overall object status (gray/green/red/yellow)\n"
-    . "            + issues - all issues for the host\n"
-    . "                b - blacklist issues\n"
-    . "            ^ all runtime info(health, storagehealth, temperature and sensor are represented as one value and no thresholds)\n"
-    . "        * service - shows Host service info\n"
-    . "            + (names) - check the state of one or several services specified by (names), syntax for (names):<service1>,<service2>,...,<serviceN>\n"
-    . "            ^ show all services\n"
-    . "        * storage - shows Host storage info\n"
-    . "            + adapter - list bus adapters\n"
-    . "                b - blacklist adapters\n"
-    . "            + lun - list SCSI logical units\n"
-    . "                b - blacklist LUN's\n"
-    . "            + path - list logical unit paths\n"
-    . "                b - blacklist paths\n"
-    . "            ^ show all storage info\n"
-    . "        * uptime - shows Host uptime\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "        * device - shows Host specific device info\n"
-    . "            + cd/dvd - list vm's with attached cd/dvd drives\n"
-    . "                o listall - list all available devices(use for listing purpose only)\n"
-    . "    DC specific :\n"
-    . "        * cpu - shows cpu info\n"
-    . "            + usage - CPU usage in percentage\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "            + usagemhz - CPU usage in MHz\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "            ^ all cpu info\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "        * mem - shows mem info\n"
-    . "            + usage - mem usage in percentage\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "            + usagemb - mem usage in MB\n"
-    . "                o quickstats - switch for query either PerfCounter values or Runtime info\n"
-    . "            + swap - swap mem usage in MB\n"
-    . "            + overhead - additional mem used by VM Server in MB\n"
-    . "            + overall - overall mem used by VM Server in MB\n"
-    . "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
-    . "            ^ all mem info(except overall and no thresholds)\n"
-    . "        * net - shows net info\n"
-    . "            + usage - overall network usage in KBps(Kilobytes per Second)\n"
-    . "            + receive - receive in KBps(Kilobytes per Second)\n"
-    . "            + send - send in KBps(Kilobytes per Second)\n"
-    . "            ^ all net info(except usage and no thresholds)\n"
-    . "        * io - shows disk io info\n"
-    . "            + aborted - aborted commands count\n"
-    . "            + resets - bus resets count\n"
-    . "            + read - read latency in ms (totalReadLatency.average)\n"
-    . "            + write - write latency in ms (totalWriteLatency.average)\n"
-    . "            + kernel - kernel latency in ms\n"
-    . "            + device - device latency in ms\n"
-    . "            + queue - queue latency in ms\n"
-    . "            ^ all disk io info\n"
-    . "        * vmfs - shows Datastore info\n"
-    . "            + (name) - free space info for datastore with name (name)\n"
-    . "                o used - output used space instead of free\n"
-    . "                o breif - list only alerting volumes\n"
-    . "                o regexp - whether to treat name as regexp\n"
-    . "                o blacklistregexp - whether to treat blacklist as regexp\n"
-    . "                b - blacklist VMFS's\n"
-    . "                T (value) - timeshift to detemine if we need to refresh\n"
-    . "            ^ all datastore info\n"
-    . "                o used - output used space instead of free\n"
-    . "                o breif - list only alerting volumes\n"
-    . "                o blacklistregexp - whether to treat blacklist as regexp\n"
-    . "                b - blacklist VMFS's\n"
-    . "                T (value) - timeshift to detemine if we need to refresh\n"
-    . "        * runtime - shows runtime info\n"
-    . "            + list(vm) - list of VMWare machines and their statuses\n"
-    . "            + listhost - list of VMWare esx host servers and their statuses\n"
-    . "            + listcluster - list of VMWare clusters and their statuses\n"
-    . "            + tools - VMWare Tools status\n"
-    . "                b - blacklist VM's\n"
-    . "            + status - overall object status (gray/green/red/yellow)\n"
-    . "            + issues - all issues for the host\n"
-    . "                b - blacklist issues\n"
-    . "            ^ all runtime info(except cluster and tools and no thresholds)\n"
-    . "        * recommendations - shows recommendations for cluster\n"
-    . "            + (name) - recommendations for cluster with name (name)\n"
-    . "            ^ all clusters recommendations\n"
-    . "    Cluster specific :\n"
-    . "        * cpu - shows cpu info\n"
-    . "            + usage - CPU usage in percentage\n"
-    . "            + usagemhz - CPU usage in MHz\n"
-    . "            ^ all cpu info\n"
-    . "        * mem - shows mem info\n"
-    . "            + usage - mem usage in percentage\n"
-    . "            + usagemb - mem usage in MB\n"
-    . "            + swap - swap mem usage in MB\n"
-    . "                o listvm - turn on/off output list of swapping VM's\n"
-    . "            + memctl - mem used by VM memory control driver(vmmemctl) that controls ballooning\n"
-    . "                o listvm - turn on/off output list of ballooning VM's\n"
-    . "            ^ all mem info(plus overhead and no thresholds)\n"
-    . "        * cluster - shows cluster services info\n"
-    . "            + effectivecpu - total available cpu resources of all hosts within cluster\n"
-    . "            + effectivemem - total amount of machine memory of all hosts in the cluster\n"
-    . "            + failover - VMWare HA number of failures that can be tolerated\n"
-    . "            + cpufainess - fairness of distributed cpu resource allocation\n"
-    . "            + memfainess - fairness of distributed mem resource allocation\n"
-    . "            ^ only effectivecpu and effectivemem values for cluster services\n"
-    . "        * runtime - shows runtime info\n"
-    . "            + list(vm) - list of VMWare machines in cluster and their statuses\n"
-    . "            + listhost - list of VMWare esx host servers in cluster and their statuses\n"
-    . "            + status - overall cluster status (gray/green/red/yellow)\n"
-    . "            + issues - all issues for the cluster\n"
-    . "                b - blacklist issues\n"
-    . "            ^ all cluster runtime info\n"
-    . "        * vmfs - shows Datastore info\n"
-    . "            + (name) - free space info for datastore with name (name)\n"
-    . "                o used - output used space instead of free\n"
-    . "                o breif - list only alerting volumes\n"
-    . "                o regexp - whether to treat name as regexp\n"
-    . "                o blacklistregexp - whether to treat blacklist as regexp\n"
-    . "                b - blacklist VMFS's\n"
-    . "                T (value) - timeshift to detemine if we need to refresh\n"
-    . "            ^ all datastore info\n"
-    . "                o used - output used space instead of free\n"
-    . "                o breif - list only alerting volumes\n"
-    . "                o blacklistregexp - whether to treat blacklist as regexp\n"
-    . "                b - blacklist VMFS's\n"
-    . "                T (value) - timeshift to detemine if we need to refresh\n"
-    . "\n\nCopyright (c) 2008-2013 op5",
-  timeout => 30,
-);
+	$np->add_arg(
+		spec => 'host|H=s',
+		help => "-H, --host=<hostname>\n"
+		. '   ESX or ESXi hostname.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'host|H=s',
-  help => "-H, --host=<hostname>\n"
-    . '   ESX or ESXi hostname.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'cluster|C=s',
+		help => "-C, --cluster=<clustername>\n"
+		. '   ESX or ESXi clustername.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'cluster|C=s',
-  help => "-C, --cluster=<clustername>\n"
-    . '   ESX or ESXi clustername.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'datacenter|D=s',
+		help => "-D, --datacenter=<DCname>\n"
+		. '   Datacenter hostname.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'datacenter|D=s',
-  help => "-D, --datacenter=<DCname>\n"
-    . '   Datacenter hostname.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'name|N=s',
+		help => "-N, --name=<vmname>\n"
+		. '   Virtual machine name.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'name|N=s',
-  help => "-N, --name=<vmname>\n"
-    . '   Virtual machine name.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'username|u=s',
+		help => "-u, --username=<username>\n"
+		. '   Username to connect with.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'username|u=s',
-  help => "-u, --username=<username>\n"
-    . '   Username to connect with.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'password|p=s',
+		help => "-p, --password=<password>\n"
+		. '   Password to use with the username.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'password|p=s',
-  help => "-p, --password=<password>\n"
-    . '   Password to use with the username.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'authfile|f=s',
+		help => "-f, --authfile=<path>\n"
+		. "   Authentication file with login and password. File syntax :\n"
+		. "   username=<login>\n"
+		. '   password=<password>',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'authfile|f=s',
-  help => "-f, --authfile=<path>\n"
-    . "   Authentication file with login and password. File syntax :\n"
-    . "   username=<login>\n"
-    . '   password=<password>',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'warning|w=s',
+		help => "-w, --warning=THRESHOLD\n"
+		. "   Warning threshold. See\n"
+		. "   http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT\n"
+		. '   for the threshold format. By default, no threshold is set.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'warning|w=s',
-  help => "-w, --warning=THRESHOLD\n"
-    . "   Warning threshold. See\n"
-    . "   http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT\n"
-    . '   for the threshold format. By default, no threshold is set.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'critical|c=s',
+		help => "-c, --critical=THRESHOLD\n"
+		. "   Critical threshold. See\n"
+		. "   http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT\n"
+		. '   for the threshold format. By default, no threshold is set.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'critical|c=s',
-  help => "-c, --critical=THRESHOLD\n"
-    . "   Critical threshold. See\n"
-    . "   http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT\n"
-    . '   for the threshold format. By default, no threshold is set.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'command|l=s',
+		help => "-l, --command=COMMAND\n"
+		. '   Specify command type (CPU, MEM, NET, IO, VMFS, RUNTIME, ...)',
+		required => 1,
+	);
 
-$np->add_arg(
-  spec => 'command|l=s',
-  help => "-l, --command=COMMAND\n"
-    . '   Specify command type (CPU, MEM, NET, IO, VMFS, RUNTIME, ...)',
-  required => 1,
-);
+	$np->add_arg(
+		spec => 'subcommand|s=s',
+		help => "-s, --subcommand=SUBCOMMAND\n"
+		. '   Specify subcommand',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'subcommand|s=s',
-  help => "-s, --subcommand=SUBCOMMAND\n"
-    . '   Specify subcommand',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'sessionfile|S=s',
+		help => "-S, --sessionfile=SESSIONFILE\n"
+		. '   Specify a filename to store sessions for faster authentication',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'sessionfile|S=s',
-  help => "-S, --sessionfile=SESSIONFILE\n"
-    . '   Specify a filename to store sessions for faster authentication',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'exclude|x=s',
+		help => "-x, --exclude=<black_list>\n"
+		. '   Specify black list',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'exclude|x=s',
-  help => "-x, --exclude=<black_list>\n"
-    . '   Specify black list',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'options|o=s',
+		help => "-o, --options=<additional_options> \n"
+		. '   Specify additional command options (quickstats, ...)',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'options|o=s',
-  help => "-o, --options=<additional_options> \n"
-    . '   Specify additional command options (quickstats, ...)',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'timestamp|T=i',
+		help => "-T, --timestamp=<timeshift> \n"
+		. '   Timeshift in seconds that could fix issues with "Unknown error". Use values like 5, 10, 20, etc',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'timestamp|T=i',
-  help => "-T, --timestamp=<timeshift> \n"
-    . '   Timeshift in seconds that could fix issues with "Unknown error". Use values like 5, 10, 20, etc',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'interval|i=s',
+		help => "-i, --interval=<sampling period> \n"
+		. "   Sampling Period in seconds. Basic historic intervals: 300, 1800, 7200 or 86400. See config for any changes.\n"
+		. "   Supports literval values to autonegotiate interval value: r - realtime interval, h<number> - historical interval specified by position.\n"
+		. '   Default value is 20 (realtime). Since cluster does not have realtime stats interval other than 20(default realtime) is mandatory.',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'interval|i=s',
-  help => "-i, --interval=<sampling period> \n"
-	. "   Sampling Period in seconds. Basic historic intervals: 300, 1800, 7200 or 86400. See config for any changes.\n"
-    . "   Supports literval values to autonegotiate interval value: r - realtime interval, h<number> - historical interval specified by position.\n"
-    . '   Default value is 20 (realtime). Since cluster does not have realtime stats interval other than 20(default realtime) is mandatory.',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'maxsamples|M=s',
+		help => "-M, --maxsamples=<max sample count> \n"
+		. "   Maximum number of samples to retrieve. Max sample number is ignored for historic intervals.\n"
+		. '   Default value is 1 (latest available sample). ',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'maxsamples|M=s',
-  help => "-M, --maxsamples=<max sample count> \n"
-	. "   Maximum number of samples to retrieve. Max sample number is ignored for historic intervals.\n"
-    . '   Default value is 1 (latest available sample). ',
-  required => 0,
-);
+	$np->add_arg(
+		spec => 'trace=s',
+		help => "--trace=<level> \n"
+		. '   Set verbosity level of vSphere API request/respond trace',
+		required => 0,
+	);
 
-$np->add_arg(
-  spec => 'trace=s',
-  help => "--trace=<level> \n"
-    . '   Set verbosity level of vSphere API request/respond trace',
-  required => 0,
-);
+	$np->getopts;
 
-$np->getopts;
+	my $host = $np->opts->host;
+	my $cluster = $np->opts->cluster;
+	my $datacenter = $np->opts->datacenter;
+	my $vmname = $np->opts->name;
+	my $username = $np->opts->username;
+	my $password = $np->opts->password;
+	my $authfile = $np->opts->authfile;
+	my $warning = $np->opts->warning;
+	my $critical = $np->opts->critical;
+	my $command = $np->opts->command;
+	my $subcommand = $np->opts->subcommand;
+	my $sessionfile = $np->opts->sessionfile;
+	my $blacklist = $np->opts->exclude;
+	my $addopts = $np->opts->options;
+	my $trace = $np->opts->trace;
+	my $timeshift = $np->opts->timestamp;
+	my $interval = $np->opts->interval;
+	my $maxsamples = $np->opts->maxsamples;
+	my $timeout = $np->opts->timeout;
+	my $percw;
+	my $percc;
 
-my $host = $np->opts->host;
-my $cluster = $np->opts->cluster;
-my $datacenter = $np->opts->datacenter;
-my $vmname = $np->opts->name;
-my $username = $np->opts->username;
-my $password = $np->opts->password;
-my $authfile = $np->opts->authfile;
-my $warning = $np->opts->warning;
-my $critical = $np->opts->critical;
-my $command = $np->opts->command;
-my $subcommand = $np->opts->subcommand;
-my $sessionfile = $np->opts->sessionfile;
-my $blacklist = $np->opts->exclude;
-my $addopts = $np->opts->options;
-my $trace = $np->opts->trace;
-my $timeshift = $np->opts->timestamp;
-my $interval = $np->opts->interval;
-my $maxsamples = $np->opts->maxsamples;
-my $timeout = $np->opts->timeout;
-my $percw;
-my $percc;
+	alarm($timeout) if $timeout;
 
-alarm($timeout) if $timeout;
+	$output = "Unknown ERROR!";
+	$result = CRITICAL;
 
-$output = "Unknown ERROR!";
-$result = CRITICAL;
-
-if (defined($subcommand))
-{
-	$subcommand = undef if ($subcommand eq '');
-}
-
-if (defined($critical))
-{
-	($percc, $critical) = check_percantage($critical);
-	$critical = undef if ($critical eq '');
-}
-
-if (defined($warning))
-{
-	($percw, $warning) = check_percantage($warning);
-	$warning = undef if ($warning eq '');
-}
-
-$np->set_thresholds(critical => $critical, warning => $warning);
-
-$defperfargs = {};
-$defperfargs->{timeshift} = $timeshift if (defined($timeshift));
-$defperfargs->{interval} = $interval if (defined($interval));
-$defperfargs->{maxsamples} = $maxsamples if (defined($maxsamples));
-
-eval
-{
-	die "Provide either Password/Username or Auth file or Session file\n" if ((!defined($password) || !defined($username) || defined($authfile)) && (defined($password) || defined($username) || !defined($authfile)) && (defined($password) || defined($username) || defined($authfile) || !defined($sessionfile)));
-	die "Both threshold values must be the same units\n" if (($percw && !$percc && defined($critical)) || (!$percw && $percc && defined($warning)));
-	if (defined($authfile))
+	if (defined($subcommand))
 	{
-		open (AUTH_FILE, $authfile) || die "Unable to open auth file \"$authfile\"\n";
-		while( <AUTH_FILE> ) {
-			if(s/^[ \t]*username[ \t]*=//){
-				s/^\s+//;s/\s+$//;
-				$username = $_;
+		$subcommand = undef if ($subcommand eq '');
+	}
+
+	if (defined($critical))
+	{
+		($percc, $critical) = check_percantage($critical);
+		$critical = undef if ($critical eq '');
+	}
+
+	if (defined($warning))
+	{
+		($percw, $warning) = check_percantage($warning);
+		$warning = undef if ($warning eq '');
+	}
+
+	$np->set_thresholds(critical => $critical, warning => $warning);
+
+	$defperfargs = {};
+	$defperfargs->{timeshift} = $timeshift if (defined($timeshift));
+	$defperfargs->{interval} = $interval if (defined($interval));
+	$defperfargs->{maxsamples} = $maxsamples if (defined($maxsamples));
+
+	eval
+	{
+		die "Provide either Password/Username or Auth file or Session file\n" if ((!defined($password) || !defined($username) || defined($authfile)) && (defined($password) || defined($username) || !defined($authfile)) && (defined($password) || defined($username) || defined($authfile) || !defined($sessionfile)));
+		die "Both threshold values must be the same units\n" if (($percw && !$percc && defined($critical)) || (!$percw && $percc && defined($warning)));
+		if (defined($authfile))
+		{
+			open (AUTH_FILE, $authfile) || die "Unable to open auth file \"$authfile\"\n";
+			while( <AUTH_FILE> ) {
+				if(s/^[ \t]*username[ \t]*=//){
+					s/^\s+//;s/\s+$//;
+					$username = $_;
+				}
+				if(s/^[ \t]*password[ \t]*=//){
+					s/^\s+//;s/\s+$//;
+					$password = $_;
+				}
 			}
-			if(s/^[ \t]*password[ \t]*=//){
-				s/^\s+//;s/\s+$//;
-				$password = $_;
+			die "Auth file must contain both username and password\n" if (!(defined($username) && defined($password)));
+		}
+
+		my $host_address;
+
+		if (defined($datacenter))
+		{
+			$host_address = $datacenter;
+		}
+		elsif (defined($host))
+		{
+			$host_address = $host;
+		}
+		else
+		{
+			$np->nagios_exit(CRITICAL, "No Host or Datacenter specified");
+		}
+
+		$host_address .= ":443" if (index($host_address, ":") == -1);
+		$host_address = "https://" . $host_address . "/sdk/webService";
+
+		if (defined($sessionfile) and -e $sessionfile)
+		{
+			Opts::set_option("sessionfile", $sessionfile);
+			eval {
+				Util::connect($host_address, $username, $password);
+				die "Connected host doesn't match reqested once\n" if (Opts::get_option("url") ne $host_address);
+			};
+			if ($@) {
+				Opts::set_option("sessionfile", undef);
+				Util::connect($host_address, $username, $password);
 			}
 		}
-		die "Auth file must contain both username and password\n" if (!(defined($username) && defined($password)));
-	}
-
-	my $host_address;
-
-	if (defined($datacenter))
-	{
-		$host_address = $datacenter;
-	}
-	elsif (defined($host))
-	{
-		$host_address = $host;
-	}
-	else
-	{
-		$np->nagios_exit(CRITICAL, "No Host or Datacenter specified");
-	}
-
-	$host_address .= ":443" if (index($host_address, ":") == -1);
-	$host_address = "https://" . $host_address . "/sdk/webService";
-
-	if (defined($sessionfile) and -e $sessionfile)
-	{
-		Opts::set_option("sessionfile", $sessionfile);
-		eval {
-			Util::connect($host_address, $username, $password);
-			die "Connected host doesn't match reqested once\n" if (Opts::get_option("url") ne $host_address);
-		};
-		if ($@) {
-			Opts::set_option("sessionfile", undef);
+		else
+		{
 			Util::connect($host_address, $username, $password);
 		}
-	}
-	else
+
+		if (defined($sessionfile))
+		{
+			Vim::save_session(session_file => $sessionfile);
+		}
+
+		if (defined($trace))
+		{
+			$Util::tracelevel = $Util::tracelevel;
+			$Util::tracelevel = $trace if (($trace =~ m/^\d$/) && ($trace >= 0) && ($trace <= 4));
+		}
+
+		$command = uc($command);
+		if (defined($vmname))
+		{
+			if ($command eq "CPU")
+			{
+				($result, $output) = vm_cpu_info($vmname, $np, local_uc($subcommand));
+			}
+			elsif ($command eq "MEM")
+			{
+				($result, $output) = vm_mem_info($vmname, $np, local_uc($subcommand));
+			}
+			elsif ($command eq "NET")
+			{
+				($result, $output) = vm_net_info($vmname, $np, local_uc($subcommand));
+			}
+			elsif ($command eq "IO")
+			{
+				($result, $output) = vm_disk_io_info($vmname, $np, local_uc($subcommand));
+			}
+			elsif ($command eq "RUNTIME")
+			{
+				($result, $output) = vm_runtime_info($vmname, $np, local_uc($subcommand));
+			}
+			else
+			{
+				$output = "Unknown HOST-VM command\n" . $np->opts->_help;
+				$result = CRITICAL;
+			}
+		}
+		elsif (defined($host))
+		{
+			my $esx;
+			$esx = {name => $host} if (defined($datacenter));
+			if ($command eq "CPU")
+			{
+				($result, $output) = host_cpu_info($esx, $np, local_uc($subcommand), $addopts);
+			}
+			elsif ($command eq "MEM")
+			{
+				($result, $output) = host_mem_info($esx, $np, local_uc($subcommand), $addopts);
+			}
+			elsif ($command eq "NET")
+			{
+				($result, $output) = host_net_info($esx, $np, local_uc($subcommand));
+			}
+			elsif ($command eq "IO")
+			{
+				($result, $output) = host_disk_io_info($esx, $np, local_uc($subcommand));
+			}
+			elsif ($command eq "VMFS")
+			{
+				($result, $output) = host_list_vm_volumes_info($esx, $np, $subcommand, $blacklist, $percc || $percw, $addopts);
+			}
+			elsif ($command eq "RUNTIME")
+			{
+				($result, $output) = host_runtime_info($esx, $np, local_uc($subcommand), $blacklist, $addopts);
+			}
+			elsif ($command eq "SERVICE")
+			{
+				($result, $output) = host_service_info($esx, $np, $subcommand);
+			}
+			elsif ($command eq "STORAGE")
+			{
+				($result, $output) = host_storage_info($esx, $np, local_uc($subcommand), $blacklist);
+			}
+			elsif ($command eq "UPTIME")
+			{
+				($result, $output) = host_uptime_info($esx, $np, $addopts);
+			}
+			elsif ($command eq "DEVICE")
+			{
+				($result, $output) = host_device_info($esx, $np, $subcommand, $addopts);
+			}
+			else
+			{
+				$output = "Unknown HOST command\n" . $np->opts->_help;
+				$result = CRITICAL;
+			}
+		}
+		elsif (defined($cluster))
+		{
+			if ($command eq "CPU")
+			{
+				($result, $output) = cluster_cpu_info($cluster, $np, local_uc($subcommand));
+			}
+			elsif ($command eq "MEM")
+			{
+				($result, $output) = cluster_mem_info($cluster, $np, local_uc($subcommand), $addopts);
+			}
+			elsif ($command eq "CLUSTER")
+			{
+				($result, $output) = cluster_cluster_info($cluster, $np, local_uc($subcommand));
+			}
+			elsif ($command eq "VMFS")
+			{
+				($result, $output) = cluster_list_vm_volumes_info($cluster, $np, $subcommand, $blacklist, $percc || $percw, $addopts);
+			}
+			elsif ($command eq "RUNTIME")
+			{
+				($result, $output) = cluster_runtime_info($cluster, $np, local_uc($subcommand), $blacklist);
+			}
+			else
+			{
+				$output = "Unknown CLUSTER command\n" . $np->opts->_help;
+				$result = CRITICAL;
+			}
+		}
+		else
+		{
+			if ($command eq "RECOMMENDATIONS")
+			{
+				my $cluster_name;
+				$cluster_name = {name => $subcommand} if (defined($subcommand));
+				($result, $output) = return_cluster_DRS_recommendations($np, $cluster_name);
+			}
+			elsif ($command eq "CPU")
+			{
+				($result, $output) = dc_cpu_info($np, local_uc($subcommand), $addopts);
+			}
+			elsif ($command eq "MEM")
+			{
+				($result, $output) = dc_mem_info($np, local_uc($subcommand), $addopts);
+			}
+			elsif ($command eq "NET")
+			{
+				($result, $output) = dc_net_info($np, local_uc($subcommand));
+			}
+			elsif ($command eq "IO")
+			{
+				($result, $output) = dc_disk_io_info($np, local_uc($subcommand));
+			}
+			elsif ($command eq "VMFS")
+			{
+				($result, $output) = dc_list_vm_volumes_info($np, $subcommand, $blacklist, $percc || $percw, $addopts);
+			}
+			elsif ($command eq "RUNTIME")
+			{
+				($result, $output) = dc_runtime_info($np, local_uc($subcommand), $blacklist);
+			}
+			else
+			{
+				$output = "Unknown HOST command\n" . $np->opts->_help;
+				$result = CRITICAL;
+			}
+		}
+	};
+	if ($@)
 	{
-		Util::connect($host_address, $username, $password);
+		if (uc(ref($@)) eq "HASH")
+		{
+			$output = $@->{msg};
+			$result = $@->{code};
+		}
+		else
+		{
+			$output = $@ . "";
+			$result = CRITICAL;
+		}
 	}
 
-	if (defined($sessionfile))
-	{
-		Vim::save_session(session_file => $sessionfile);
-	}
-
-	if (defined($trace))
-	{
-		$Util::tracelevel = $Util::tracelevel;
-		$Util::tracelevel = $trace if (($trace =~ m/^\d$/) && ($trace >= 0) && ($trace <= 4));
-	}
-
-	$command = uc($command);
-	if (defined($vmname))
-	{
-		if ($command eq "CPU")
-		{
-			($result, $output) = vm_cpu_info($vmname, $np, local_uc($subcommand));
-		}
-		elsif ($command eq "MEM")
-		{
-			($result, $output) = vm_mem_info($vmname, $np, local_uc($subcommand));
-		}
-		elsif ($command eq "NET")
-		{
-			($result, $output) = vm_net_info($vmname, $np, local_uc($subcommand));
-		}
-		elsif ($command eq "IO")
-		{
-			($result, $output) = vm_disk_io_info($vmname, $np, local_uc($subcommand));
-		}
-		elsif ($command eq "RUNTIME")
-		{
-			($result, $output) = vm_runtime_info($vmname, $np, local_uc($subcommand));
-		}
-		else
-		{
-			$output = "Unknown HOST-VM command\n" . $np->opts->_help;
-			$result = CRITICAL;
-		}
-	}
-	elsif (defined($host))
-	{
-		my $esx;
-		$esx = {name => $host} if (defined($datacenter));
-		if ($command eq "CPU")
-		{
-			($result, $output) = host_cpu_info($esx, $np, local_uc($subcommand), $addopts);
-		}
-		elsif ($command eq "MEM")
-		{
-			($result, $output) = host_mem_info($esx, $np, local_uc($subcommand), $addopts);
-		}
-		elsif ($command eq "NET")
-		{
-			($result, $output) = host_net_info($esx, $np, local_uc($subcommand));
-		}
-		elsif ($command eq "IO")
-		{
-			($result, $output) = host_disk_io_info($esx, $np, local_uc($subcommand));
-		}
-		elsif ($command eq "VMFS")
-		{
-			($result, $output) = host_list_vm_volumes_info($esx, $np, $subcommand, $blacklist, $percc || $percw, $addopts);
-		}
-		elsif ($command eq "RUNTIME")
-		{
-			($result, $output) = host_runtime_info($esx, $np, local_uc($subcommand), $blacklist, $addopts);
-		}
-		elsif ($command eq "SERVICE")
-		{
-			($result, $output) = host_service_info($esx, $np, $subcommand);
-		}
-		elsif ($command eq "STORAGE")
-		{
-			($result, $output) = host_storage_info($esx, $np, local_uc($subcommand), $blacklist);
-		}
-		elsif ($command eq "UPTIME")
-		{
-			($result, $output) = host_uptime_info($esx, $np, $addopts);
-		}
-		elsif ($command eq "DEVICE")
-		{
-			($result, $output) = host_device_info($esx, $np, $subcommand, $addopts);
-		}
-		else
-		{
-			$output = "Unknown HOST command\n" . $np->opts->_help;
-			$result = CRITICAL;
-		}
-	}
-	elsif (defined($cluster))
-	{
-		if ($command eq "CPU")
-		{
-			($result, $output) = cluster_cpu_info($cluster, $np, local_uc($subcommand));
-		}
-		elsif ($command eq "MEM")
-		{
-			($result, $output) = cluster_mem_info($cluster, $np, local_uc($subcommand), $addopts);
-		}
-		elsif ($command eq "CLUSTER")
-		{
-			($result, $output) = cluster_cluster_info($cluster, $np, local_uc($subcommand));
-		}
-		elsif ($command eq "VMFS")
-		{
-			($result, $output) = cluster_list_vm_volumes_info($cluster, $np, $subcommand, $blacklist, $percc || $percw, $addopts);
-		}
-		elsif ($command eq "RUNTIME")
-		{
-			($result, $output) = cluster_runtime_info($cluster, $np, local_uc($subcommand), $blacklist);
-		}
-		else
-		{
-			$output = "Unknown CLUSTER command\n" . $np->opts->_help;
-			$result = CRITICAL;
-		}
-	}
-	else
-	{
-		if ($command eq "RECOMMENDATIONS")
-		{
-			my $cluster_name;
-			$cluster_name = {name => $subcommand} if (defined($subcommand));
-			($result, $output) = return_cluster_DRS_recommendations($np, $cluster_name);
-		}
-		elsif ($command eq "CPU")
-		{
-			($result, $output) = dc_cpu_info($np, local_uc($subcommand), $addopts);
-		}
-		elsif ($command eq "MEM")
-		{
-			($result, $output) = dc_mem_info($np, local_uc($subcommand), $addopts);
-		}
-		elsif ($command eq "NET")
-		{
-			($result, $output) = dc_net_info($np, local_uc($subcommand));
-		}
-		elsif ($command eq "IO")
-		{
-			($result, $output) = dc_disk_io_info($np, local_uc($subcommand));
-		}
-		elsif ($command eq "VMFS")
-		{
-			($result, $output) = dc_list_vm_volumes_info($np, $subcommand, $blacklist, $percc || $percw, $addopts);
-		}
-		elsif ($command eq "RUNTIME")
-		{
-			($result, $output) = dc_runtime_info($np, local_uc($subcommand), $blacklist);
-		}
-		else
-		{
-			$output = "Unknown HOST command\n" . $np->opts->_help;
-			$result = CRITICAL;
-		}
-	}
-};
-if ($@)
-{
-	if (uc(ref($@)) eq "HASH")
-	{
-		$output = $@->{msg};
-		$result = $@->{code};
-	}
-	else
-	{
-		$output = $@ . "";
-		$result = CRITICAL;
-	}
+	Util::disconnect();
+	$np->nagios_exit($result, $output);
 }
-
-Util::disconnect();
-$np->nagios_exit($result, $output);
-
+main unless defined caller;
 #######################################################################################################################################################################
 
 sub get_key_metrices {
