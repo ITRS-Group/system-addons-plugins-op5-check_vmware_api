@@ -14,6 +14,11 @@ Requires: perl(Nagios::Plugin)
 Requires: perl(File::Basename)
 Requires: perl(HTTP::Date)
 
+BuildRequires: perl
+BuildRequires: perl(LWP::UserAgent)
+BuildRequires: perl(Test::More)
+BuildRequires: perl(Test::MockObject)
+BuildRequires: perl(Nagios::Plugin)
 %if 0%{?suse_version}
 # SLES-specific stuff
 %else
