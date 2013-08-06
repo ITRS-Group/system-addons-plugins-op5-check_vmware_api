@@ -19,6 +19,8 @@ BuildRequires: perl(LWP::UserAgent)
 BuildRequires: perl(Test::More)
 BuildRequires: perl(Test::MockObject)
 BuildRequires: perl(Nagios::Plugin)
+BuildRequires: perl(XML::LibXML)
+BuildRequires: perl(Crypt::SSLeay)
 %if 0%{?suse_version}
 # SLES-specific stuff
 %else
