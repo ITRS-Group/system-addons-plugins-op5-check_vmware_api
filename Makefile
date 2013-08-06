@@ -1,2 +1,4 @@
+VI_PERL_PATH=.
+
 test:
-	perl ./t/check_vmware_api.t
+	perl -I $(VI_PERL_PATH) ./t/check_vmware_api.t
