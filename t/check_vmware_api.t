@@ -16,6 +16,7 @@ BEGIN {
 }
 my $error;
 my $agent_mock = Test::MockObject->new();
+$agent_mock->fake_new('LWP::UserAgent');
 $agent_mock->set_true('cookie_jar');
 $agent_mock->set_true('protocols_allowed');
 $agent_mock->set_true('conn_cache');
@@ -26,9 +27,6 @@ $agent_mock->mock('request', sub($) {
 		return 'Connection refused';
 	});
 
-*LWP::UserAgent::new = sub {
-	return $agent_mock;
-};
 #check_vmware_api.pl -H dummyhost -u monitor -p monitor -l net -s usage;
 @ARGV = split(/ /, '-H dummyhost -u monitor -p monitor -l net -s usage');
 eval {
