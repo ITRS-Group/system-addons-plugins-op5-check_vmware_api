@@ -108,7 +108,7 @@ Note: None of the Perl modules mentioned as \"may be too old\" are needed for ch
 sub main {
 	eval {
 		require VMware::VIRuntime;
-	} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions");
+	} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions"); #This is, potentially, a lie. This might just as well fail if a dependency of VMware::VIRuntime is missing (i.e VIRuntime itself requires something which in turn fails).
 
 	$PROGNAME = basename($0);
 	$VERSION = '0.7.1';
