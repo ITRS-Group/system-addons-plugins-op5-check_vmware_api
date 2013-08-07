@@ -1,6 +1,6 @@
 package CheckVMwareAPI;
 use LWP::UserAgent;
-use Test::More tests => 3;
+use Test::More tests => 5;
 use Test::MockObject;
 use VMware::VICommon;
 use subs qw(exit);
@@ -42,16 +42,26 @@ my $server_version_response = '<?xml version="1.0" encoding="UTF-8" ?>
 
 sub run_cmd
 {
-	my $ret;
 	my @saved_argv = @ARGV;
 	my $args = shift;
+	my %ret;
+
+	# setup environment
 	@ARGV = split(/ /, $args);
+	my $output = '';
+	open OUTPUT, '>', \$output or die "Can't open OUTPUT: $!";
+
 	eval {
+		select( OUTPUT );
 		CheckVMwareAPI->main;
 	};
-	$ret = $@;
+
+	# reset environment
+	select(STDOUT);
 	@ARGV = @saved_argv;
-	$ret;
+	$ret{'status'} = $@;
+	$ret{'stdout'} = $output;
+	%ret;
 }
 
 sub load_script
@@ -102,11 +112,15 @@ require_ok('check_vmware_api.pl');
 $agent_mock->set_series('request',
 	response_series('Connection refused')
 );
-ok(run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage') == 2, "Connection refused returns CRITICAL");
+
+my %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
+ok($ret{"status"} == 2, "Connection refused returns CRITICAL");
+like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused returns CRITICAL (output verified)");
 
 
 my @responses = (new_response($server_version_response));
 push @responses, load_script('net_usage');
 $agent_mock->set_series('request', @responses);
-
-ok(run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage') == 0, "net/usage working");
+%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
+ok($ret{"status"} == 0, "net/usage has OK exit status without thresholds");
+like($ret{"stdout"}, qr/OK - net usage=158.00 KBps/, "net/usage output looks like expected");
