@@ -487,6 +487,14 @@ sub main {
 		required => 0,
 	);
 
+	$np->add_arg(
+		spec => 'generate_test=s',
+		help => "--generate_test=<file> \n"
+		. '   Generate a test case script from the executed command/subcommand and write it to <file>',
+		default => 0,
+		required => 0,
+	);
+
 	$np->getopts;
 
 	my $host = $np->opts->host;
@@ -504,6 +512,7 @@ sub main {
 	my $blacklist = $np->opts->exclude;
 	my $addopts = $np->opts->options;
 	my $trace = $np->opts->trace;
+	my $generate_test = $np->opts->generate_test;
 	my $timeshift = $np->opts->timestamp;
 	my $interval = $np->opts->interval;
 	my $maxsamples = $np->opts->maxsamples;
@@ -604,6 +613,17 @@ sub main {
 		{
 			$Util::tracelevel = $Util::tracelevel;
 			$Util::tracelevel = $trace if (($trace =~ m/^\d$/) && ($trace >= 0) && ($trace <= 4));
+		}
+
+		if ($generate_test) {
+			my $cref = *LWP::UserAgent::request{CODE};
+			-e $generate_test and die("cowardly refusing to write test case script to existing file ${generate_test}");
+			*LWP::UserAgent::request = sub {
+				my $r = &{$cref}(@_); #$r is (hopefully) a SOAP response as returned by the VMware WS
+				open TEST_SCRIPT, ">>", $generate_test;
+				print TEST_SCRIPT $r->content . "\n!\n"; #print the response content to the target script. separate messages by '!' for easy parsing
+				$r #pass it on
+			};
 		}
 
 		$command = uc($command);
