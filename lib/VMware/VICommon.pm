@@ -451,7 +451,6 @@ sub query_api_supported {
   
       my $http_header = HTTP::Headers->new(Content_Type => 'text/xml');
       my $request = HTTP::Request->new('GET', $xmlurl);
-     
       my $response = $user_agent->request($request);   
      
       if ($response->content =~ /Connection refused/) {
@@ -2191,7 +2190,6 @@ sub request {
    # send request
    Util::trace(3, "\nREQUEST: " . Dumper($request->content));
    my $response = $user_agent->request($request);
-   print "=====\n$response=====\n";
    Util::trace(3, "\nRESPONSE: " . Dumper($response->content) . "\n");
    
    my $xml_parser = XML::LibXML->new;   
