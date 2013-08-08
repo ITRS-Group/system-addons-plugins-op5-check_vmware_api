@@ -11,7 +11,7 @@ BEGIN {
 	*CORE::GLOBAL::exit  = sub {
 		my $code = shift;
 		if ( $code != 0 ) {
-			warn 'die()ing instead of exiting for exit code ${code}' if $DEBUG;
+			warn "die()ing instead of exiting for exit code ${code}" if $DEBUG;
 		}
 		die( $code );
 	}
