@@ -1,6 +1,6 @@
 package CheckVMwareAPI;
 use LWP::UserAgent;
-use Test::More tests => 5;
+use Test::More tests => 9;
 use Test::MockObject;
 use VMware::VICommon;
 use subs qw(exit);
@@ -112,15 +112,33 @@ require_ok('check_vmware_api.pl');
 $agent_mock->set_series('request',
 	response_series('Connection refused')
 );
+my @responses = (new_response($server_version_response)); #needs to be sent on first instantiation
 
 my %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
 ok($ret{"status"} == 2, "Connection refused returns CRITICAL");
 like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused returns CRITICAL (output verified)");
 
 
-my @responses = (new_response($server_version_response));
+
 push @responses, load_script('net_usage');
 $agent_mock->set_series('request', @responses);
 %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
 ok($ret{"status"} == 0, "net/usage has OK exit status without thresholds");
-like($ret{"stdout"}, qr/OK - net usage=158.00 KBps/, "net/usage output looks like expected");
+# FIXME: using our knowledge of what's in the response here ( 192.00 KBps) might not be the best idea. 
+# If we're to keep that information (in the test), we should store it (the expected output) together with the rest of the data and load it as part of load_script(), or something.
+# We don't really want to NOT look at the value, either, since that might lead to unexpected regressions in (for example,) calculations of averages and what-not.
+like($ret{"stdout"}, qr/OK - net usage=192.00 KBps/, "net/usage output looks like expected");
+
+@responses = ();
+push @responses, load_script('net_send');
+$agent_mock->set_series('request', @responses);
+%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s send --trace=4 ');
+ok($ret{"status"} == 0, "net/send has OK exit status without thresholds");
+like($ret{"stdout"}, qr/OK - net send=\d+.\d+ KBps/, "net/send output looks like expected");
+
+@responses = ();
+push @responses, load_script('net_receive');
+$agent_mock->set_series('request', @responses);
+%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s receive --trace=4 ');
+ok($ret{"status"} == 0, "net/receive has OK exit status without thresholds");
+like($ret{"stdout"}, qr/OK - net receive=\d+.\d+ KBps/, "net/receive output looks like expected");
