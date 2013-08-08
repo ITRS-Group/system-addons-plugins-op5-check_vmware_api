@@ -17,11 +17,6 @@ BEGIN {
 	}
 }
 
-*Vim::query_api_supported = sub {
-	my %r;
-	$r{"supported"}  =1;
-	return %r;
-};
 my $server_version_response = '<?xml version="1.0" encoding="UTF-8" ?>
 <!--
    Copyright 2005-2012 VMware, Inc.  All rights reserved.
