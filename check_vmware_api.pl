@@ -106,10 +106,6 @@ Note: None of the Perl modules mentioned as \"may be too old\" are needed for ch
 ";
 
 sub main {
-	eval {
-		require VMware::VIRuntime;
-	} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions"); #This is, potentially, a lie. This might just as well fail if a dependency of VMware::VIRuntime is missing (i.e VIRuntime itself requires something which in turn fails).
-
 	$PROGNAME = basename($0);
 	$VERSION = '0.7.1';
 
@@ -490,7 +486,8 @@ sub main {
 	$np->add_arg(
 		spec => 'generate_test=s',
 		help => "--generate_test=<file> \n"
-		. '   Generate a test case script from the executed command/subcommand and write it to <file>',
+		. '   Generate a test case script from the executed command/subcommand and write it to <file>.'
+		. '   If <file> is "stdout", the test case script is written to stdout instead.',
 		default => 0,
 		required => 0,
 	);
@@ -519,6 +516,33 @@ sub main {
 	my $timeout = $np->opts->timeout;
 	my $percw;
 	my $percc;
+	if ($generate_test) {
+			if (uc($generate_test) ne "STDOUT") {
+				-e $generate_test and die("cowardly refusing to write test case script to existing file ${generate_test}");
+			}
+			use LWP::UserAgent;
+			my $cref = *LWP::UserAgent::request{CODE};
+			{
+				no warnings 'redefine';
+				*LWP::UserAgent::request = sub {
+					my $r = &{$cref}(@_); #$r is (hopefully) a SOAP response as returned by the VMware WS
+
+					if (uc($generate_test) ne "STDOUT") {
+						open TEST_SCRIPT, ">>", $generate_test;
+						print TEST_SCRIPT $r->content . "\n!\n"; #print the response content to the target script. separate messages by '!' for easy parsing
+					} else {
+						print $r->content . "\n";
+					}
+					$r #pass it on
+				};
+			}
+		}
+
+
+	eval {
+		require VMware::VIRuntime;
+	} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions"); #This is, potentially, a lie. This might just as well fail if a dependency of VMware::VIRuntime is missing (i.e VIRuntime itself requires something which in turn fails).
+
 
 	alarm($timeout) if $timeout;
 
@@ -613,17 +637,6 @@ sub main {
 		{
 			$Util::tracelevel = $Util::tracelevel;
 			$Util::tracelevel = $trace if (($trace =~ m/^\d$/) && ($trace >= 0) && ($trace <= 4));
-		}
-
-		if ($generate_test) {
-			my $cref = *LWP::UserAgent::request{CODE};
-			-e $generate_test and die("cowardly refusing to write test case script to existing file ${generate_test}");
-			*LWP::UserAgent::request = sub {
-				my $r = &{$cref}(@_); #$r is (hopefully) a SOAP response as returned by the VMware WS
-				open TEST_SCRIPT, ">>", $generate_test;
-				print TEST_SCRIPT $r->content . "\n!\n"; #print the response content to the target script. separate messages by '!' for easy parsing
-				$r #pass it on
-			};
 		}
 
 		$command = uc($command);
