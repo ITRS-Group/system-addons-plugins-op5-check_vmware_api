@@ -32,7 +32,7 @@
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
-<LoginResponse xmlns="urn:vim25"><returnval><key>5202ec1d-1df7-b294-4a0f-9d9499b64046</key><userName>devtest</userName><fullName> </fullName><loginTime>2013-08-08T14:15:22.053119Z</loginTime><lastActiveTime>2013-08-08T14:15:22.053119Z</lastActiveTime><locale>en</locale><messageLocale>en</messageLocale><extensionSession>false</extensionSession><ipAddress>192.168.1.179</ipAddress><userAgent>VI Perl</userAgent><callCount>0</callCount></returnval></LoginResponse>
+<LoginResponse xmlns="urn:vim25"><returnval><key>52c5fdd6-fddd-373d-766d-c442e05359b4</key><userName>devtest</userName><fullName> </fullName><loginTime>2013-08-08T14:14:01.111183Z</loginTime><lastActiveTime>2013-08-08T14:14:01.111183Z</lastActiveTime><locale>en</locale><messageLocale>en</messageLocale><extensionSession>false</extensionSession><ipAddress>192.168.1.179</ipAddress><userAgent>VI Perl</userAgent><callCount>0</callCount></returnval></LoginResponse>
 </soapenv:Body>
 </soapenv:Envelope>
 !
@@ -138,7 +138,7 @@
  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 <soapenv:Body>
-<QueryPerfResponse xmlns="urn:vim25"><returnval xsi:type="PerfEntityMetricCSV"><entity type="HostSystem">host-10</entity><sampleInfoCSV>20,2013-08-08T14:15:20Z</sampleInfoCSV><value><id><counterId>143</counterId><instance></instance></id><value>192</value></value></returnval><returnval xsi:type="PerfEntityMetricCSV"><entity type="HostSystem">host-15</entity><sampleInfoCSV>20,2013-08-08T14:15:20Z</sampleInfoCSV><value><id><counterId>143</counterId><instance></instance></id><value>31</value></value></returnval></QueryPerfResponse>
+<QueryPerfResponse xmlns="urn:vim25"><returnval xsi:type="PerfEntityMetricCSV"><entity type="HostSystem">host-10</entity><sampleInfoCSV>20,2013-08-08T14:14:00Z</sampleInfoCSV><value><id><counterId>149</counterId><instance></instance></id><value>43</value></value></returnval><returnval xsi:type="PerfEntityMetricCSV"><entity type="HostSystem">host-15</entity><sampleInfoCSV>20,2013-08-08T14:14:00Z</sampleInfoCSV><value><id><counterId>149</counterId><instance></instance></id><value>35</value></value></returnval></QueryPerfResponse>
 </soapenv:Body>
 </soapenv:Envelope>
 !
