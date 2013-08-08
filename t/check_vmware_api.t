@@ -67,13 +67,18 @@ sub run_cmd
 sub load_script
 {
 	my $script_name = shift;
-	my @response_strings;
-	my $r;
+	my @response_strings = ();
+	my $r = '';
+	my $ignore = 0;
 	open FILE, "./t/series/${script_name}.dat" or die $!;
 	while( <FILE> ) {
-		if ($_ =~ /^!/) {
-			push @response_strings, $r;
+		if ($_ =~ /^<definitions targetNamespace=.*/) {
+			$ignore = 1;
+		}
+		elsif ($_ =~ /^!/) {
+			push @response_strings, $r if !$ignore;
 			$r = '';
+			$ignore = 0;
 		}
 		else {
 			$r .= $_;
