@@ -114,6 +114,20 @@ sub new_response
 	$response->content($content);
 	return $response;
 }
+
+sub run_script
+{
+	my $agent = shift;
+	my $script_name = shift;
+	my $com_scom = shift;
+	my $script = load_script($script_name);
+
+	$agent->set_series('request', @{$script->{responses}});
+	my %ret = run_cmd('-H dummyhost -u devtest -p devtest ' . $com_scom);
+	ok($ret{"status"} == 0, "${script_name} has OK exit status without thresholds");
+	like($ret{"stdout"}, qr/$script->{output}/, "${script_name} output looks like expected");
+
+}
 my $agent_mock = Test::MockObject->new();
 # The User Agent is the object which takes care of the actual communication
 # with the VMware web service. By mocking it out, we're able to return whatever
@@ -125,29 +139,17 @@ $agent_mock->set_true('conn_cache');
 require_ok('check_vmware_api.pl');
 
 $agent_mock->set_series('request',
-	response_series('Connection refused')
+	(
+		#we need to send the version response only once, on initialization
+		new_response($server_version_response),
+		response_series('Connection refused')
+	)
 );
-use Data::Dumper;
 my %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
 ok($ret{"status"} == 2, "Connection refused returns CRITICAL");
 like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused returns CRITICAL (output verified)");
 
-my $test_script = load_script('net_usage');
-#we need to send the version response only once, on initialization
-my @responses = (new_response($server_version_response), @{$test_script->{responses}});
-$agent_mock->set_series('request', @responses);
-%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
-ok($ret{"status"} == 0, "net/usage has OK exit status without thresholds");
-like($ret{"stdout"}, qr/$test_script->{output}/, "net/usage output looks like expected");
 
-$test_script = load_script('net_send');
-$agent_mock->set_series('request', @{$test_script->{responses}});
-%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s send');
-ok($ret{"status"} == 0, "net/send has OK exit status without thresholds");
-like($ret{"stdout"}, qr/$test_script->{output}/, "net/send output looks like expected");
-
-$test_script = load_script('net_receive');
-$agent_mock->set_series('request', @{$test_script->{responses}});
-%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s receive');
-ok($ret{"status"} == 0, "net/receive has OK exit status without thresholds");
-like($ret{"stdout"}, qr/$test_script->{output}/, "net/receive output looks like expected");
+run_script($agent_mock, 'net_usage', '-l net -s usage');
+run_script($agent_mock, 'net_send', '-l net -s send');
+run_script($agent_mock, 'net_receive', '-l net -s receive');
