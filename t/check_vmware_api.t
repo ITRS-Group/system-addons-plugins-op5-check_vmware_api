@@ -1,6 +1,6 @@
 package CheckVMwareAPI;
 use LWP::UserAgent;
-use Test::More tests => 9;
+use Test::More tests => 23;
 use Test::MockObject;
 use VMware::VICommon;
 use subs qw(exit);
@@ -153,3 +153,10 @@ like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused retur
 run_script($agent_mock, 'net_usage', '-l net -s usage');
 run_script($agent_mock, 'net_send', '-l net -s send');
 run_script($agent_mock, 'net_receive', '-l net -s receive');
+run_script($agent_mock, 'mem_usage', '-l mem -s usage');
+run_script($agent_mock, 'mem_usagemb', '-l mem -s usagemb');
+run_script($agent_mock, 'mem_swap', '-l mem -s swap');
+run_script($agent_mock, 'mem_overhead', '-l mem -s overhead');
+run_script($agent_mock, 'mem_overall', '-l mem -s overall');
+run_script($agent_mock, 'mem_memctl', '-l mem -s memctl');
+run_script($agent_mock, 'mem_all', '-l mem');
