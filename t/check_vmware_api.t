@@ -1,6 +1,6 @@
 package CheckVMwareAPI;
 use LWP::UserAgent;
-use Test::More tests => 27;
+use Test::More tests => 33;
 use Test::MockObject;
 use VMware::VICommon;
 use subs qw(exit);
@@ -162,3 +162,7 @@ run_script($agent_mock, 'mem_overhead', '-l mem -s overhead');
 run_script($agent_mock, 'mem_overall', '-l mem -s overall');
 run_script($agent_mock, 'mem_memctl', '-l mem -s memctl');
 run_script($agent_mock, 'mem_all', '-l mem');
+run_script($agent_mock, 'cpu_usage', '-l cpu -s usage');
+run_script($agent_mock, 'cpu_usagemhz', '-l cpu -s usagemhz');
+run_script($agent_mock, 'cpu_all', '-l cpu');
+
