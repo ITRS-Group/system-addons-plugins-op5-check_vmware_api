@@ -152,3 +152,4 @@
 </soapenv:Body>
 </soapenv:Envelope>
 !
+#net receive=1.00 KBps
