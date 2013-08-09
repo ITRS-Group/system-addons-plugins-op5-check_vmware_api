@@ -142,12 +142,12 @@ like($ret{"stdout"}, qr/$test_script->{output}/, "net/usage output looks like ex
 
 $test_script = load_script('net_send');
 $agent_mock->set_series('request', @{$test_script->{responses}});
-%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s send --trace=4 ');
+%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s send');
 ok($ret{"status"} == 0, "net/send has OK exit status without thresholds");
 like($ret{"stdout"}, qr/$test_script->{output}/, "net/send output looks like expected");
 
 $test_script = load_script('net_receive');
 $agent_mock->set_series('request', @{$test_script->{responses}});
-%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s receive --trace=4 ');
+%ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s receive');
 ok($ret{"status"} == 0, "net/receive has OK exit status without thresholds");
 like($ret{"stdout"}, qr/$test_script->{output}/, "net/receive output looks like expected");
