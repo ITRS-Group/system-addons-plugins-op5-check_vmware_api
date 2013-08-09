@@ -1,6 +1,6 @@
 package CheckVMwareAPI;
 use LWP::UserAgent;
-use Test::More tests => 33;
+use Test::More tests => 49;
 use Test::MockObject;
 use subs qw(exit);
 use strict;
@@ -164,4 +164,12 @@ run_script($agent_mock, 'mem_all', '-l mem');
 run_script($agent_mock, 'cpu_usage', '-l cpu -s usage');
 run_script($agent_mock, 'cpu_usagemhz', '-l cpu -s usagemhz');
 run_script($agent_mock, 'cpu_all', '-l cpu');
+run_script($agent_mock, 'io_aborted', '-l io -s aborted');
+run_script($agent_mock, 'io_resets', '-l io -s resets');
+run_script($agent_mock, 'io_read', '-l io -s read');
+run_script($agent_mock, 'io_write', '-l io -s write');
+run_script($agent_mock, 'io_kernel', '-l io -s kernel');
+run_script($agent_mock, 'io_device', '-l io -s device');
+run_script($agent_mock, 'io_queue', '-l io -s queue');
+run_script($agent_mock, 'io_all', '-l io');
 
