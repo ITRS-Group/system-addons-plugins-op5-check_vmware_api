@@ -800,6 +800,10 @@ sub main {
 	}
 
 	Util::disconnect();
+	if ($generate_test && uc($generate_test) ne 'STDOUT') {
+		open TEST_SCRIPT, ">>", $generate_test;
+		print TEST_SCRIPT "#" . $output;
+	}
 	$np->nagios_exit($result, $output);
 }
 main unless defined caller;
