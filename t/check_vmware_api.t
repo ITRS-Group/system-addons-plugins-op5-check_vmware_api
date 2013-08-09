@@ -75,7 +75,11 @@ sub load_script
 			$ignore = 0;
 		}
 		elsif ($_ =~ /^#/) {
-			$output = substr $_, 1, -1;
+			#skip '#'
+			$output = substr $_, 1;
+			#trim
+			$output =~ s/^\s+//;
+			$output =~ s/\s+$//;
 		}
 		else {
 			$buf .= $_;
