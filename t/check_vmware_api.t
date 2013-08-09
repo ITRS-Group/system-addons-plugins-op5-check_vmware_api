@@ -141,7 +141,7 @@ $agent_mock->set_series('request',
 	(
 		#we need to send the version response only once, on initialization
 		new_response($server_version_response),
-		response_series('Connection refused')
+		new_response('Connection refused')
 	)
 );
 my %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
