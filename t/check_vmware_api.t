@@ -62,7 +62,14 @@ sub run_cmd
 sub load_script
 {
 	my @response_strings = ();
-	my $buf = ''; my $output = '';
+	my $buf = '';
+	# this negative look-ahead will never match
+	# when used as a pattern (which is good, since
+	# we don't have any output to match against if
+	# it's not replaced). In other words, if we try
+	# to match against uninitialized output, we fail
+	# horribly.
+	my $output = '(?!)';
 	my $ignore = 0;
 	open FILE, "./t/series/" . shift . ".dat" or die $!;
 	while( <FILE> ) {
