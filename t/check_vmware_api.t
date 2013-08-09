@@ -125,7 +125,7 @@ sub run_script
 	$agent->set_series('request', @{$script->{responses}});
 	my %ret = run_cmd('-H dummyhost -u devtest -p devtest ' . $com_scom);
 	ok($ret{"status"} == 0, "${script_name} has OK exit status without thresholds");
-	like($ret{"stdout"}, qr/$script->{output}/, "${script_name} output looks like expected");
+	like($ret{"stdout"}, qr/\Q$script->{output}/, "${script_name} output looks like expected");
 
 }
 my $agent_mock = Test::MockObject->new();
