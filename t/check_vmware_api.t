@@ -2,7 +2,6 @@ package CheckVMwareAPI;
 use LWP::UserAgent;
 use Test::More tests => 33;
 use Test::MockObject;
-use VMware::VICommon;
 use subs qw(exit);
 use strict;
 my $DEBUG;
