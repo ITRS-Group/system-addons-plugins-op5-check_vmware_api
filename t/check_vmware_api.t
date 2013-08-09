@@ -61,26 +61,30 @@ sub run_cmd
 
 sub load_script
 {
-	my $script_name = shift;
 	my @response_strings = ();
-	my $r = '';
+	my $buf = ''; my $output = '';
 	my $ignore = 0;
-	open FILE, "./t/series/${script_name}.dat" or die $!;
+	open FILE, "./t/series/" . shift . ".dat" or die $!;
 	while( <FILE> ) {
 		if ($_ =~ /^<definitions targetNamespace=.*/) {
 			$ignore = 1;
 		}
 		elsif ($_ =~ /^!/) {
-			push @response_strings, $r if !$ignore;
-			$r = '';
+			push @response_strings, substr $buf, 0, -1 if !$ignore;
+			$buf = '';
 			$ignore = 0;
 		}
+		elsif ($_ =~ /^#/) {
+			$output = substr $_, 1, -1;
+		}
 		else {
-			$r .= $_;
+			$buf .= $_;
 		}
 	}
-
-	return response_series(@response_strings);
+	return {
+		"responses" => [response_series(@response_strings)],
+		"output" => $output
+	};
 }
 
 sub response_series
@@ -112,33 +116,27 @@ require_ok('check_vmware_api.pl');
 $agent_mock->set_series('request',
 	response_series('Connection refused')
 );
-my @responses = (new_response($server_version_response)); #needs to be sent on first instantiation
-
+use Data::Dumper;
 my %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
 ok($ret{"status"} == 2, "Connection refused returns CRITICAL");
 like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused returns CRITICAL (output verified)");
 
-
-
-push @responses, load_script('net_usage');
+my $test_script = load_script('net_usage');
+#we need to send the version response only once, on initialization
+my @responses = (new_response($server_version_response), @{$test_script->{responses}});
 $agent_mock->set_series('request', @responses);
 %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
 ok($ret{"status"} == 0, "net/usage has OK exit status without thresholds");
-# FIXME: using our knowledge of what's in the response here ( 192.00 KBps) might not be the best idea. 
-# If we're to keep that information (in the test), we should store it (the expected output) together with the rest of the data and load it as part of load_script(), or something.
-# We don't really want to NOT look at the value, either, since that might lead to unexpected regressions in (for example,) calculations of averages and what-not.
-like($ret{"stdout"}, qr/OK - net usage=192.00 KBps/, "net/usage output looks like expected");
+like($ret{"stdout"}, qr/$test_script->{output}/, "net/usage output looks like expected");
 
-@responses = ();
-push @responses, load_script('net_send');
-$agent_mock->set_series('request', @responses);
+$test_script = load_script('net_send');
+$agent_mock->set_series('request', @{$test_script->{responses}});
 %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s send --trace=4 ');
 ok($ret{"status"} == 0, "net/send has OK exit status without thresholds");
 like($ret{"stdout"}, qr/OK - net send=\d+.\d+ KBps/, "net/send output looks like expected");
 
-@responses = ();
-push @responses, load_script('net_receive');
-$agent_mock->set_series('request', @responses);
+$test_script = load_script('net_receive');
+$agent_mock->set_series('request', @{$test_script->{responses}});
 %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s receive --trace=4 ');
 ok($ret{"status"} == 0, "net/receive has OK exit status without thresholds");
 like($ret{"stdout"}, qr/OK - net receive=\d+.\d+ KBps/, "net/receive output looks like expected");
