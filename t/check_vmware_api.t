@@ -69,23 +69,27 @@ sub load_script
 	# to match against uninitialized output, we fail
 	# horribly.
 	my $output = '(?!)';
+	my $status = 0;
 	my $ignore = 0;
 	open FILE, "./t/series/" . shift . ".dat" or die $!;
 	while( <FILE> ) {
-		if ($_ =~ /^<definitions targetNamespace=.*/) {
+		if (/^<definitions targetNamespace=.*/) {
 			$ignore = 1;
 		}
-		elsif ($_ =~ /^!/) {
+		elsif (/^!/) {
 			push @response_strings, substr $buf, 0, -1 if !$ignore;
 			$buf = '';
 			$ignore = 0;
 		}
-		elsif ($_ =~ /^#/) {
+		elsif (/^#/) {
 			#skip '#'
 			$output = substr $_, 1;
 			#trim
 			$output =~ s/^\s+//;
 			$output =~ s/\s+$//;
+		}
+		elsif (/^-(\d+)/) {
+			$status = $1;
 		}
 		else {
 			$buf .= $_;
@@ -93,7 +97,8 @@ sub load_script
 	}
 	return {
 		"responses" => [response_series(@response_strings)],
-		"output" => $output
+		"output" => $output,
+		"status" => $status,
 	};
 }
 
