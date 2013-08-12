@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Copyright 2005-2012 VMware, Inc.  All rights reserved.
+-->
+<definitions targetNamespace="urn:vim25Service"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:interface="urn:vim25"
+>
+   <import location="vim.wsdl" namespace="urn:vim25" />
+   <service name="VimService">
+      <port binding="interface:VimBinding" name="VimPort">
+         <soap:address location="https://localhost/sdk/vimService" />
+      </port>
+   </service>
+</definitions>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrieveServiceContentResponse xmlns="urn:vim25"><returnval><rootFolder type="Folder">group-d1</rootFolder><propertyCollector type="PropertyCollector">propertyCollector</propertyCollector><viewManager type="ViewManager">ViewManager</viewManager><about><name>VMware vCenter Server</name><fullName>VMware vCenter Server 5.1.0 build-947673</fullName><vendor>VMware, Inc.</vendor><version>5.1.0</version><build>947673</build><localeVersion>INTL</localeVersion><localeBuild>000</localeBuild><osType>linux-x64</osType><productLineId>vpx</productLineId><apiType>VirtualCenter</apiType><apiVersion>5.1</apiVersion><instanceUuid>CCE33FB7-E0C8-47B1-89F9-E931BC201BAA</instanceUuid><licenseProductName>VMware VirtualCenter Server</licenseProductName><licenseProductVersion>5.0</licenseProductVersion></about><setting type="OptionManager">VpxSettings</setting><userDirectory type="UserDirectory">UserDirectory</userDirectory><sessionManager type="SessionManager">SessionManager</sessionManager><authorizationManager type="AuthorizationManager">AuthorizationManager</authorizationManager><serviceManager type="ServiceManager">ServiceMgr</serviceManager><perfManager type="PerformanceManager">PerfMgr</perfManager><scheduledTaskManager type="ScheduledTaskManager">ScheduledTaskManager</scheduledTaskManager><alarmManager type="AlarmManager">AlarmManager</alarmManager><eventManager type="EventManager">EventManager</eventManager><taskManager type="TaskManager">TaskManager</taskManager><extensionManager type="ExtensionManager">ExtensionManager</extensionManager><customizationSpecManager type="CustomizationSpecManager">CustomizationSpecManager</customizationSpecManager><customFieldsManager type="CustomFieldsManager">CustomFieldsManager</customFieldsManager><diagnosticManager type="DiagnosticManager">DiagMgr</diagnosticManager><licenseManager type="LicenseManager">LicenseManager</licenseManager><searchIndex type="SearchIndex">SearchIndex</searchIndex><fileManager type="FileManager">FileManager</fileManager><virtualDiskManager type="VirtualDiskManager">virtualDiskManager</virtualDiskManager><snmpSystem type="HostSnmpSystem">SnmpSystem</snmpSystem><vmProvisioningChecker type="VirtualMachineProvisioningChecker">ProvChecker</vmProvisioningChecker><vmCompatibilityChecker type="VirtualMachineCompatibilityChecker">CompatChecker</vmCompatibilityChecker><ovfManager type="OvfManager">OvfManager</ovfManager><ipPoolManager type="IpPoolManager">IpPoolManager</ipPoolManager><dvSwitchManager type="DistributedVirtualSwitchManager">DVSManager</dvSwitchManager><hostProfileManager type="HostProfileManager">HostProfileManager</hostProfileManager><clusterProfileManager type="ClusterProfileManager">ClusterProfileManager</clusterProfileManager><complianceManager type="ProfileComplianceManager">MoComplianceManager</complianceManager><localizationManager type="LocalizationManager">LocalizationManager</localizationManager><storageResourceManager type="StorageResourceManager">StorageResourceManager</storageResourceManager><guestOperationsManager type="GuestOperationsManager">guestOperationsManager</guestOperationsManager></returnval></RetrieveServiceContentResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<LoginResponse xmlns="urn:vim25"><returnval><key>5232a4fe-e78e-ab6c-40e2-9d9d57331a29</key><userName>devtest</userName><fullName> </fullName><loginTime>2013-08-12T15:01:56.436921Z</loginTime><lastActiveTime>2013-08-12T15:01:56.436921Z</lastActiveTime><locale>en</locale><messageLocale>en</messageLocale><extensionSession>false</extensionSession><ipAddress>192.168.1.179</ipAddress><userAgent>VI Perl</userAgent><callCount>0</callCount></returnval></LoginResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Copyright 2008-2011 VMware, Inc.  All rights reserved.
+-->
+<namespaces version="1.0">
+  <namespace>
+    <name>urn:vim25</name>
+    <version>5.1</version>
+    <priorVersions>
+      <version>5.0</version>
+      <version>4.1</version>
+      <version>4.0</version>
+      <version>2.5u2</version>
+      <version>2.5</version>
+    </priorVersions>
+  </namespace>
+  <namespace>
+    <name>urn:vim2</name>
+    <version>2.0</version>
+  </namespace>
+</namespaces>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">host-10</obj></returnval><returnval><obj type="HostSystem">host-15</obj></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">host-10</obj><propSet><name>name</name><val xsi:type="xsd:string">vmware-plugin-dev-01.dev.op5.com</val></propSet><propSet><name>runtime.powerState</name><val xsi:type="HostSystemPowerState">poweredOn</val></propSet></returnval><returnval><obj type="HostSystem">host-15</obj><propSet><name>name</name><val xsi:type="xsd:string">vmware-plugin-dev-02.dev.op5.com</val></propSet><propSet><name>runtime.powerState</name><val xsi:type="HostSystemPowerState">poweredOn</val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">host-10</obj><propSet><name>name</name><val xsi:type="xsd:string">vmware-plugin-dev-01.dev.op5.com</val></propSet><propSet><name>runtime.powerState</name><val xsi:type="HostSystemPowerState">poweredOn</val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">host-15</obj><propSet><name>name</name><val xsi:type="xsd:string">vmware-plugin-dev-02.dev.op5.com</val></propSet><propSet><name>runtime.powerState</name><val xsi:type="HostSystemPowerState">poweredOn</val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<LogoutResponse xmlns="urn:vim25"></LogoutResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+#2/2 Hosts up: vmware-plugin-dev-01.dev.op5.com(UP), vmware-plugin-dev-02.dev.op5.com(UP)
+-0

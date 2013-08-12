@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Copyright 2005-2012 VMware, Inc.  All rights reserved.
+-->
+<definitions targetNamespace="urn:vim25Service"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:interface="urn:vim25"
+>
+   <import location="vim.wsdl" namespace="urn:vim25" />
+   <service name="VimService">
+      <port binding="interface:VimBinding" name="VimPort">
+         <soap:address location="https://localhost/sdk/vimService" />
+      </port>
+   </service>
+</definitions>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrieveServiceContentResponse xmlns="urn:vim25"><returnval><rootFolder type="Folder">group-d1</rootFolder><propertyCollector type="PropertyCollector">propertyCollector</propertyCollector><viewManager type="ViewManager">ViewManager</viewManager><about><name>VMware vCenter Server</name><fullName>VMware vCenter Server 5.1.0 build-947673</fullName><vendor>VMware, Inc.</vendor><version>5.1.0</version><build>947673</build><localeVersion>INTL</localeVersion><localeBuild>000</localeBuild><osType>linux-x64</osType><productLineId>vpx</productLineId><apiType>VirtualCenter</apiType><apiVersion>5.1</apiVersion><instanceUuid>CCE33FB7-E0C8-47B1-89F9-E931BC201BAA</instanceUuid><licenseProductName>VMware VirtualCenter Server</licenseProductName><licenseProductVersion>5.0</licenseProductVersion></about><setting type="OptionManager">VpxSettings</setting><userDirectory type="UserDirectory">UserDirectory</userDirectory><sessionManager type="SessionManager">SessionManager</sessionManager><authorizationManager type="AuthorizationManager">AuthorizationManager</authorizationManager><serviceManager type="ServiceManager">ServiceMgr</serviceManager><perfManager type="PerformanceManager">PerfMgr</perfManager><scheduledTaskManager type="ScheduledTaskManager">ScheduledTaskManager</scheduledTaskManager><alarmManager type="AlarmManager">AlarmManager</alarmManager><eventManager type="EventManager">EventManager</eventManager><taskManager type="TaskManager">TaskManager</taskManager><extensionManager type="ExtensionManager">ExtensionManager</extensionManager><customizationSpecManager type="CustomizationSpecManager">CustomizationSpecManager</customizationSpecManager><customFieldsManager type="CustomFieldsManager">CustomFieldsManager</customFieldsManager><diagnosticManager type="DiagnosticManager">DiagMgr</diagnosticManager><licenseManager type="LicenseManager">LicenseManager</licenseManager><searchIndex type="SearchIndex">SearchIndex</searchIndex><fileManager type="FileManager">FileManager</fileManager><virtualDiskManager type="VirtualDiskManager">virtualDiskManager</virtualDiskManager><snmpSystem type="HostSnmpSystem">SnmpSystem</snmpSystem><vmProvisioningChecker type="VirtualMachineProvisioningChecker">ProvChecker</vmProvisioningChecker><vmCompatibilityChecker type="VirtualMachineCompatibilityChecker">CompatChecker</vmCompatibilityChecker><ovfManager type="OvfManager">OvfManager</ovfManager><ipPoolManager type="IpPoolManager">IpPoolManager</ipPoolManager><dvSwitchManager type="DistributedVirtualSwitchManager">DVSManager</dvSwitchManager><hostProfileManager type="HostProfileManager">HostProfileManager</hostProfileManager><clusterProfileManager type="ClusterProfileManager">ClusterProfileManager</clusterProfileManager><complianceManager type="ProfileComplianceManager">MoComplianceManager</complianceManager><localizationManager type="LocalizationManager">LocalizationManager</localizationManager><storageResourceManager type="StorageResourceManager">StorageResourceManager</storageResourceManager><guestOperationsManager type="GuestOperationsManager">guestOperationsManager</guestOperationsManager></returnval></RetrieveServiceContentResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<LoginResponse xmlns="urn:vim25"><returnval><key>52882128-1fb4-0ee7-32c8-11a6fad9e8fc</key><userName>devtest</userName><fullName> </fullName><loginTime>2013-08-12T15:01:55.556269Z</loginTime><lastActiveTime>2013-08-12T15:01:55.556269Z</lastActiveTime><locale>en</locale><messageLocale>en</messageLocale><extensionSession>false</extensionSession><ipAddress>192.168.1.179</ipAddress><userAgent>VI Perl</userAgent><callCount>0</callCount></returnval></LoginResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Copyright 2008-2011 VMware, Inc.  All rights reserved.
+-->
+<namespaces version="1.0">
+  <namespace>
+    <name>urn:vim25</name>
+    <version>5.1</version>
+    <priorVersions>
+      <version>5.0</version>
+      <version>4.1</version>
+      <version>4.0</version>
+      <version>2.5u2</version>
+      <version>2.5</version>
+    </priorVersions>
+  </namespace>
+  <namespace>
+    <name>urn:vim2</name>
+    <version>2.0</version>
+  </namespace>
+</namespaces>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="VirtualMachine">vm-22</obj></returnval><returnval><obj type="VirtualMachine">vm-26</obj></returnval><returnval><obj type="VirtualMachine">vm-24</obj></returnval><returnval><obj type="VirtualMachine">vm-14</obj></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="VirtualMachine">vm-14</obj><propSet><name>name</name><val xsi:type="xsd:string">VMware vCenter Server Appliance</val></propSet><propSet><name>runtime</name><val xsi:type="VirtualMachineRuntimeInfo"><device><runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState"><vmDirectPathGen2Active>false</vmDirectPathGen2Active><vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleNetwork</vmDirectPathGen2InactiveReasonOther></runtimeState><key>4000</key></device><host type="HostSystem">host-10</host><connectionState>connected</connectionState><powerState>poweredOn</powerState><faultToleranceState>notConfigured</faultToleranceState><dasVmProtection><dasProtected>true</dasProtected></dasVmProtection><toolsInstallerMounted>false</toolsInstallerMounted><bootTime>2013-04-12T14:03:51.442288Z</bootTime><suspendInterval>0</suspendInterval><memoryOverhead>45596672</memoryOverhead><maxCpuUsage>2127</maxCpuUsage><maxMemoryUsage>4096</maxMemoryUsage><numMksConnections>0</numMksConnections><recordReplayState>inactive</recordReplayState><onlineStandby>false</onlineStandby><consolidationNeeded>false</consolidationNeeded><offlineFeatureRequirement><key>cpuid.lm</key><featureName>cpuid.lm</featureName><value>Bool:Min:1</value></offlineFeatureRequirement><featureRequirement><key>cpuid.CMPXCHG16B</key><featureName>cpuid.CMPXCHG16B</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.DS</key><featureName>cpuid.DS</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.Intel</key><featureName>cpuid.Intel</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.LAHF64</key><featureName>cpuid.LAHF64</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.LM</key><featureName>cpuid.LM</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.NX</key><featureName>cpuid.NX</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.POPCNT</key><featureName>cpuid.POPCNT</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.RDTSCP</key><featureName>cpuid.RDTSCP</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SS</key><featureName>cpuid.SS</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE3</key><featureName>cpuid.SSE3</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE41</key><featureName>cpuid.SSE41</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE42</key><featureName>cpuid.SSE42</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSSE3</key><featureName>cpuid.SSSE3</featureName><value>Bool:Min:1</value></featureRequirement></val></propSet></returnval><returnval><obj type="VirtualMachine">vm-22</obj><propSet><name>name</name><val xsi:type="xsd:string">dev-ci-lab-master.dev.op5.com</val></propSet><propSet><name>runtime</name><val xsi:type="VirtualMachineRuntimeInfo"><device><runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState"><vmDirectPathGen2Active>false</vmDirectPathGen2Active><vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleNetwork</vmDirectPathGen2InactiveReasonOther></runtimeState><key>4000</key></device><host type="HostSystem">host-15</host><connectionState>connected</connectionState><powerState>poweredOn</powerState><faultToleranceState>notConfigured</faultToleranceState><dasVmProtection><dasProtected>true</dasProtected></dasVmProtection><toolsInstallerMounted>false</toolsInstallerMounted><bootTime>2013-04-16T11:37:18.279731Z</bootTime><suspendInterval>0</suspendInterval><memoryOverhead>29253632</memoryOverhead><maxCpuUsage>2127</maxCpuUsage><maxMemoryUsage>1024</maxMemoryUsage><numMksConnections>0</numMksConnections><recordReplayState>inactive</recordReplayState><onlineStandby>false</onlineStandby><consolidationNeeded>false</consolidationNeeded><offlineFeatureRequirement><key>cpuid.lm</key><featureName>cpuid.lm</featureName><value>Bool:Min:1</value></offlineFeatureRequirement><featureRequirement><key>cpuid.CMPXCHG16B</key><featureName>cpuid.CMPXCHG16B</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.DS</key><featureName>cpuid.DS</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.Intel</key><featureName>cpuid.Intel</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.LAHF64</key><featureName>cpuid.LAHF64</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.LM</key><featureName>cpuid.LM</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.NX</key><featureName>cpuid.NX</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.POPCNT</key><featureName>cpuid.POPCNT</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.RDTSCP</key><featureName>cpuid.RDTSCP</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SS</key><featureName>cpuid.SS</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE3</key><featureName>cpuid.SSE3</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE41</key><featureName>cpuid.SSE41</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE42</key><featureName>cpuid.SSE42</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSSE3</key><featureName>cpuid.SSSE3</featureName><value>Bool:Min:1</value></featureRequirement></val></propSet></returnval><returnval><obj type="VirtualMachine">vm-24</obj><propSet><name>name</name><val xsi:type="xsd:string">CentOS 6.4 Minimal x86_64</val></propSet><propSet><name>runtime</name><val xsi:type="VirtualMachineRuntimeInfo"><device><runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState"><vmDirectPathGen2Active>false</vmDirectPathGen2Active><vmDirectPathGen2InactiveReasonVm>vmNptDisabledOrDisconnectedAdapter</vmDirectPathGen2InactiveReasonVm><vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleHost</vmDirectPathGen2InactiveReasonOther><vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleNetwork</vmDirectPathGen2InactiveReasonOther></runtimeState><key>4000</key></device><host type="HostSystem">host-10</host><connectionState>connected</connectionState><powerState>poweredOff</powerState><faultToleranceState>notConfigured</faultToleranceState><toolsInstallerMounted>false</toolsInstallerMounted><suspendInterval>0</suspendInterval><memoryOverhead>110432256</memoryOverhead><numMksConnections>0</numMksConnections><recordReplayState>inactive</recordReplayState><onlineStandby>false</onlineStandby><consolidationNeeded>false</consolidationNeeded><offlineFeatureRequirement><key>cpuid.lm</key><featureName>cpuid.lm</featureName><value>Bool:Min:1</value></offlineFeatureRequirement></val></propSet></returnval><returnval><obj type="VirtualMachine">vm-26</obj><propSet><name>name</name><val xsi:type="xsd:string">op5-virtual-appliance</val></propSet><propSet><name>runtime</name><val xsi:type="VirtualMachineRuntimeInfo"><device><runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState"><vmDirectPathGen2Active>false</vmDirectPathGen2Active><vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleNetwork</vmDirectPathGen2InactiveReasonOther></runtimeState><key>4000</key></device><host type="HostSystem">host-15</host><connectionState>connected</connectionState><powerState>poweredOn</powerState><faultToleranceState>notConfigured</faultToleranceState><dasVmProtection><dasProtected>true</dasProtected></dasVmProtection><toolsInstallerMounted>false</toolsInstallerMounted><bootTime>2013-05-15T13:21:03.870368Z</bootTime><suspendInterval>0</suspendInterval><memoryOverhead>36003840</memoryOverhead><maxCpuUsage>2127</maxCpuUsage><maxMemoryUsage>2048</maxMemoryUsage><numMksConnections>0</numMksConnections><recordReplayState>inactive</recordReplayState><onlineStandby>false</onlineStandby><consolidationNeeded>false</consolidationNeeded><offlineFeatureRequirement><key>cpuid.lm</key><featureName>cpuid.lm</featureName><value>Bool:Min:1</value></offlineFeatureRequirement><featureRequirement><key>cpuid.CMPXCHG16B</key><featureName>cpuid.CMPXCHG16B</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.DS</key><featureName>cpuid.DS</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.Intel</key><featureName>cpuid.Intel</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.LAHF64</key><featureName>cpuid.LAHF64</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.LM</key><featureName>cpuid.LM</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.NX</key><featureName>cpuid.NX</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.POPCNT</key><featureName>cpuid.POPCNT</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.RDTSCP</key><featureName>cpuid.RDTSCP</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SS</key><featureName>cpuid.SS</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE3</key><featureName>cpuid.SSE3</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE41</key><featureName>cpuid.SSE41</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE42</key><featureName>cpuid.SSE42</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSSE3</key><featureName>cpuid.SSSE3</featureName><value>Bool:Min:1</value></featureRequirement></val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<LogoutResponse xmlns="urn:vim25"></LogoutResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+#3/4 VMs up: CentOS 6.4 Minimal x86_64(DOWN), VMware vCenter Server Appliance(UP), dev-ci-lab-master.dev.op5.com(UP), op5-virtual-appliance(UP)
+-0

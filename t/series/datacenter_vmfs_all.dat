@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Copyright 2005-2012 VMware, Inc.  All rights reserved.
+-->
+<definitions targetNamespace="urn:vim25Service"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:interface="urn:vim25"
+>
+   <import location="vim.wsdl" namespace="urn:vim25" />
+   <service name="VimService">
+      <port binding="interface:VimBinding" name="VimPort">
+         <soap:address location="https://localhost/sdk/vimService" />
+      </port>
+   </service>
+</definitions>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrieveServiceContentResponse xmlns="urn:vim25"><returnval><rootFolder type="Folder">group-d1</rootFolder><propertyCollector type="PropertyCollector">propertyCollector</propertyCollector><viewManager type="ViewManager">ViewManager</viewManager><about><name>VMware vCenter Server</name><fullName>VMware vCenter Server 5.1.0 build-947673</fullName><vendor>VMware, Inc.</vendor><version>5.1.0</version><build>947673</build><localeVersion>INTL</localeVersion><localeBuild>000</localeBuild><osType>linux-x64</osType><productLineId>vpx</productLineId><apiType>VirtualCenter</apiType><apiVersion>5.1</apiVersion><instanceUuid>CCE33FB7-E0C8-47B1-89F9-E931BC201BAA</instanceUuid><licenseProductName>VMware VirtualCenter Server</licenseProductName><licenseProductVersion>5.0</licenseProductVersion></about><setting type="OptionManager">VpxSettings</setting><userDirectory type="UserDirectory">UserDirectory</userDirectory><sessionManager type="SessionManager">SessionManager</sessionManager><authorizationManager type="AuthorizationManager">AuthorizationManager</authorizationManager><serviceManager type="ServiceManager">ServiceMgr</serviceManager><perfManager type="PerformanceManager">PerfMgr</perfManager><scheduledTaskManager type="ScheduledTaskManager">ScheduledTaskManager</scheduledTaskManager><alarmManager type="AlarmManager">AlarmManager</alarmManager><eventManager type="EventManager">EventManager</eventManager><taskManager type="TaskManager">TaskManager</taskManager><extensionManager type="ExtensionManager">ExtensionManager</extensionManager><customizationSpecManager type="CustomizationSpecManager">CustomizationSpecManager</customizationSpecManager><customFieldsManager type="CustomFieldsManager">CustomFieldsManager</customFieldsManager><diagnosticManager type="DiagnosticManager">DiagMgr</diagnosticManager><licenseManager type="LicenseManager">LicenseManager</licenseManager><searchIndex type="SearchIndex">SearchIndex</searchIndex><fileManager type="FileManager">FileManager</fileManager><virtualDiskManager type="VirtualDiskManager">virtualDiskManager</virtualDiskManager><snmpSystem type="HostSnmpSystem">SnmpSystem</snmpSystem><vmProvisioningChecker type="VirtualMachineProvisioningChecker">ProvChecker</vmProvisioningChecker><vmCompatibilityChecker type="VirtualMachineCompatibilityChecker">CompatChecker</vmCompatibilityChecker><ovfManager type="OvfManager">OvfManager</ovfManager><ipPoolManager type="IpPoolManager">IpPoolManager</ipPoolManager><dvSwitchManager type="DistributedVirtualSwitchManager">DVSManager</dvSwitchManager><hostProfileManager type="HostProfileManager">HostProfileManager</hostProfileManager><clusterProfileManager type="ClusterProfileManager">ClusterProfileManager</clusterProfileManager><complianceManager type="ProfileComplianceManager">MoComplianceManager</complianceManager><localizationManager type="LocalizationManager">LocalizationManager</localizationManager><storageResourceManager type="StorageResourceManager">StorageResourceManager</storageResourceManager><guestOperationsManager type="GuestOperationsManager">guestOperationsManager</guestOperationsManager></returnval></RetrieveServiceContentResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<LoginResponse xmlns="urn:vim25"><returnval><key>52104afd-b79c-b787-e7f3-d15834c66271</key><userName>devtest</userName><fullName> </fullName><loginTime>2013-08-12T15:02:06.836255Z</loginTime><lastActiveTime>2013-08-12T15:02:06.836255Z</lastActiveTime><locale>en</locale><messageLocale>en</messageLocale><extensionSession>false</extensionSession><ipAddress>192.168.1.179</ipAddress><userAgent>VI Perl</userAgent><callCount>0</callCount></returnval></LoginResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Copyright 2008-2011 VMware, Inc.  All rights reserved.
+-->
+<namespaces version="1.0">
+  <namespace>
+    <name>urn:vim25</name>
+    <version>5.1</version>
+    <priorVersions>
+      <version>5.0</version>
+      <version>4.1</version>
+      <version>4.0</version>
+      <version>2.5u2</version>
+      <version>2.5</version>
+    </priorVersions>
+  </namespace>
+  <namespace>
+    <name>urn:vim2</name>
+    <version>2.0</version>
+  </namespace>
+</namespaces>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2</obj></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datacenter">datacenter-2</obj><propSet><name>datastore</name><val xsi:type="ArrayOfManagedObjectReference"><ManagedObjectReference type="Datastore" xsi:type="ManagedObjectReference">datastore-16</ManagedObjectReference><ManagedObjectReference type="Datastore" xsi:type="ManagedObjectReference">datastore-11</ManagedObjectReference><ManagedObjectReference type="Datastore" xsi:type="ManagedObjectReference">datastore-12</ManagedObjectReference></val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datastore">datastore-16</obj><propSet><name>info</name><val xsi:type="VmfsDatastoreInfo"><name>dev-02-local</name><url>ds:///vmfs/volumes/516410b6-5d0b6d10-9c98-0024e86248a7/</url><freeSpace>139642011648</freeSpace><maxFileSize>2199023255040</maxFileSize><timestamp>2013-08-12T14:49:42.366945Z</timestamp><maxPhysicalRDMFileSize>70368744177664</maxPhysicalRDMFileSize><maxVirtualRDMFileSize>2199023255040</maxVirtualRDMFileSize><vmfs><type>VMFS</type><name>dev-02-local</name><capacity>140660178944</capacity><blockSizeMb>1</blockSizeMb><maxBlocks>63963136</maxBlocks><majorVersion>5</majorVersion><version>5.58</version><uuid>516410b6-5d0b6d10-9c98-0024e86248a7</uuid><extent><diskName>naa.60024e806c62ce0018df4930070f62b9</diskName><partition>3</partition></extent><vmfsUpgradable>false</vmfsUpgradable><ssd>false</ssd></vmfs></val></propSet><propSet><name>summary</name><val xsi:type="DatastoreSummary"><datastore type="Datastore">datastore-16</datastore><name>dev-02-local</name><url>ds:///vmfs/volumes/516410b6-5d0b6d10-9c98-0024e86248a7/</url><capacity>140660178944</capacity><freeSpace>139642011648</freeSpace><accessible>true</accessible><multipleHostAccess>false</multipleHostAccess><type>VMFS</type><maintenanceMode>normal</maintenanceMode></val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datastore">datastore-11</obj><propSet><name>info</name><val xsi:type="VmfsDatastoreInfo"><name>dev-01-local</name><url>ds:///vmfs/volumes/51654a48-e4944155-c4ed-0024e86247e1/</url><freeSpace>122461093888</freeSpace><maxFileSize>2199023255040</maxFileSize><timestamp>2013-08-12T14:47:01.813391Z</timestamp><maxPhysicalRDMFileSize>70368744177664</maxPhysicalRDMFileSize><maxVirtualRDMFileSize>2199023255040</maxVirtualRDMFileSize><vmfs><type>VMFS</type><name>dev-01-local</name><capacity>140660178944</capacity><blockSizeMb>1</blockSizeMb><maxBlocks>63963136</maxBlocks><majorVersion>5</majorVersion><version>5.58</version><uuid>51654a48-e4944155-c4ed-0024e86247e1</uuid><extent><diskName>naa.60024e806c65050018df452306d1df2c</diskName><partition>3</partition></extent><vmfsUpgradable>false</vmfsUpgradable><ssd>false</ssd></vmfs></val></propSet><propSet><name>summary</name><val xsi:type="DatastoreSummary"><datastore type="Datastore">datastore-11</datastore><name>dev-01-local</name><url>ds:///vmfs/volumes/51654a48-e4944155-c4ed-0024e86247e1/</url><capacity>140660178944</capacity><freeSpace>122461093888</freeSpace><uncommitted>1295831040</uncommitted><accessible>true</accessible><multipleHostAccess>false</multipleHostAccess><type>VMFS</type><maintenanceMode>normal</maintenanceMode></val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="Datastore">datastore-12</obj><propSet><name>info</name><val xsi:type="VmfsDatastoreInfo"><name>storage01</name><url>ds:///vmfs/volumes/5167ebb4-0577f6f0-9b96-0024e86247e1/</url><freeSpace>97282686976</freeSpace><maxFileSize>2199023255040</maxFileSize><timestamp>2013-08-12T14:19:41.024052Z</timestamp><maxPhysicalRDMFileSize>70368744177664</maxPhysicalRDMFileSize><maxVirtualRDMFileSize>2199023255040</maxVirtualRDMFileSize><vmfs><type>VMFS</type><name>storage01</name><capacity>146028888064</capacity><blockSizeMb>1</blockSizeMb><maxBlocks>63963136</maxBlocks><majorVersion>5</majorVersion><version>5.58</version><uuid>5167ebb4-0577f6f0-9b96-0024e86247e1</uuid><extent><diskName>t10.FreeBSD_iSCSI_DISK______10000001________________________</diskName><partition>1</partition></extent><vmfsUpgradable>false</vmfsUpgradable><ssd>false</ssd></vmfs></val></propSet><propSet><name>summary</name><val xsi:type="DatastoreSummary"><datastore type="Datastore">datastore-12</datastore><name>storage01</name><url>ds:///vmfs/volumes/5167ebb4-0577f6f0-9b96-0024e86247e1/</url><capacity>146028888064</capacity><freeSpace>97282686976</freeSpace><uncommitted>245743185920</uncommitted><accessible>true</accessible><multipleHostAccess>true</multipleHostAccess><type>VMFS</type><maintenanceMode>normal</maintenanceMode></val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<LogoutResponse xmlns="urn:vim25"></LogoutResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+#Storages : 'dev-02-local'(free)=133173.00 MB (99.28%), 'dev-01-local'(free)=116788.00 MB (87.06%), 'storage01'(free)=92776.00 MB (66.62%)
+-0
