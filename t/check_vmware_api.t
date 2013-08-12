@@ -1,6 +1,6 @@
 package CheckVMwareAPI;
 use LWP::UserAgent;
-use Test::More tests => 49;
+use Test::More;
 use Test::MockObject;
 use subs qw(exit);
 use strict;
