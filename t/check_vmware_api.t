@@ -119,19 +119,48 @@ sub new_response
 	return $response;
 }
 
+sub run_scripts
+{
+	my ($agent, $directory) = @_;
+	diag "loading test scripts from ${directory}";
+	opendir (DIR, $directory) or die $!;
+	while ( readdir(DIR) ) {
+		if (/([a-zA-Z0-9]+)_([a-zA-Z0-9]+)_(\w+).dat/) {
+			diag "running ${_} ...";
+			my ($target, $command, $subcommand) = ($1, $2, $3);
+			my $script_name = "${target}_${command}_${subcommand}";
+			run_script($agent, $script_name, $target, ${command}, ${subcommand});
+		}
+		else {
+			diag "skipping '${_}' ...";
+
+		}
+	}
+}
 sub run_script
 {
 	my $agent = shift;
 	my $script_name = shift;
-	my $com_scom = shift;
+	my $target = shift;
+	my $command = shift;
+	my $subcommand = shift;
 	my $script = load_script($script_name);
-
+	my $cmd_str = '';
+	$subcommand =~ s/_/\// if defined($subcommand);
 	$agent->set_series('request', @{$script->{responses}});
-	my %ret = run_cmd('-H dummyhost -u devtest -p devtest ' . $com_scom);
-	ok($ret{"status"} == 0, "${script_name} has OK exit status without thresholds");
+	$cmd_str .= $target eq 'datacenter' ? '-D dummycenter ' :'-H dummyhost ';
+	if ($subcommand eq 'all') {
+		$cmd_str .= "-u devtest -p devtest -l ${command}";
+	}
+	else {
+		$cmd_str .= "-u devtest -p devtest -l ${command} -s ${subcommand}";
+	}
+	diag ("using args '${cmd_str}' ");
+	my %ret = run_cmd($cmd_str);
+	ok($ret{"status"} == $script->{status}, "${script_name} has the expected ($script->{status}) exit status without thresholds");
 	like($ret{"stdout"}, qr/\Q$script->{output}/, "${script_name} output looks like expected");
-
 }
+
 my $agent_mock = Test::MockObject->new();
 # The User Agent is the object which takes care of the actual communication
 # with the VMware web service. By mocking it out, we're able to return whatever
@@ -154,27 +183,5 @@ ok($ret{"status"} == 2, "Connection refused returns CRITICAL");
 like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused returns CRITICAL (output verified)");
 
 
-run_script($agent_mock, 'net_usage', '-l net -s usage');
-run_script($agent_mock, 'net_send', '-l net -s send');
-run_script($agent_mock, 'net_receive', '-l net -s receive');
-run_script($agent_mock, 'net_nic', '-l net -s nic');
-run_script($agent_mock, 'net_all', '-l net');
-run_script($agent_mock, 'mem_usage', '-l mem -s usage');
-run_script($agent_mock, 'mem_usagemb', '-l mem -s usagemb');
-run_script($agent_mock, 'mem_swap', '-l mem -s swap');
-run_script($agent_mock, 'mem_overhead', '-l mem -s overhead');
-run_script($agent_mock, 'mem_overall', '-l mem -s overall');
-run_script($agent_mock, 'mem_memctl', '-l mem -s memctl');
-run_script($agent_mock, 'mem_all', '-l mem');
-run_script($agent_mock, 'cpu_usage', '-l cpu -s usage');
-run_script($agent_mock, 'cpu_usagemhz', '-l cpu -s usagemhz');
-run_script($agent_mock, 'cpu_all', '-l cpu');
-run_script($agent_mock, 'io_aborted', '-l io -s aborted');
-run_script($agent_mock, 'io_resets', '-l io -s resets');
-run_script($agent_mock, 'io_read', '-l io -s read');
-run_script($agent_mock, 'io_write', '-l io -s write');
-run_script($agent_mock, 'io_kernel', '-l io -s kernel');
-run_script($agent_mock, 'io_device', '-l io -s device');
-run_script($agent_mock, 'io_queue', '-l io -s queue');
-run_script($agent_mock, 'io_all', '-l io');
-
+run_scripts($agent_mock, './t/series');
+done_testing;
