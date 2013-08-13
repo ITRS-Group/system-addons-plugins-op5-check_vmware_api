@@ -182,6 +182,14 @@ my %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
 ok($ret{"status"} == 2, "Connection refused returns CRITICAL");
 like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused returns CRITICAL (output verified)");
 
+%ret = run_cmd('-H dummyhost -u devtest -p devtest -l foo -s bar');
+ok($ret{"status"} == 2, "Unknown host command returns CRITICAL");
+like($ret{"stdout"}, qr/CRITICAL.*Unknown HOST command/, "Output tells us we have supplied an unknown host command");
 
+%ret = run_cmd('-D dummycenter -u devtest -p devtest -l foo -s bar');
+ok($ret{"status"} == 2, "Unknown datacenter command returns CRITICAL");
+like($ret{"stdout"}, qr/CRITICAL.*Unknown DC command/, "Output tells us we have supplied an unknown DC command");
+
+diag('Running conservative regression tests ...');
 run_scripts($agent_mock, './t/series');
 done_testing;
