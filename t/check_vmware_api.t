@@ -2,6 +2,7 @@ package CheckVMwareAPI;
 use LWP::UserAgent;
 use Test::More;
 use Test::MockObject;
+use precooked_responses;
 use subs qw(exit);
 use strict;
 my $DEBUG;
@@ -15,24 +16,6 @@ BEGIN {
 		die( $code );
 	}
 }
-
-my $server_version_response = '<?xml version="1.0" encoding="UTF-8" ?>
-<!--
-   Copyright 2005-2012 VMware, Inc.  All rights reserved.
--->
-<definitions targetNamespace="urn:vim25Service"
-   xmlns="http://schemas.xmlsoap.org/wsdl/"
-   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-   xmlns:interface="urn:vim25"
->
-   <import location="vim.wsdl" namespace="urn:vim25" />
-   <service name="VimService">
-      <port binding="interface:VimBinding" name="VimPort">
-         <soap:address location="https://localhost/sdk/vimService" />
-      </port>
-   </service>
-</definitions>
-';
 
 sub run_cmd
 {
@@ -174,7 +157,7 @@ require_ok('check_vmware_api.pl');
 $agent_mock->set_series('request',
 	(
 		#we need to send the version response only once, on initialization
-		new_response($server_version_response),
+		new_response($CheckVMwareAPI::server_version_response),
 		new_response('Connection refused')
 	)
 );
@@ -182,13 +165,29 @@ my %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
 ok($ret{"status"} == 2, "Connection refused returns CRITICAL");
 like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused returns CRITICAL (output verified)");
 
-%ret = run_cmd('-H dummyhost -u devtest -p devtest -l foo -s bar');
+$agent_mock->set_series('request',
+	(
+		#we need to send the version response only once, on initialization
+		new_response($CheckVMwareAPI::retrieve_service_content_response),
+		new_response($CheckVMwareAPI::login_response),
+		new_response($CheckVMwareAPI::logout_response)
+	)
+);
+
+%ret = run_cmd('-H dummyhost -u devtest -p devtest -l foo -s bar --generate_test stdout');
 ok($ret{"status"} == 2, "Unknown host command returns CRITICAL");
 like($ret{"stdout"}, qr/CRITICAL.*Unknown HOST command/, "Output tells us we have supplied an unknown host command");
 
+$agent_mock->set_series('request',
+	(
+		new_response($CheckVMwareAPI::retrieve_service_content_response),
+		new_response($CheckVMwareAPI::login_response),
+		new_response($CheckVMwareAPI::logout_response)
+	)
+);
 %ret = run_cmd('-D dummycenter -u devtest -p devtest -l foo -s bar');
 ok($ret{"status"} == 2, "Unknown datacenter command returns CRITICAL");
-like($ret{"stdout"}, qr/CRITICAL.*Unknown DC command/, "Output tells us we have supplied an unknown DC command");
+like($ret{"stdout"}, qr/CRITICAL.*Unknown HOST command/, "Output tells us we have supplied an unknown HOST command");
 
 diag('Running conservative regression tests ...');
 run_scripts($agent_mock, './t/series');
