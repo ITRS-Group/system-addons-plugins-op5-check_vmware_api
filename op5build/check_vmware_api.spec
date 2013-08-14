@@ -15,7 +15,7 @@ Requires: perl(File::Basename)
 Requires: perl(HTTP::Date)
 
 BuildRequires: perl
-BuildRequires: perl(LWP::UserAgent)
+BuildRequires: perl-libwww-perl
 BuildRequires: perl(Test::More)
 BuildRequires: perl(Test::MockObject)
 BuildRequires: perl(Nagios::Plugin)
@@ -23,6 +23,8 @@ BuildRequires: perl(XML::LibXML)
 BuildRequires: perl(Crypt::SSLeay)
 %if 0%{?suse_version}
 # SLES-specific stuff
+#BuildRequires: perl(UNIVERSAL::isa)
+#BuildRequires: perl(UNIVERSAL::can)
 %else
 # Common RHEL stuff
 %if 0%{?rhel} >= 6

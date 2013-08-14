@@ -1,6 +1,6 @@
 package CheckVMwareAPI;
 use LWP::UserAgent;
-use Test::More;
+use Test::More qw(no_plan);
 use Test::MockObject;
 use precooked_responses;
 use subs qw(exit);
@@ -54,7 +54,7 @@ sub load_script
 	my $output = '(?!)';
 	my $status = 0;
 	my $ignore = 0;
-	open FILE, "./t/series/" . shift . ".dat" or die $!;
+	open FILE, "./t/series/" . (shift) . ".dat" or die $!;
 	while( <FILE> ) {
 		if (/^<definitions targetNamespace=.*/) {
 			$ignore = 1;
@@ -107,18 +107,19 @@ sub run_scripts
 	my ($agent, $directory) = @_;
 	diag "loading test scripts from ${directory}";
 	opendir (DIR, $directory) or die $!;
-	while ( readdir(DIR) ) {
-		if (/([a-zA-Z0-9]+)_([a-zA-Z0-9]+)_(\w+).dat/) {
-			diag "running ${_} ...";
+	while ( my $f = readdir(DIR) ) {
+		if ( $f =~ /([a-zA-Z0-9]+)_([a-zA-Z0-9]+)_(\w+).dat/) {
+			diag "running ${f} ...";
 			my ($target, $command, $subcommand) = ($1, $2, $3);
 			my $script_name = "${target}_${command}_${subcommand}";
 			run_script($agent, $script_name, $target, ${command}, ${subcommand});
 		}
 		else {
-			diag "skipping '${_}' ...";
+			diag "skipping '${f}' ...";
 
 		}
 	}
+	closedir(DIR);
 }
 sub run_script
 {
@@ -191,4 +192,3 @@ like($ret{"stdout"}, qr/CRITICAL.*Unknown HOST command/, "Output tells us we hav
 
 diag('Running conservative regression tests ...');
 run_scripts($agent_mock, './t/series');
-done_testing;
