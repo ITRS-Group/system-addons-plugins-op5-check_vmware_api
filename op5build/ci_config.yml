@@ -1,0 +1,6 @@
+post:
+  steps: |
+    curl --insecure https://dev-mon.int.op5.se/VMware-vSphere-Perl-SDK-4.1.0-254719.x86_64.gz | tar xvzf -
+    cd vmware*
+    export PAGER='/bin/cat'
+    printf "\ny\n\n" | ./vmware-install.pl

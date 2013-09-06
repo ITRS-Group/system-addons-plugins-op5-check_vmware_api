@@ -13,6 +13,16 @@ Requires: perl
 Requires: perl(Nagios::Plugin)
 Requires: perl(File::Basename)
 Requires: perl(HTTP::Date)
+# Dependencies technically for the SDK:
+Requires: perl(Crypt::SSLeay)
+Requires: perl(Data::Dumper)
+Requires: perl(Class::MethodMaker)
+Requires: perl(XML::LibXML)
+Requires: perl(LWP)
+Requires: perl(UUID)
+Requires: perl(SOAP::Lite)
+Requires: openssl-devel
+Requires: e2fsprogs
 
 BuildRequires: perl
 BuildRequires: perl-libwww-perl
