@@ -14,13 +14,27 @@ Requires: perl(Nagios::Plugin)
 Requires: perl(File::Basename)
 Requires: perl(HTTP::Date)
 # Dependencies technically for the SDK:
+Requires: perl(Archive::Zip)
+Requires: perl(Compress::Zlib)
+Requires: perl(Compress::Raw::Zlib)
+Requires: perl(ExtUtils::Installed)
 Requires: perl(Crypt::SSLeay)
+Requires: perl(version)
+Requires: perl(IO::Compress::Base)
+Requires: perl(IO::Compress::Zlib::Constants)
 Requires: perl(Data::Dumper)
 Requires: perl(Class::MethodMaker)
+Requires: perl(HTML::Parser)
+Requires: perl(UUID)
+Requires: perl(Data::Dump)
+Requires: perl(SOAP::Lite)
+Requires: perl(URI)
+Requires: perl(XML::SAX)
+Requires: perl(XML::NamespaceSupport)
+Requires: perl(XML::LibXML::Common)
 Requires: perl(XML::LibXML)
 Requires: perl(LWP)
-Requires: perl(UUID)
-Requires: perl(SOAP::Lite)
+Requires: perl(LWP::Protocol::https)
 Requires: openssl-devel
 Requires: e2fsprogs
 
@@ -33,11 +47,12 @@ BuildRequires: perl(XML::LibXML)
 BuildRequires: perl(Crypt::SSLeay)
 %if 0%{?suse_version}
 # SLES-specific stuff
-#BuildRequires: perl(UNIVERSAL::isa)
-#BuildRequires: perl(UNIVERSAL::can)
+Requires: uuid-runtime
+Requires: e2fsprogs-devel
 %else
 # Common RHEL stuff
 %if 0%{?rhel} >= 6
+Requires: uuid
 # RHEL6-specific stuff
 %else
 # RHEL5-specific stuff

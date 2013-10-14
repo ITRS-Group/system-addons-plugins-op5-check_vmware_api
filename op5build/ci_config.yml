@@ -1,9 +1,10 @@
 post:
   install: [curl, module-init-tools]
   steps: |
-    curl -3 --insecure https://dev-mon.int.op5.se/VMware-vSphere-Perl-SDK-4.1.0-254719.x86_64.gz | tar xvzf -
+    cd /tmp
+    curl -3 --insecure https://dev-mon.int.op5.se/VMware-vSphere-Perl-SDK-5.5.0-1292267.x86_64.gz | tar xvzf -
     pushd vmware*
     export PAGER='/bin/cat'
-    printf "\ny\n\n" | ./vmware-install.pl
+    printf "\ny\nn\n\n" | ./vmware-install.pl
     popd
     rm -rf vmware*
