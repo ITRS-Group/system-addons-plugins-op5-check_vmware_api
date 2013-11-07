@@ -1909,7 +1909,7 @@ sub host_runtime_info
 			my ($cpuStatusInfo, $storageStatusInfo, $memoryStatusInfo, $numericSensorInfo);
 			my $components = {};
 
-			$res = OK;
+			$res = UNKNOWN;
 
 			if(defined($runtime->healthSystemRuntime))
 			{
@@ -1918,6 +1918,9 @@ sub host_runtime_info
 				$memoryStatusInfo = $runtime->healthSystemRuntime->hardwareStatusInfo->memoryStatusInfo;
 				$numericSensorInfo = $runtime->healthSystemRuntime->systemHealthInfo->numericSensorInfo;
 
+				if (defined($cpuStatusInfo) || defined($storageStatusInfo) || defined($memoryStatusInfo) || defined($numericSensorInfo)) {
+					$res = OK;
+				}
 				$output = '';
 
 				if (defined($cpuStatusInfo))
