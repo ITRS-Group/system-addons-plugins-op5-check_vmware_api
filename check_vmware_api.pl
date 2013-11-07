@@ -1918,6 +1918,9 @@ sub host_runtime_info
 				$memoryStatusInfo = $runtime->healthSystemRuntime->hardwareStatusInfo->memoryStatusInfo;
 				$numericSensorInfo = $runtime->healthSystemRuntime->systemHealthInfo->numericSensorInfo;
 
+				if (defined($cpuStatusInfo) || defined($storageStatusInfo) || defined($memoryStatusInfo) || defined($numericSensorInfo)) {
+					$res = OK;
+				}
 				$output = '';
 
 				if (defined($cpuStatusInfo))
@@ -1936,8 +1939,8 @@ sub host_runtime_info
 							summary => $_->status->summary
 						};
 						push(@{$components->{$state}{CPU}}, $itemref);
+						$res = Nagios::Plugin::Functions::max_state_alt($res, $state);
 						if ($state != OK) {
-							$res = Nagios::Plugin::Functions::max_state($res, $state);
 							$AlertCount++;
 						} else {
 							$OKCount++;
@@ -1961,8 +1964,8 @@ sub host_runtime_info
 							summary => $_->status->summary
 						};
 						push(@{$components->{$state}{Storage}}, $itemref);
+						$res = Nagios::Plugin::Functions::max_state_alt($res, $state);
 						if ($state != OK) {
-							$res = Nagios::Plugin::Functions::max_state($res, $state);
 							$AlertCount++;
 						} else {
 							$OKCount++;
@@ -1986,8 +1989,8 @@ sub host_runtime_info
 							summary => $_->status->summary
 						};
 						push(@{$components->{$state}{Memory}}, $itemref);
+						$res = Nagios::Plugin::Functions::max_state_alt($res, $state);
 						if ($state != OK) {
-							$res = Nagios::Plugin::Functions::max_state($res, $state);
 							$AlertCount++;
 						} else {
 							$OKCount++;
@@ -2011,8 +2014,8 @@ sub host_runtime_info
 							summary => $_->healthState->summary
 						};
 						push(@{$components->{$state}{$_->sensorType}}, $itemref);
+						$res = Nagios::Plugin::Functions::max_state_alt($res, $state);
 						if ($state != OK) {
-							$res = Nagios::Plugin::Functions::max_state($res, $state);
 							$AlertCount++;
 						} else {
 							$OKCount++;
