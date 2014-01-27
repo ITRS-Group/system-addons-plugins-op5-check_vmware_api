@@ -609,7 +609,9 @@ sub main {
 		}
 
 		$host_address .= ":443" if (index($host_address, ":") == -1);
-		$host_address = "https://" . $host_address . "/sdk/webService";
+		if (not $host_address =~ '^.*://.*$') {
+			$host_address = "https://" . $host_address . "/sdk/webService";
+		}
 
 		if (defined($sessionfile) and -e $sessionfile)
 		{
