@@ -849,8 +849,8 @@ sub generic_performance_values {
 		$perfargs->{perfCounter} = $perfMgr;
 	}
 	my $metrices = get_key_metrices($perfMgr, $group, @list);
-	my $maxsamples = defined($perfargs->{maxsamples}) ? $perfargs->{maxsamples} : 1; #default 1 sample
-	my $interval = defined($perfargs->{interval}) ? $perfargs->{interval} : 20; #retrive RefreshRate as default value
+	my $maxsamples = $perfargs->{maxsamples};
+	my $interval = $perfargs->{interval};
 	my $timestamp = $perfargs->{timestamp};
 
 	my @perf_query_spec = ();
@@ -862,14 +862,14 @@ sub generic_performance_values {
 		($sec,$min,$hour,$mday,$mon,$year) = gmtime($timestamp);
 		my $endTime = sprintf("%04d-%02d-%02dT%02d:%02d:%02dZ", $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
 
-		if ($interval eq "r") {
+		if ($interval and $interval eq "r") {
 			foreach (@$views) {
 				my $summary = $perfMgr->QueryPerfProviderSummary(entity => $_);
 				die "Realtime interval is not supported or not enabled\n" unless ($summary && $summary->currentSupported);
 				$interval = $summary->refreshRate;
 				push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples, startTime => $startTime, endTime => $endTime));
 			}
-		} elsif (substr($interval, 0, 1) eq "h") {
+		} elsif ($interval and substr($interval, 0, 1) eq "h") {
 			my $index = substr($interval, 1, -1);
 			foreach (@$views) {
 				my $summary = $perfMgr->QueryPerfProviderSummary(entity => $_);
@@ -885,14 +885,14 @@ sub generic_performance_values {
 			push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples, startTime => $startTime, endTime => $endTime)) foreach (@$views);
 		}
 	} else {
-		if ($interval eq "r") {
+		if ($interval and $interval eq "r") {
 			foreach (@$views) {
 				my $summary = $perfMgr->QueryPerfProviderSummary(entity => $_);
 				die "Realtime interval is not supported or not enabled\n" unless ($summary && $summary->currentSupported);
 				$interval = $summary->refreshRate;
 				push(@perf_query_spec, PerfQuerySpec->new(entity => $_, metricId => $metrices, format => 'csv', intervalId => $interval, maxSample => $maxsamples));
 			}
-		} elsif (substr($interval, 0, 1) eq "h") {
+		} elsif ($interval and substr($interval, 0, 1) eq "h") {
 			my $index = substr($interval, 1, -1);
 			foreach (@$views) {
 				my $summary = $perfMgr->QueryPerfProviderSummary(entity => $_);
