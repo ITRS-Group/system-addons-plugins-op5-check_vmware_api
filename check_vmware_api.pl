@@ -850,7 +850,7 @@ sub generic_performance_values {
 	}
 	my $metrices = get_key_metrices($perfMgr, $group, @list);
 	my $maxsamples = $perfargs->{maxsamples};
-	my $interval = $perfargs->{interval};
+	my $interval = defined($perfargs->{interval}) ? $perfargs->{interval} : 20;
 	my $timestamp = $perfargs->{timestamp};
 
 	my @perf_query_spec = ();
