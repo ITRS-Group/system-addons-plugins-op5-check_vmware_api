@@ -147,7 +147,7 @@ sub main {
 		. "        * io - shows disk I/O info\n"
 		. "            + usage - overall disk usage in MB/s\n"
 		. "            + read - read disk usage in MB/s\n"
-		. "            + write - read disk usage in MB/s\n"
+		. "            + write - write disk usage in MB/s\n"
 		. "            ^ all disk io info(no thresholds)\n"
 		. "        * runtime - shows runtime info\n"
 		. "            + con - connection state\n"
