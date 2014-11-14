@@ -2114,7 +2114,7 @@ sub host_runtime_info
 			else
 			{
 				$res = UNKNOWN;
-				$output = "Storage health status unavailable";
+				$output = "Storage health status unavailable - make sure you have the \"Storage Health\" tab in your vSphere client";
 			}
 			$np->add_perfdata(label => "Alerts", value => $AlertCount);
 		}
