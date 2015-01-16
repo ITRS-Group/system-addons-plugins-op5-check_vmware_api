@@ -198,14 +198,14 @@ sub main {
 		. "        * vmfs - shows Datastore info\n"
 		. "            + (name) - free space info for datastore with name (name)\n"
 		. "                o used - output used space instead of free\n"
-		. "                o breif - list only alerting volumes\n"
+		. "                o brief - list only alerting volumes\n"
 		. "                o regexp - whether to treat name as regexp\n"
 		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
 		. "                b - blacklist VMFS's\n"
 		. "                T (value) - timeshift to detemine if we need to refresh\n"
 		. "            ^ all datastore info\n"
 		. "                o used - output used space instead of free\n"
-		. "                o breif - list only alerting volumes\n"
+		. "                o brief - list only alerting volumes\n"
 		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
 		. "                b - blacklist VMFS's\n"
 		. "                T (value) - timeshift to detemine if we need to refresh\n"
@@ -279,14 +279,14 @@ sub main {
 		. "        * vmfs - shows Datastore info\n"
 		. "            + (name) - free space info for datastore with name (name)\n"
 		. "                o used - output used space instead of free\n"
-		. "                o breif - list only alerting volumes\n"
+		. "                o brief - list only alerting volumes\n"
 		. "                o regexp - whether to treat name as regexp\n"
 		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
 		. "                b - blacklist VMFS's\n"
 		. "                T (value) - timeshift to detemine if we need to refresh\n"
 		. "            ^ all datastore info\n"
 		. "                o used - output used space instead of free\n"
-		. "                o breif - list only alerting volumes\n"
+		. "                o brief - list only alerting volumes\n"
 		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
 		. "                b - blacklist VMFS's\n"
 		. "                T (value) - timeshift to detemine if we need to refresh\n"
@@ -333,14 +333,14 @@ sub main {
 		. "        * vmfs - shows Datastore info\n"
 		. "            + (name) - free space info for datastore with name (name)\n"
 		. "                o used - output used space instead of free\n"
-		. "                o breif - list only alerting volumes\n"
+		. "                o brief - list only alerting volumes\n"
 		. "                o regexp - whether to treat name as regexp\n"
 		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
 		. "                b - blacklist VMFS's\n"
 		. "                T (value) - timeshift to detemine if we need to refresh\n"
 		. "            ^ all datastore info\n"
 		. "                o used - output used space instead of free\n"
-		. "                o breif - list only alerting volumes\n"
+		. "                o brief - list only alerting volumes\n"
 		. "                o blacklistregexp - whether to treat blacklist as regexp\n"
 		. "                b - blacklist VMFS's\n"
 		. "                T (value) - timeshift to detemine if we need to refresh\n"
@@ -2146,7 +2146,7 @@ sub host_runtime_info
 						my $state = check_health_state($_->healthState->key);
 						$_->name =~ m/(.*?)\sTemp\s.+/;
 						my $itemref = {
-							name => $1,
+							name => $_->name,
 							power10 => $_->unitModifier,
 							state => $_->healthState->key,
 							value => $_->currentReading,
