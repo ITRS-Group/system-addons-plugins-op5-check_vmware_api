@@ -223,6 +223,8 @@ sub main {
 		. "                b - blacklist status objects\n"
 		. "            + sensor - threshold specified sensor\n"
 		. "            + maintenance - shows whether host is in maintenance mode\n"
+		. "                o maintwarn - sets warning state when host is in maintenance mode\n"
+		. "                o maintcrit - sets critical state when host is in maintenance mode\n"
 		. "            + list(vm) - list of VMware machines and their statuses\n"
 		. "            + status - overall object status (gray/green/red/yellow)\n"
 		. "            + issues - all issues for the host\n"
@@ -2260,6 +2262,12 @@ sub host_runtime_info
 			my %host_maintenance_state = (0 => "no", 1 => "yes");
 			$output = "maintenance=" . $host_maintenance_state{$runtime->inMaintenanceMode};
 			$res = OK;
+			if ($addopts eq "maintwarn") {
+				$res = WARNING;
+			}
+			elsif ($addopts eq "maintcrit") {
+				$res = CRITICAL;
+			}
 		}
 		elsif (($subcommand eq "LIST") || ($subcommand eq "LISTVM"))
 		{
