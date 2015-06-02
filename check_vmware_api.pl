@@ -1881,7 +1881,7 @@ sub host_runtime_info
 	die "Host \"" . $$host{"name"} . "\" does not exist\n" if (!defined($host_view));
 	$host_view->update_view_data(['name', 'runtime', 'overallStatus', 'configIssue']);
 	$runtime = $host_view->runtime;
-	die {msg => ("NOTICE: \"" . $host_view->name . "\" is in maintenance mode, check skipped\n"), code => OK} if ($runtime->inMaintenanceMode);
+	die {msg => ("NOTICE: \"" . $host_view->name . "\" is in maintenance mode, check skipped\n"), code => OK} if (($subcommand ne "MAINTENANCE") && ($runtime->inMaintenanceMode));
 
 	my %base_units = (
 		'Degrees C' => 'C',
