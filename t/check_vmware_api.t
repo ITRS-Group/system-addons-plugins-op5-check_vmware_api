@@ -163,8 +163,8 @@ $agent_mock->set_series('request',
 	)
 );
 my %ret = run_cmd('-H dummyhost -u devtest -p devtest -l net -s usage');
-ok($ret{"status"} == 2, "Connection refused returns CRITICAL");
-like($ret{"stdout"}, qr/CRITICAL.*Connection refused/, "Connection refused returns CRITICAL (output verified)");
+ok($ret{"status"} == 3, "Connection refused returns UNKNOWN");
+like($ret{"stdout"}, qr/UNKNOWN.*Connection refused/, "Connection refused returns UNKNOWN (output verified)");
 
 $agent_mock->set_series('request',
 	(

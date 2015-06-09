@@ -796,6 +796,18 @@ sub main {
 			$output = $@->{msg};
 			$result = $@->{code};
 		}
+		elsif ($@ =~ /^Error connecting to server at/) {
+			$output = $@ . "";
+			$result = UNKNOWN;
+		}
+		elsif ($@ =~ /^Error: Cannot complete login/) {
+			$output = $@ . "";
+			$result = UNKNOWN;
+		}
+		elsif ($@ =~ /^Error: Permission to perform/) {
+			$output = $@ . "";
+			$result = UNKNOWN;
+		}
 		else
 		{
 			$output = $@ . "";
