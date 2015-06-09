@@ -88,15 +88,15 @@ Follow the on screen instructions, described below:
   This installer has successfully installed both vSphere CLI and the vSphere SDK
   for Perl.
 
-  The following Perl modules were found on the system but may be too old to work 
+  The following Perl modules were found on the system but may be too old to work
   with vSphere CLI:
 
-  Compress::Zlib 2.037 or newer 
-  Compress::Raw::Zlib 2.037 or newer 
-  version 0.78 or newer 
-  IO::Compress::Base 2.037 or newer 
-  IO::Compress::Zlib::Constants 2.037 or newer 
-  LWP::Protocol::https 5.805 or newer 
+  Compress::Zlib 2.037 or newer
+  Compress::Raw::Zlib 2.037 or newer
+  version 0.78 or newer
+  IO::Compress::Base 2.037 or newer
+  IO::Compress::Zlib::Constants 2.037 or newer
+  LWP::Protocol::https 5.805 or newer
 
   Enjoy,
 
