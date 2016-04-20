@@ -36,8 +36,8 @@ package CheckVMwareAPI;
 use strict;
 use warnings;
 use vars qw($PROGNAME $VERSION $output $values $result $defperfargs);
-use Nagios::Plugin::Functions qw(%STATUS_TEXT);
-use Nagios::Plugin;
+use Monitoring::Plugin::Functions qw(%STATUS_TEXT);
+use Monitoring::Plugin;
 use File::Basename;
 use HTTP::Date;
 use Data::Dumper qw(Dumper);
@@ -109,7 +109,7 @@ sub main {
 	$PROGNAME = basename($0);
 	$VERSION = '0.7.1';
 
-	my $np = Nagios::Plugin->new(
+	my $np = Monitoring::Plugin->new(
 		usage => "Usage: %s -D <data_center> | -H <host_name> [ -C <cluster_name> ] [ -N <vm_name> ]\n"
 		. "    -u <user> -p <pass> | -f <authfile>\n"
 		. "    -l <command> [ -s <subcommand> ] [ -T <timeshift> ] [ -i <interval> ]\n"
@@ -543,7 +543,7 @@ sub main {
 
 	eval {
 		require VMware::VIRuntime;
-	} or Nagios::Plugin::Functions::nagios_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions"); #This is, potentially, a lie. This might just as well fail if a dependency of VMware::VIRuntime is missing (i.e VIRuntime itself requires something which in turn fails).
+	} or Monitoring::Plugin::Functions::plugin_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions"); #This is, potentially, a lie. This might just as well fail if a dependency of VMware::VIRuntime is missing (i.e VIRuntime itself requires something which in turn fails).
 
 
 	alarm($timeout) if $timeout;
@@ -607,7 +607,7 @@ sub main {
 		}
 		else
 		{
-			$np->nagios_exit(CRITICAL, "No Host or Datacenter specified");
+			$np->plugin_exit(CRITICAL, "No Host or Datacenter specified");
 		}
 
 		$host_address .= ":443" if (index($host_address, ":") == -1);
@@ -821,7 +821,7 @@ sub main {
 		print TEST_SCRIPT "#" . $output . "\n";
 		print TEST_SCRIPT "-" . $result;
 	}
-	$np->nagios_exit($result, $output);
+	$np->plugin_exit($result, $output);
 }
 main unless defined caller;
 #######################################################################################################################################################################
@@ -1230,7 +1230,7 @@ sub datastore_volumes_info
 				}
 
 				$state = $np->check_threshold(check => $perc?$value2:$value1);
-				$res = Nagios::Plugin::Functions::max_state($res, $state);
+				$res = Monitoring::Plugin::Functions::max_state($res, $state);
 				$np->add_perfdata(label => $name, value => $perc?$value2:$value1, uom => $perc?'%':'MB', threshold => $np->threshold);
 				$output .= "'$name'" . ($usedflag ? "(used)" : "(free)") . "=". $value1 . " MB (" . $value2 . "%), " if (!$briefflag || $state != OK);
 			}
@@ -1955,7 +1955,7 @@ sub host_runtime_info
 							summary => $_->status->summary
 						};
 						push(@{$components->{$state}{CPU}}, $itemref);
-						$res = Nagios::Plugin::Functions::max_state_alt($res, $state);
+						$res = Monitoring::Plugin::Functions::max_state_alt($res, $state);
 						if ($state != OK) {
 							$AlertCount++;
 						} else {
@@ -1980,7 +1980,7 @@ sub host_runtime_info
 							summary => $_->status->summary
 						};
 						push(@{$components->{$state}{Storage}}, $itemref);
-						$res = Nagios::Plugin::Functions::max_state_alt($res, $state);
+						$res = Monitoring::Plugin::Functions::max_state_alt($res, $state);
 						if ($state != OK) {
 							$AlertCount++;
 						} else {
@@ -2005,7 +2005,7 @@ sub host_runtime_info
 							summary => $_->status->summary
 						};
 						push(@{$components->{$state}{Memory}}, $itemref);
-						$res = Nagios::Plugin::Functions::max_state_alt($res, $state);
+						$res = Monitoring::Plugin::Functions::max_state_alt($res, $state);
 						if ($state != OK) {
 							$AlertCount++;
 						} else {
@@ -2030,7 +2030,7 @@ sub host_runtime_info
 							summary => $_->healthState->summary
 						};
 						push(@{$components->{$state}{$_->sensorType}}, $itemref);
-						$res = Nagios::Plugin::Functions::max_state_alt($res, $state);
+						$res = Monitoring::Plugin::Functions::max_state_alt($res, $state);
 						if ($state != OK) {
 							$AlertCount++;
 						} else {
@@ -2101,7 +2101,7 @@ sub host_runtime_info
 					$components->{$state}{"Storage"}{$_->name} = $_->status->summary;
 					if ($state != OK)
 					{
-						$res = Nagios::Plugin::Functions::max_state($res, $state);
+						$res = Monitoring::Plugin::Functions::max_state($res, $state);
 						$AlertCount++;
 					} else {
 						$OKCount++;
@@ -2169,7 +2169,7 @@ sub host_runtime_info
 						push(@{$components->{$state}}, $itemref);
 						if ($state != OK)
 						{
-							$res = Nagios::Plugin::Functions::max_state($res, $state);
+							$res = Monitoring::Plugin::Functions::max_state($res, $state);
 							$AlertCount++;
 						}
 						else
@@ -2678,7 +2678,7 @@ sub host_storage_info
 			{
 				$res = UNKNOWN;
 			}
-			$state = Nagios::Plugin::Functions::max_state($state, $status);
+			$state = Monitoring::Plugin::Functions::max_state($state, $status);
 		}
 		$np->add_perfdata(label => "adapters", value => $count, uom => 'units', threshold => $np->threshold);
 		$output .= $count . "/" . @{$storage->storageDeviceInfo->hostBusAdapter} . " adapters online, ";
@@ -2723,7 +2723,7 @@ sub host_storage_info
 					$res = UNKNOWN;
 					$status = UNKNOWN;
 				}
-				$state = Nagios::Plugin::Functions::max_state($state, $status);
+				$state = Monitoring::Plugin::Functions::max_state($state, $status);
 			}
 		}
 		$np->add_perfdata(label => "LUNs", value => $count, uom => 'units', threshold => $np->threshold);
@@ -2771,7 +2771,7 @@ sub host_storage_info
 						$res = UNKNOWN;
 						$status = UNKNOWN;
 					}
-					$state = Nagios::Plugin::Functions::max_state($state, $status);
+					$state = Monitoring::Plugin::Functions::max_state($state, $status);
 					$amount++;
 				}
 			}
@@ -4164,12 +4164,12 @@ sub dc_runtime_info
 					$output .= $dc->name . " overall status=" . $status . ", ";
 					$status = check_health_state($status);
 					$res = UNKNOWN if ($status == UNKNOWN);
-					$res = Nagios::Plugin::Functions::max_state($res, $status) if (($res != UNKNOWN) || ($status != OK));
+					$res = Monitoring::Plugin::Functions::max_state($res, $status) if (($res != UNKNOWN) || ($status != OK));
 				}
 				else
 				{
 					$output .= "Insufficient rights to access " . $dc->name . " status info on the DC, ";
-					$res = Nagios::Plugin::Functions::max_state($res, WARNING);
+					$res = Monitoring::Plugin::Functions::max_state($res, WARNING);
 				}
 			}
 			if ($output) {

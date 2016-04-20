@@ -10,7 +10,9 @@ Prefix: /opt/plugins
 BuildRoot: %{_tmppath}/%{name}-%{version}
 BuildArch: noarch
 Requires: perl
-Requires: perl(Nagios::Plugin)
+Requires: perl(Monitoring::Plugin)
+Requires: perl(Class::Accessor)
+Requires: perl(Config::Tiny)
 Requires: perl(File::Basename)
 Requires: perl(HTTP::Date)
 # Dependencies technically for the SDK:
@@ -42,11 +44,17 @@ BuildRequires: perl
 BuildRequires: perl-libwww-perl
 BuildRequires: perl(Test::More)
 BuildRequires: perl(Test::MockObject)
-BuildRequires: perl(Nagios::Plugin)
+BuildRequires: perl(Monitoring::Plugin)
+BuildRequires: perl(Class::Accessor)
+BuildRequires: perl(Config::Tiny)
 BuildRequires: perl(XML::LibXML)
 BuildRequires: perl(Crypt::SSLeay)
 %if 0%{?suse_version}
 # SLES-specific stuff
+BuildRequires: perl(Params::Validate)
+Requires: perl(Params::Validate)
+BuildRequires: perl-Math-Calc-Units
+Requires: perl-Math-Calc-Units
 Requires: uuid-runtime
 Requires: e2fsprogs-devel
 %else
