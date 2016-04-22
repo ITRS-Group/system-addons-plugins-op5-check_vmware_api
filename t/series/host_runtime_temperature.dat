@@ -99,5 +99,5 @@
 </soapenv:Body>
 </soapenv:Envelope>
 !
-#All 1 temperature checks are GREEN: OK : System Board 1 Ambient Temp --- Normal = 25 C
+#All 1 temperature checks are GREEN: OK : System Board 1 Ambient Temp --- Normal = 25 C | 'System Board 1 Ambient Temp'=25;;
 -0

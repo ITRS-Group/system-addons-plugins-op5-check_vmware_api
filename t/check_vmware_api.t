@@ -1,6 +1,4 @@
 package CheckVMwareAPI;
-use FindBin;
-use lib "$FindBin::Bin/../perl/lib";
 use LWP::UserAgent;
 use Test::More qw(no_plan);
 use Test::MockObject;
