@@ -2273,13 +2273,18 @@ sub host_runtime_info
 		elsif ($subcommand eq "MAINTENANCE")
 		{
 			my %host_maintenance_state = (0 => "no", 1 => "yes");
-			$output = "maintenance=" . $host_maintenance_state{$runtime->inMaintenanceMode};
+			my $state = $runtime->inMaintenanceMode;
+			$output = "maintenance=" . $host_maintenance_state{$state};
 			$res = OK;
-			if ($addopts eq "maintwarn") {
-				$res = WARNING;
-			}
-			elsif ($addopts eq "maintcrit") {
-				$res = CRITICAL;
+			if ($state) {
+				if (!defined($addopts)) {
+				}
+				elsif ($addopts eq "maintwarn") {
+					$res = WARNING;
+				}
+				elsif ($addopts eq "maintcrit") {
+					$res = CRITICAL;
+				}
 			}
 		}
 		elsif (($subcommand eq "LIST") || ($subcommand eq "LISTVM"))
