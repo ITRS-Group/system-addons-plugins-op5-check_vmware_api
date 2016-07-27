@@ -7,6 +7,8 @@ machines. If you have a VMware cluster you should monitor the data center
 (VMware VirtualCenter/vCenter Server) and not the individual ESX/vSphere
 servers.
 
+Supports check status of vmware esx 3.x, esxi server, vsphere 4 and vsphere 5.
+
 ## Prerequisites
 'VMware vSphere SDK for Perl', available at
 https://my.vmware.com/group/vmware/downloads (requires a free account that you
