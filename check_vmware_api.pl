@@ -381,7 +381,8 @@ sub main {
 	$np->add_arg(
 		spec => 'port|P=i',
 		help => "-P, --port=<port>\n"
-		. '   Port to connect to.',
+		. "   Port to connect to.\n"
+		. '   By default, port 443 will be used.',
 		required => 0,
 	);
 
@@ -507,7 +508,7 @@ sub main {
 	my $cluster = $np->opts->cluster;
 	my $datacenter = $np->opts->datacenter;
 	my $vmname = $np->opts->name;
-	my $port = $np->opts->port;
+	my $port = $np->opts->port || "443";
 	my $username = $np->opts->username;
 	my $password = $np->opts->password;
 	my $authfile = $np->opts->authfile;
