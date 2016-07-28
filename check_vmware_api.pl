@@ -110,7 +110,7 @@ sub main {
 	$VERSION = '0.7.1';
 
 	my $np = Monitoring::Plugin->new(
-		usage => "Usage: %s -D <data_center> | -H <host_name> [ -C <cluster_name> ] [ -N <vm_name> ]\n"
+		usage => "Usage: %s -D <data_center> | -H <host_name> [ -C <cluster_name> ] [ -N <vm_name> ] [ -P <port> ]\n"
 		. "    -u <user> -p <pass> | -f <authfile>\n"
 		. "    -l <command> [ -s <subcommand> ] [ -T <timeshift> ] [ -i <interval> ]\n"
 		. "    [ -x <black_list> ] [ -o <additional_options> ]\n"
@@ -377,6 +377,13 @@ sub main {
 		. '   Virtual machine name.',
 		required => 0,
 	);
+	
+	$np->add_arg(
+		spec => 'port|P=i',
+		help => "-P, --port=<port>\n"
+		. '   Port to connect to.',
+		required => 0,
+	);
 
 	$np->add_arg(
 		spec => 'username|u=s',
@@ -500,6 +507,7 @@ sub main {
 	my $cluster = $np->opts->cluster;
 	my $datacenter = $np->opts->datacenter;
 	my $vmname = $np->opts->name;
+	my $port = $np->opts->port;
 	my $username = $np->opts->username;
 	my $password = $np->opts->password;
 	my $authfile = $np->opts->authfile;
@@ -610,7 +618,7 @@ sub main {
 			$np->plugin_exit(CRITICAL, "No Host or Datacenter specified");
 		}
 
-		$host_address .= ":443" if (index($host_address, ":") == -1);
+		$host_address .= ":$port" if (index($host_address, ":") == -1);
 		if (not $host_address =~ '^.*://.*$') {
 			$host_address = "https://" . $host_address . "/sdk/webService";
 		}
