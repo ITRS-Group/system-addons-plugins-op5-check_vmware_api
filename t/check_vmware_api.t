@@ -128,13 +128,30 @@ sub run_script
 	my $target = shift;
 	my $command = shift;
 	my $subcommand = shift;
+	my $option;
 	my $script = load_script($script_name);
 	my $cmd_str = '';
 	$subcommand =~ s/_/\// if defined($subcommand);
 	$agent->set_series('request', @{$script->{responses}});
 	$cmd_str .= $target eq 'datacenter' ? '-D dummycenter ' :'-H dummyhost ';
+
+	# The subcommand can in some cases contain an option for that subcommand.
+	# In that case we assume that the first part is the subcommand and the
+	# second part is the option. There is however a special case here since the
+	# plugin have the subcommand "cd/dvd" which do not have any options.
+	if ($subcommand =~ m/(.*)\/(.*)/) {
+		if($1 ne "cd" and $2 ne "dvd") {
+			$subcommand = $1;
+			$option = $2;
+		}
+	}
+
 	if ($subcommand eq 'all') {
 		$cmd_str .= "-u devtest -p devtest -l ${command}";
+	}
+	elsif (defined($option)) {
+		$cmd_str .= "-u devtest -p devtest -l ${command} " .
+		            "-s ${subcommand} -o ${option}";
 	}
 	else {
 		$cmd_str .= "-u devtest -p devtest -l ${command} -s ${subcommand}";
