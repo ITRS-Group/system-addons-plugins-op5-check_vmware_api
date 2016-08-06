@@ -627,14 +627,24 @@ sub main {
 		if (defined($sessionfile) and -e $sessionfile)
 		{
 			Opts::set_option("sessionfile", $sessionfile);
-			Vim::load_session(service_url => $host_address, session_file => $sessionfile);
 			eval {
-				Util::connect();
-				die "Connected host doesn't match reqested once\n" if (Opts::get_option("url") ne $host_address);
+				Vim::load_session(service_url => $host_address, session_file => $sessionfile);
 			};
-			if ($@) {
+			if ($@)
+			{
 				Opts::set_option("sessionfile", undef);
-				Util::connect();
+				Util::connect($host_address, $username, $password);
+			}
+			else
+			{
+				eval {
+					Vim::unset_logout_on_disconnect();
+					Util::connect();
+					die "Connected host doesn't match reqested once\n" if (Opts::get_option("url") ne $host_address);
+				};
+				if ($@) {
+					die "An error occured when connecting using the session file.\n";
+				}
 			}
 		}
 		else
