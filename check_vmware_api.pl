@@ -640,7 +640,7 @@ sub main {
 				eval {
 					Vim::unset_logout_on_disconnect();
 					Util::connect();
-					die "Connected host doesn't match reqested once\n" if (Opts::get_option("url") ne $host_address);
+					die "Connected host doesn't match reqested one\n" if (Opts::get_option("url") ne $host_address);
 				};
 				if ($@) {
 					die "An error occured when connecting using the session file.\n";
