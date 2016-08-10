@@ -2159,7 +2159,7 @@ sub host_runtime_info
 						$label =~ s/\s---\s.+//;
 						if (defined($blacklist))
 						{
-							next if ($blackregexpflag?$_->name =~ /$blacklist/:$blacklist =~ m/(^|\s|\t|,)\Q$_->name\E($|\s|\t|,)/);
+							next if ($blackregexpflag?$label =~ /$blacklist/:$blacklist =~ m/(^|\s|\t|,)\Q$label\E($|\s|\t|,)/);
 						}
 
 						my $state = check_health_state($_->healthState->key);
