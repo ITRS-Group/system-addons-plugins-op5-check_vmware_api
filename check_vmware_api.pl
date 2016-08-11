@@ -2173,6 +2173,12 @@ sub host_runtime_info
 							unit => $_->baseUnits,
 						};
 						push(@{$components->{$state}}, $itemref);
+						# Change state if custom thresholds are reached
+						my $state_threshold = $np->check_threshold(check => ($itemref->{value} * 10 ** $itemref->{power10}));
+						if ($state_threshold != OK)
+						{
+							$state = $state_threshold;
+						}
 						if ($state != OK)
 						{
 							$res = Monitoring::Plugin::Functions::max_state($res, $state);
@@ -2184,7 +2190,7 @@ sub host_runtime_info
 						}
 						# Since the temperature units are not valid uom we do not include them in
 						# the perfdata.
-						$np->add_perfdata(label => $itemref->{label}, value => ($itemref->{value} * 10 ** $itemref->{power10}));
+						$np->add_perfdata(label => $itemref->{label}, value => ($itemref->{value} * 10 ** $itemref->{power10}), threshold => $np->threshold);
 					}
 				}
 
