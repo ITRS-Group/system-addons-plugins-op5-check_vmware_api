@@ -383,6 +383,7 @@ sub main {
 		help => "-P, --port=<port>\n"
 		. "   Port to connect to.\n"
 		. '   By default, port 443 will be used.',
+		default => 443,
 		required => 0,
 	);
 
@@ -508,7 +509,7 @@ sub main {
 	my $cluster = $np->opts->cluster;
 	my $datacenter = $np->opts->datacenter;
 	my $vmname = $np->opts->name;
-	my $port = $np->opts->port || "443";
+	my $port = $np->opts->port;
 	my $username = $np->opts->username;
 	my $password = $np->opts->password;
 	my $authfile = $np->opts->authfile;
