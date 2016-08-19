@@ -630,6 +630,7 @@ sub main {
 			Opts::set_option("sessionfile", $sessionfile);
 			eval {
 				Vim::load_session(service_url => $host_address, session_file => $sessionfile);
+				$np->nagios_exit(CRITICAL, "Connected host doesn't match reqested one") if (Opts::get_option("url") . "/webService" ne $host_address);
 			};
 			if ($@)
 			{
@@ -641,7 +642,6 @@ sub main {
 				eval {
 					Vim::unset_logout_on_disconnect();
 					Util::connect();
-					die "Connected host doesn't match reqested one\n" if (Opts::get_option("url") ne $host_address);
 				};
 				if ($@) {
 					die "An error occured when connecting using the session file.\n";
