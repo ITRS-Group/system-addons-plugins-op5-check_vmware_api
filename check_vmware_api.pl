@@ -618,14 +618,13 @@ sub main {
 		if (defined($sessionfile) and -e $sessionfile)
 		{
 			Opts::set_option("sessionfile", $sessionfile);
-			Vim::load_session(service_url => $host_address, session_file => $sessionfile);
 			eval {
-				Util::connect();
+				Util::connect($host_address, $username, $password);
 				die "Connected host doesn't match reqested once\n" if (Opts::get_option("url") ne $host_address);
 			};
 			if ($@) {
 				Opts::set_option("sessionfile", undef);
-				Util::connect();
+				Util::connect($host_address, $username, $password);
 			}
 		}
 		else
