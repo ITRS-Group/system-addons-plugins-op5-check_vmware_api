@@ -2595,6 +2595,8 @@ sub host_storage_info
 						{
 							$state = CRITICAL;
 						}
+
+						last; # the first state should be considered the primary state.
 					}
 				}
 
@@ -2729,6 +2731,8 @@ sub host_storage_info
 					$status = UNKNOWN;
 				}
 				$state = Monitoring::Plugin::Functions::max_state($state, $status);
+
+				last; # the first state should be considered the primary state.
 			}
 		}
 		$np->add_perfdata(label => "LUNs", value => $count, uom => 'units', threshold => $np->threshold);
