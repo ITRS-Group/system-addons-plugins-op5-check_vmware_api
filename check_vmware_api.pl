@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+# nagios: -epn
 #
 # Nagios plugin to monitor VMware ESX and vSphere servers
 #
