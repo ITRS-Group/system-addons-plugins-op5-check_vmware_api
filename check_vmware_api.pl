@@ -486,6 +486,14 @@ sub main {
 	);
 
 	$np->add_arg(
+		spec => 'adapter_status_unknown_is_ok',
+		help => "--adapter_status_unknown_is_ok \n"
+		. '   Treat unknown adapter status as OK.',
+		default => 0,
+		required => 0,
+	);
+
+	$np->add_arg(
 		spec => 'generate_test=s',
 		help => "--generate_test=<file> \n"
 		. '   Generate a test case script from the executed command/subcommand and write it to <file>.'
@@ -2540,7 +2548,7 @@ sub host_storage_info
 					}
 				}
 				$count ++ if (uc($status) eq "ONLINE");
-				$res = UNKNOWN if (uc($status) eq "UNKNOWN");
+				$res = UNKNOWN if (uc($status) eq "UNKNOWN" && !$np->opts->adapter_status_unknown_is_ok);
 				$output .= $name . " (" . $status . "); ";
 			}
 			my $state = $np->check_threshold(check => $count);
@@ -2678,6 +2686,10 @@ sub host_storage_info
 			elsif (uc($dev->status) eq "FAULT")
 			{
 				$status = CRITICAL;
+			}
+			elsif (uc($dev->status) eq "UNKNOWN" && $np->opts->adapter_status_unknown_is_ok)
+			{
+				$status = OK;
 			}
 			else
 			{
