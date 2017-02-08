@@ -2679,6 +2679,10 @@ sub host_storage_info
 			{
 				$status = CRITICAL;
 			}
+			elsif (uc($dev->status) eq "UNBOUND")
+			{
+				$status = OK;
+			}
 			else
 			{
 				$res = UNKNOWN;
