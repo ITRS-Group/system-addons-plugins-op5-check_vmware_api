@@ -3,7 +3,7 @@ post:
   steps: |
     cd /tmp
     curl -3 --insecure http://repos.op5.com/sources/VMware-vSphere-Perl-SDK-5.5.0-1292267.x86_64.gz | tar xvzf -
-    pushd vmware*
+    pushd vmware-vsphere-cli-distrib
     export PAGER='/bin/cat'
     printf "\ny\nn\n\n" | ./vmware-install.pl
     popd
