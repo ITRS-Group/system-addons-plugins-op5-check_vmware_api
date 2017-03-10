@@ -41,6 +41,7 @@ use Monitoring::Plugin;
 use File::Basename;
 use HTTP::Date;
 use Data::Dumper qw(Dumper);
+use Net::SSL;
 my $perl_module_instructions="
 Download the latest version of the vSphere SDK for Perl from VMware.
 In this example we use VMware-vSphere-Perl-SDK-5.1.0-780721.x86_64.tar.gz,
@@ -544,7 +545,6 @@ sub main {
 	eval {
 		require VMware::VIRuntime;
 	} or Monitoring::Plugin::Functions::plugin_exit(UNKNOWN, "Missing perl module VMware::VIRuntime. Download and install \'VMware vSphere SDK for Perl\', available at https://my.vmware.com/group/vmware/downloads\n $perl_module_instructions"); #This is, potentially, a lie. This might just as well fail if a dependency of VMware::VIRuntime is missing (i.e VIRuntime itself requires something which in turn fails).
-
 
 	alarm($timeout) if $timeout;
 
