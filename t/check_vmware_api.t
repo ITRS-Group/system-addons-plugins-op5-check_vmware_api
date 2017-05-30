@@ -1,4 +1,5 @@
 package CheckVMwareAPI;
+use File::Find;
 use LWP::UserAgent;
 use Test::More qw(no_plan);
 use Test::MockObject;
@@ -54,7 +55,9 @@ sub load_script
 	my $output = '(?!)';
 	my $status = 0;
 	my $ignore = 0;
-	open FILE, "./t/series/" . (shift) . ".dat" or die $!;
+	my $data_file_path = shift @_;
+
+	open FILE, $data_file_path or die $!;
 	while( <FILE> ) {
 		if (/^<definitions targetNamespace=.*/) {
 			$ignore = 1;
@@ -102,25 +105,32 @@ sub new_response
 	return $response;
 }
 
+sub process_file {
+	my $agent = shift @_;
+		if (-d $_) {
+			my $dirname = $_;
+			diag "loading test scripts from $dirname";
+		}
+		if (-f $_) {
+			my $filename = $_;
+			if ( $filename =~ /([a-zA-Z0-9]+)_([a-zA-Z0-9]+)_(\w+).dat/) {
+				diag "running $filename ...";
+				my ($target, $cmd, $subcmd) = ($1, $2, $3);
+				run_script( $agent, $File::Find::name, $target, ${cmd}, ${subcmd});
+			}
+			else {
+				diag "skipping '$filename' ...";
+			}
+		}
+}
+
 sub run_scripts
 {
 	my ($agent, $directory) = @_;
 	diag "loading test scripts from ${directory}";
-	opendir (DIR, $directory) or die $!;
-	while ( my $f = readdir(DIR) ) {
-		if ( $f =~ /([a-zA-Z0-9]+)_([a-zA-Z0-9]+)_(\w+).dat/) {
-			diag "running ${f} ...";
-			my ($target, $command, $subcommand) = ($1, $2, $3);
-			my $script_name = "${target}_${command}_${subcommand}";
-			run_script($agent, $script_name, $target, ${command}, ${subcommand});
-		}
-		else {
-			diag "skipping '${f}' ...";
-
-		}
-	}
-	closedir(DIR);
+	find({ wanted => sub { process_file($agent) }, no_chdir => 1 }, $directory);
 }
+
 sub run_script
 {
 	my $agent = shift;

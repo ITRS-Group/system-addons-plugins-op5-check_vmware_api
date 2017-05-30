@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+   Copyright 2005-2017 VMware, Inc.  All rights reserved.
+-->
+<definitions targetNamespace="urn:vim25Service"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:interface="urn:vim25"
+>
+   <import location="vim.wsdl" namespace="urn:vim25" />
+   <service name="VimService">
+      <port binding="interface:VimBinding" name="VimPort">
+         <soap:address location="https://localhost/sdk/vimService" />
+      </port>
+   </service>
+</definitions>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrieveServiceContentResponse xmlns="urn:vim25"><returnval><rootFolder type="Folder">ha-folder-root</rootFolder><propertyCollector type="PropertyCollector">ha-property-collector</propertyCollector><viewManager type="ViewManager">ViewManager</viewManager><about><name>VMware ESXi</name><fullName>VMware ESXi 6.5.0 build-4887370</fullName><vendor>VMware, Inc.</vendor><version>6.5.0</version><build>4887370</build><localeVersion>INTL</localeVersion><localeBuild>000</localeBuild><osType>vmnix-x86</osType><productLineId>embeddedEsx</productLineId><apiType>HostAgent</apiType><apiVersion>6.5</apiVersion><licenseProductName>VMware ESX Server</licenseProductName><licenseProductVersion>6.0</licenseProductVersion></about><setting type="OptionManager">HostAgentSettings</setting><userDirectory type="UserDirectory">ha-user-directory</userDirectory><sessionManager type="SessionManager">ha-sessionmgr</sessionManager><authorizationManager type="AuthorizationManager">ha-authmgr</authorizationManager><serviceManager type="ServiceManager">ha-servicemanager</serviceManager><perfManager type="PerformanceManager">ha-perfmgr</perfManager><eventManager type="EventManager">ha-eventmgr</eventManager><taskManager type="TaskManager">ha-taskmgr</taskManager><accountManager type="HostLocalAccountManager">ha-localacctmgr</accountManager><diagnosticManager type="DiagnosticManager">ha-diagnosticmgr</diagnosticManager><licenseManager type="LicenseManager">ha-license-manager</licenseManager><searchIndex type="SearchIndex">ha-searchindex</searchIndex><fileManager type="FileManager">ha-nfc-file-manager</fileManager><datastoreNamespaceManager type="DatastoreNamespaceManager">ha-datastore-namespace-manager</datastoreNamespaceManager><virtualDiskManager type="VirtualDiskManager">ha-vdiskmanager</virtualDiskManager><ovfManager type="OvfManager">ha-ovf-manager</ovfManager><dvSwitchManager type="DistributedVirtualSwitchManager">ha-dvsmanager</dvSwitchManager><localizationManager type="LocalizationManager">ha-l10n-manager</localizationManager><storageResourceManager type="StorageResourceManager">ha-storage-resource-manager</storageResourceManager><guestOperationsManager type="GuestOperationsManager">ha-guest-operations-manager</guestOperationsManager><vStorageObjectManager type="HostVStorageObjectManager">ha-vstorage-object-manager</vStorageObjectManager><cryptoManager type="CryptoManager">ha-crypto-manager</cryptoManager></returnval></RetrieveServiceContentResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<LoginResponse xmlns="urn:vim25"><returnval><key>5289271f-ab08-5320-a37d-ab0afedce2a3</key><userName>root</userName><fullName>Administrator</fullName><loginTime>2017-05-29T14:35:35.772351Z</loginTime><lastActiveTime>2017-05-29T14:35:35.77235Z</lastActiveTime><locale>en</locale><messageLocale>en</messageLocale><extensionSession>false</extensionSession><ipAddress>172.27.96.6</ipAddress><userAgent>VI Perl</userAgent><callCount>0</callCount></returnval></LoginResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8" ?><namespaces version="1.0"><namespace><name>urn:vim25</name><version>6.5</version><priorVersions><version>6.0</version><version>5.5</version><version>5.1</version><version>5.0</version><version>4.1</version><version>4.0</version></priorVersions></namespace></namespaces>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">ha-host</obj></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">ha-host</obj><propSet><name>configIssue</name><val xsi:type="ArrayOfEvent"></val></propSet><propSet><name>name</name><val xsi:type="xsd:string">vmware-plugin-esxi65-01.demo.op5.com</val></propSet><propSet><name>overallStatus</name><val xsi:type="ManagedEntityStatus">green</val></propSet><propSet><name>runtime</name><val xsi:type="HostRuntimeInfo"><connectionState>connected</connectionState><powerState>poweredOn</powerState><inMaintenanceMode>false</inMaintenanceMode><bootTime>2017-03-09T10:27:56.809966Z</bootTime><healthSystemRuntime><systemHealthInfo></systemHealthInfo><hardwareStatusInfo><cpuStatusInfo><name>CPU socket #0</name><status><label>Green</label><summary>Physical element is functioning as expected</summary><key>Green</key></status></cpuStatusInfo><cpuStatusInfo><name>CPU socket #1</name><status><label>Green</label><summary>Physical element is functioning as expected</summary><key>Green</key></status></cpuStatusInfo></hardwareStatusInfo></healthSystemRuntime><vsanRuntimeInfo><accessGenNo>0</accessGenNo></vsanRuntimeInfo><networkRuntimeInfo><netStackInstanceRuntimeInfo><netStackInstanceKey>defaultTcpipStack</netStackInstanceKey><state>active</state><vmknicKeys>vmk0</vmknicKeys><maxNumberOfConnections>11000</maxNumberOfConnections><currentIpV6Enabled>false</currentIpV6Enabled></netStackInstanceRuntimeInfo></networkRuntimeInfo><hostMaxVirtualDiskCapacity>68169720922112</hostMaxVirtualDiskCapacity><cryptoState>incapable</cryptoState></val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="HostSystem">ha-host</obj><propSet><name>configIssue</name><val xsi:type="ArrayOfEvent"></val></propSet><propSet><name>name</name><val xsi:type="xsd:string">vmware-plugin-esxi65-01.demo.op5.com</val></propSet><propSet><name>overallStatus</name><val xsi:type="ManagedEntityStatus">green</val></propSet><propSet><name>runtime</name><val xsi:type="HostRuntimeInfo"><connectionState>connected</connectionState><powerState>poweredOn</powerState><inMaintenanceMode>false</inMaintenanceMode><bootTime>2017-03-09T10:27:56.809966Z</bootTime><healthSystemRuntime><systemHealthInfo></systemHealthInfo><hardwareStatusInfo><cpuStatusInfo><name>CPU socket #0</name><status><label>Green</label><summary>Physical element is functioning as expected</summary><key>Green</key></status></cpuStatusInfo><cpuStatusInfo><name>CPU socket #1</name><status><label>Green</label><summary>Physical element is functioning as expected</summary><key>Green</key></status></cpuStatusInfo></hardwareStatusInfo></healthSystemRuntime><vsanRuntimeInfo><accessGenNo>0</accessGenNo></vsanRuntimeInfo><networkRuntimeInfo><netStackInstanceRuntimeInfo><netStackInstanceKey>defaultTcpipStack</netStackInstanceKey><state>active</state><vmknicKeys>vmk0</vmknicKeys><maxNumberOfConnections>11000</maxNumberOfConnections><currentIpV6Enabled>false</currentIpV6Enabled></netStackInstanceRuntimeInfo></networkRuntimeInfo><hostMaxVirtualDiskCapacity>68169720922112</hostMaxVirtualDiskCapacity><cryptoState>incapable</cryptoState></val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8" ?><namespaces version="1.0"><namespace><name>urn:vim25</name><version>6.5</version><priorVersions><version>6.0</version><version>5.5</version><version>5.1</version><version>5.0</version><version>4.1</version><version>4.0</version></priorVersions></namespace></namespaces>
+
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="VirtualMachine">1</obj></returnval><returnval><obj type="VirtualMachine">2</obj></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<RetrievePropertiesResponse xmlns="urn:vim25"><returnval><obj type="VirtualMachine">1</obj><propSet><name>name</name><val xsi:type="xsd:string">vmware-plugins-vcsa65-01</val></propSet><propSet><name>runtime</name><val xsi:type="VirtualMachineRuntimeInfo"><device><runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState"><vmDirectPathGen2Active>false</vmDirectPathGen2Active><vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleNetwork</vmDirectPathGen2InactiveReasonOther></runtimeState><key>4000</key></device><host type="HostSystem">ha-host</host><connectionState>connected</connectionState><powerState>poweredOn</powerState><faultToleranceState>notConfigured</faultToleranceState><toolsInstallerMounted>false</toolsInstallerMounted><bootTime>2017-03-09T10:33:04.569629Z</bootTime><suspendInterval>0</suspendInterval><maxCpuUsage>4599</maxCpuUsage><maxMemoryUsage>10240</maxMemoryUsage><numMksConnections>0</numMksConnections><recordReplayState>inactive</recordReplayState><onlineStandby>false</onlineStandby><consolidationNeeded>false</consolidationNeeded><offlineFeatureRequirement><key>cpuid.lm</key><featureName>cpuid.lm</featureName><value>Bool:Min:1</value></offlineFeatureRequirement><featureRequirement><key>cpuid.SSE3</key><featureName>cpuid.SSE3</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.PCLMULQDQ</key><featureName>cpuid.PCLMULQDQ</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSSE3</key><featureName>cpuid.SSSE3</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.FMA</key><featureName>cpuid.FMA</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.CMPXCHG16B</key><featureName>cpuid.CMPXCHG16B</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.PCID</key><featureName>cpuid.PCID</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE41</key><featureName>cpuid.SSE41</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SSE42</key><featureName>cpuid.SSE42</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.MOVBE</key><featureName>cpuid.MOVBE</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.POPCNT</key><featureName>cpuid.POPCNT</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.AES</key><featureName>cpuid.AES</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.XSAVE</key><featureName>cpuid.XSAVE</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.AVX</key><featureName>cpuid.AVX</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.F16C</key><featureName>cpuid.F16C</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.RDRAND</key><featureName>cpuid.RDRAND</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.DS</key><featureName>cpuid.DS</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SS</key><featureName>cpuid.SS</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.FSGSBASE</key><featureName>cpuid.FSGSBASE</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.SMEP</key><featureName>cpuid.SMEP</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.ENFSTRG</key><featureName>cpuid.ENFSTRG</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.XCR0_MASTER_SSE</key><featureName>cpuid.XCR0_MASTER_SSE</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.XCR0_MASTER_YMM_H</key><featureName>cpuid.XCR0_MASTER_YMM_H</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.LAHF64</key><featureName>cpuid.LAHF64</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.NX</key><featureName>cpuid.NX</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.PDPE1GB</key><featureName>cpuid.PDPE1GB</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.RDTSCP</key><featureName>cpuid.RDTSCP</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.LM</key><featureName>cpuid.LM</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>cpuid.Intel</key><featureName>cpuid.Intel</featureName><value>Bool:Min:1</value></featureRequirement><featureRequirement><key>misc.cpuidFaulting</key><featureName>misc.cpuidFaulting</featureName><value>Bool:Min:1</value></featureRequirement><vFlashCacheAllocation>0</vFlashCacheAllocation><paused>false</paused><snapshotInBackground>false</snapshotInBackground></val></propSet></returnval><returnval><obj type="VirtualMachine">2</obj><propSet><name>name</name><val xsi:type="xsd:string">New Virtual Machine</val></propSet><propSet><name>runtime</name><val xsi:type="VirtualMachineRuntimeInfo"><device><runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState"><vmDirectPathGen2Active>false</vmDirectPathGen2Active><vmDirectPathGen2InactiveReasonVm>vmNptDisabledOrDisconnectedAdapter</vmDirectPathGen2InactiveReasonVm></runtimeState><key>4000</key></device><host type="HostSystem">ha-host</host><connectionState>connected</connectionState><powerState>poweredOff</powerState><faultToleranceState>notConfigured</faultToleranceState><toolsInstallerMounted>false</toolsInstallerMounted><suspendInterval>0</suspendInterval><maxCpuUsage>2299</maxCpuUsage><maxMemoryUsage>2048</maxMemoryUsage><numMksConnections>0</numMksConnections><recordReplayState>inactive</recordReplayState><cleanPowerOff>true</cleanPowerOff><onlineStandby>false</onlineStandby><consolidationNeeded>false</consolidationNeeded><offlineFeatureRequirement><key>cpuid.lm</key><featureName>cpuid.lm</featureName><value>Bool:Min:1</value></offlineFeatureRequirement><paused>false</paused><snapshotInBackground>false</snapshotInBackground></val></propSet></returnval></RetrievePropertiesResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<soapenv:Body>
+<LogoutResponse xmlns="urn:vim25"></LogoutResponse>
+</soapenv:Body>
+</soapenv:Envelope>
+!
+#1/2 VMs up, overall status=green, connection state=connected, maintenance=no, All 2 health checks are Green, no config issues
+-0
