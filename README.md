@@ -20,10 +20,22 @@ The supported featureset will differ a bit between VMWare 5 and VMWare 6; please
 | IO      | Yes      | Yes                                                                                       |
 | Memory  | Yes      | Yes                                                                                       |
 | Network | Yes      | Yes                                                                                       |
-| Runtime | Yes      | Partially: -Overview -Connection state -Health -Maintenance -Status -Storage Health       |
+| Runtime | Yes      | Partially: Overview*, Connection state, Health, Maintenance, Status, Storage Health       |
 | Service | Yes      | Yes                                                                                       |
 | Uptime  | No       | Yes                                                                                       |
 | Storage | Yes      | No                                                                                        |
+* Specified in the plugin help text as "^all", meaning that the sub command are omitted
+
+### Checks supported for Datacenters
+| Check   | Vmware 5                                                                 | Vmware 6                                       |
+|---------|--------------------------------------------------------------------------|------------------------------------------------|
+| CPU     | Yes                                                                      | Yes                                            |
+| IO      | Yes                                                                      | Yes                                            |
+| Memory  | Yes                                                                      | Yes                                            |
+| Network | Partially: Overview*, Receive, Send, Usage                               | Partially: Receive, Send, Usage, Overview*     |
+| Runtime | Partially: Overview*, Issues, List, Listcluster, Listhost, Status, Tools | Partially: Overview*, List, Listcluster, Tools |
+| VMFS    | Partially: Overview*                                                     | Partially: Free space, Used space              |
+* Specified in the plugin help text as "^all", meaning that the sub command are omitted
 
 ## Prerequisites
 'VMware vSphere SDK for Perl', available at
@@ -112,10 +124,17 @@ $ /opt/plugins/check_vmware_api --help
 ## Get involved - Contribute to the Check VMware API project
 It is easy to get involved in the project and to contribute!
 * Start using the plugin and if you like what you see, help by spreading the word on blogs and forums.
-* Post your comments and feedback at the bottom of this page
-Sign up at the [op5-users](http://lists.op5.com/mailman/listinfo/op5-users) mailing list to join the conversation and help other users by answering questions. It is here that you can follow the project and contribute your code and bugfixes. (The mailing list is not project specific)
-* If you find a bug you can [report the bug here](https://bugs.op5.com/) or on the mailing list
-* If you miss any documentation or know how to solve an undocumented problem you can contribute with documentation here in the op5 Knowledge Base.
+* If you find a bug you can create a bug report in the issue tracker here on GitHub.
+### Testing
+* Unit tests: This plugin is huge and hard to unit test but if pull requests with unit tests are greatly appreciated.
+* Integration tests: This plugin is equipped with an option of generating tests (--generate_test). Simply run the plugin with this flag appended at the end of your command followed by a filename with the following format: 
+
+> <target>_<command>_<subcommand>_<option>.dat
+For example:
+> host_runtime_maintenance_maintwarn.dat
+So running the plugin from command line with the following will generate the integration test:
+> $ ./check_vmware_api -u <user> -p <password> -H <host_name> -l runtime -s maintenance -o maintwarn --generate_test host_runtime_maintenance_maintwarn.dat
+You can omit subcommand and/or option from the command and reflect that in the file name. To run all the tests simply run 'make'.
 
 ## License
 See LICENSE.
