@@ -9,6 +9,21 @@ servers.
 
 Supports check status of ESX(i) server, vSphere 5 and vSphere 6.
 
+## Supported features
+
+The supported featureset will differ a bit between VMWare 5 and VMWare 6; please refer to the tables below for reference:
+
+| Check   | Vmware 5 | Vmware 6                                                                                  |
+|---------|----------|-------------------------------------------------------------------------------------------|
+| CPU     | Yes      | Yes                                                                                       |
+| IO      | Yes      | Yes                                                                                       |
+| Memory  | Yes      | Yes                                                                                       |
+| Network | Yes      | Yes                                                                                       |
+| Runtime | Yes      | Partially: -Overview -Connection state -Health -Maintenance -Status -Storage Health       |
+| Service | Yes      | Yes                                                                                       |
+| Uptime  | No       | Yes                                                                                       |
+| Storage | Yes      | No                                                                                        |
+
 ## Prerequisites
 'VMware vSphere SDK for Perl', available at
 https://my.vmware.com/group/vmware/downloads (requires a free account that you
