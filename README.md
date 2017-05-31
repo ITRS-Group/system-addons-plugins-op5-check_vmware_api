@@ -7,7 +7,7 @@ machines. If you have a VMware cluster you should monitor the data center
 (VMware VirtualCenter/vCenter Server) and not the individual ESX/vSphere
 servers.
 
-Supports check status of VMware ESX 3.x, ESX(i) server, vSphere 4 and vSphere 5.
+Supports check status of ESX(i) server, vSphere 5 and vSphere 6.
 
 ## Prerequisites
 'VMware vSphere SDK for Perl', available at
@@ -87,6 +87,19 @@ Simply run the plugin with:
 ```bash
 $ /opt/plugins/check_vmware_api --help
 ```
+
+## Documentation
+* Read the OP5 [Monitoring VMware ESX, ESXi, vSphere and vCenter Server](https://kb.op5.com/x/J4IK)  (for OP5 Monitor)
+* Subscribe to the [op5-users](http://lists.op5.com/mailman/listinfo/op5-users) mailing list
+* Browse the [mailing list archives](http://lists.op5.com/pipermail/op5-users/)
+
+## Get involved - Contribute to the Check VMware API project
+It is easy to get involved in the project and to contribute!
+* Start using the plugin and if you like what you see, help by spreading the word on blogs and forums.
+* Post your comments and feedback at the bottom of this page
+Sign up at the [op5-users](http://lists.op5.com/mailman/listinfo/op5-users) mailing list to join the conversation and help other users by answering questions. It is here that you can follow the project and contribute your code and bugfixes. (The mailing list is not project specific)
+* If you find a bug you can [report the bug here](https://bugs.op5.com/) or on the mailing list
+* If you miss any documentation or know how to solve an undocumented problem you can contribute with documentation here in the op5 Knowledge Base.
 
 ## License
 See LICENSE.
