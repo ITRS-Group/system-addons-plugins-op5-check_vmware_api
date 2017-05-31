@@ -13,6 +13,7 @@ Supports check status of ESX(i) server, vSphere 5 and vSphere 6.
 
 The supported featureset will differ a bit between VMWare 5 and VMWare 6; please refer to the tables below for reference:
 
+### Checks supported for Hosts
 | Check   | Vmware 5 | Vmware 6                                                                                  |
 |---------|----------|-------------------------------------------------------------------------------------------|
 | CPU     | Yes      | Yes                                                                                       |
