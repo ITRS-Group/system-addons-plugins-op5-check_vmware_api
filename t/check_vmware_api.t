@@ -18,6 +18,7 @@ BEGIN {
 	}
 }
 
+# The actual execution of the check_vmware plugin
 sub run_cmd
 {
 	my @saved_argv = @ARGV;
@@ -42,6 +43,7 @@ sub run_cmd
 	%ret;
 }
 
+# Loads the test data file (SOAP response data + expected reply)
 sub load_script
 {
 	my @response_strings = ();
@@ -88,6 +90,7 @@ sub load_script
 	};
 }
 
+# Generates separate responses from the data in the test data file
 sub response_series
 {
 	my @responses;
@@ -97,6 +100,8 @@ sub response_series
 	}
 	return @responses;
 }
+
+# Packages the responses from response_series to HTTP replies
 sub new_response
 {
 	my $content = shift;
@@ -105,6 +110,7 @@ sub new_response
 	return $response;
 }
 
+# Function called upon from the File::find module, used to trigger the run_script command
 sub process_file {
 	my $agent = shift @_;
 	if (-d $_) {
@@ -124,6 +130,7 @@ sub process_file {
 	}
 }
 
+# Triggers the process_file traversion, which in turn triggers the run_script command
 sub run_scripts
 {
 	my ($agent, $directory) = @_;
@@ -131,6 +138,7 @@ sub run_scripts
 	find({ wanted => sub { process_file($agent) }, no_chdir => 1 }, $directory);
 }
 
+# Builds the command-line for the check_vmware plugin, and calls the run_cmd command, which triggers the check_vmware plugin
 sub run_script
 {
 	my $agent = shift;
