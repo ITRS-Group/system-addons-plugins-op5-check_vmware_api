@@ -107,21 +107,21 @@ sub new_response
 
 sub process_file {
 	my $agent = shift @_;
-		if (-d $_) {
-			my $dirname = $_;
-			diag "loading test scripts from $dirname";
+	if (-d $_) {
+		my $dirname = $_;
+		diag "loading test scripts from $dirname";
+	}
+	if (-f $_) {
+		my $filename = $_;
+		if ( $filename =~ /([a-zA-Z0-9]+)_([a-zA-Z0-9]+)_(\w+).dat/) {
+			diag "running $filename ...";
+			my ($target, $cmd, $subcmd) = ($1, $2, $3);
+			run_script( $agent, $File::Find::name, $target, ${cmd}, ${subcmd});
 		}
-		if (-f $_) {
-			my $filename = $_;
-			if ( $filename =~ /([a-zA-Z0-9]+)_([a-zA-Z0-9]+)_(\w+).dat/) {
-				diag "running $filename ...";
-				my ($target, $cmd, $subcmd) = ($1, $2, $3);
-				run_script( $agent, $File::Find::name, $target, ${cmd}, ${subcmd});
-			}
-			else {
-				diag "skipping '$filename' ...";
-			}
+		else {
+			diag "skipping '$filename' ...";
 		}
+	}
 }
 
 sub run_scripts
