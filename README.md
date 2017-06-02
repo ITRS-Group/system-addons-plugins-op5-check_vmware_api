@@ -7,27 +7,27 @@ machines. If you have a VMware cluster you should monitor the data center
 (VMware VirtualCenter/vCenter Server) and not the individual ESX/vSphere
 servers.
 
-Supports check status of ESX(i) server, vSphere 5 and vSphere 6.
+Supports check status of ESX(i) server, vSphere 5.1 up to vSphere 6.5.
 
 ## Supported features
 
-The supported featureset will differ a bit between VMWare 5 and VMWare 6; please refer to the tables below for reference:
+The supported featureset will differ a bit between vSphere 5 and vSphere 6; please refer to the tables below for reference:
 
 ### Checks supported for Hosts
-| Check   | Vmware 5 | Vmware 6                                                                                  |
-|---------|----------|-------------------------------------------------------------------------------------------|
-| CPU     | Yes      | Yes                                                                                       |
-| IO      | Yes      | Yes                                                                                       |
-| Memory  | Yes      | Yes                                                                                       |
-| Network | Yes      | Yes                                                                                       |
-| Runtime | Yes      | Partially: Overview*, Connection state, Health, Maintenance, Status, Storage Health       |
-| Service | Yes      | Yes                                                                                       |
-| Uptime  | No       | Yes                                                                                       |
-| Storage | Yes      | No                                                                                        |
+| Check   | vSphere 5 | vSphere 6                                                                                 |
+|---------|-----------|-------------------------------------------------------------------------------------------|
+| CPU     | Yes       | Yes                                                                                       |
+| IO      | Yes       | Yes                                                                                       |
+| Memory  | Yes       | Yes                                                                                       |
+| Network | Yes       | Yes                                                                                       |
+| Runtime | Yes       | Partially: Overview*, Connection state, Health, Maintenance, Status, Storage Health       |
+| Service | Yes       | Yes                                                                                       |
+| Uptime  | No        | Yes                                                                                       |
+| Storage | Yes       | No                                                                                        |
 * Specified in the plugin help text as "^all", meaning that the sub command are omitted
 
 ### Checks supported for Datacenters
-| Check   | Vmware 5                                                                 | Vmware 6                                       |
+| Check   | vSphere 5                                                                | vSphere 6                                      |
 |---------|--------------------------------------------------------------------------|------------------------------------------------|
 | CPU     | Yes                                                                      | Yes                                            |
 | IO      | Yes                                                                      | Yes                                            |
@@ -38,9 +38,7 @@ The supported featureset will differ a bit between VMWare 5 and VMWare 6; please
 * Specified in the plugin help text as "^all", meaning that the sub command are omitted
 
 ## Prerequisites
-'VMware vSphere SDK for Perl', available at
-https://my.vmware.com/group/vmware/downloads (requires a free account that you
-sign up for at the same page).
+'VMware vSphere SDK for Perl', available at https://code.vmware.com/web/sdk/65/vsphere-perl
 
 ## Installation
 This is how to install the plugin on CentOS with VMware vSphere SDK for Perl
