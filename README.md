@@ -11,7 +11,7 @@ Supports check status of ESX(i) server, vSphere 5.1 up to vSphere 6.5.
 
 ## Supported features
 
-The supported featureset will differ a bit between vSphere 5 and vSphere 6; please refer to the tables below for reference:
+The supported feature set will differ a bit between vSphere 5 and vSphere 6; please refer to the tables below for reference:
 
 ### Checks supported for Hosts
 | Check   | vSphere 5 | vSphere 6                                                                                 |
@@ -26,7 +26,7 @@ The supported featureset will differ a bit between vSphere 5 and vSphere 6; plea
 | Storage | Yes       | No                                                                                        |
 * Specified in the plugin help text as "^all", meaning that the sub command are omitted
 
-### Checks supported for Datacenters
+### Checks supported for Data centers
 | Check   | vSphere 5                                                                | vSphere 6                                      |
 |---------|--------------------------------------------------------------------------|------------------------------------------------|
 | CPU     | Yes                                                                      | Yes                                            |
@@ -38,7 +38,7 @@ The supported featureset will differ a bit between vSphere 5 and vSphere 6; plea
 * Specified in the plugin help text as "^all", meaning that the sub command are omitted
 
 ## Prerequisites
-'VMware vSphere SDK for Perl', available at https://code.vmware.com/web/sdk/65/vsphere-perl
+'VMware vSphere SDK for Perl', available at https://code.vmware.com/web/sdk/65/vsphere-perl (requires a free account that you sign up for at the same page)
 
 ## Installation
 This is how to install the plugin on CentOS with VMware vSphere SDK for Perl
@@ -125,7 +125,7 @@ It is easy to get involved in the project and to contribute!
 * If you find a bug you can create a bug report in the issue tracker here on GitHub.
 ### Testing
 * Unit tests: This plugin is huge and hard to unit test but if pull requests with unit tests are greatly appreciated.
-* Integration tests: This plugin is equipped with an option of generating tests (--generate_test). Simply run the plugin with this flag appended at the end of your command followed by a filename with the following format: 
+* Integration tests: This plugin is equipped with an option of generating tests (--generate_test). Simply run the plugin with this flag appended at the end of your command followed by a filename with the following format:
 
 > <target>_<command>_<subcommand>_<option>.dat
 For example:
