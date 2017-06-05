@@ -7,12 +7,38 @@ machines. If you have a VMware cluster you should monitor the data center
 (VMware VirtualCenter/vCenter Server) and not the individual ESX/vSphere
 servers.
 
-Supports check status of VMware ESX 3.x, ESX(i) server, vSphere 4 and vSphere 5.
+Supports check status of ESX(i) server, vSphere 5.1 up to vSphere 6.5.
+
+## Supported features
+
+The supported featureset will differ a bit between vSphere 5 and vSphere 6; please refer to the tables below for reference:
+
+### Checks supported for Hosts
+| Check   | vSphere 5 | vSphere 6                                                                                 |
+|---------|-----------|-------------------------------------------------------------------------------------------|
+| CPU     | Yes       | Yes                                                                                       |
+| IO      | Yes       | Yes                                                                                       |
+| Memory  | Yes       | Yes                                                                                       |
+| Network | Yes       | Yes                                                                                       |
+| Runtime | Yes       | Partially: Overview*, Connection state, Health, Maintenance, Status, Storage Health       |
+| Service | Yes       | Yes                                                                                       |
+| Uptime  | No        | Yes                                                                                       |
+| Storage | Yes       | No                                                                                        |
+* Specified in the plugin help text as "^all", meaning that the sub command are omitted
+
+### Checks supported for Datacenters
+| Check   | vSphere 5                                                                | vSphere 6                                      |
+|---------|--------------------------------------------------------------------------|------------------------------------------------|
+| CPU     | Yes                                                                      | Yes                                            |
+| IO      | Yes                                                                      | Yes                                            |
+| Memory  | Yes                                                                      | Yes                                            |
+| Network | Partially: Overview*, Receive, Send, Usage                               | Partially: Receive, Send, Usage, Overview*     |
+| Runtime | Partially: Overview*, Issues, List, Listcluster, Listhost, Status, Tools | Partially: Overview*, List, Listcluster, Tools |
+| VMFS    | Partially: Overview*                                                     | Partially: Free space, Used space              |
+* Specified in the plugin help text as "^all", meaning that the sub command are omitted
 
 ## Prerequisites
-'VMware vSphere SDK for Perl', available at
-https://my.vmware.com/group/vmware/downloads (requires a free account that you
-sign up for at the same page).
+'VMware vSphere SDK for Perl', available at https://code.vmware.com/web/sdk/65/vsphere-perl
 
 ## Installation
 This is how to install the plugin on CentOS with VMware vSphere SDK for Perl
@@ -87,6 +113,26 @@ Simply run the plugin with:
 ```bash
 $ /opt/plugins/check_vmware_api --help
 ```
+
+## Documentation
+* Read the OP5 [Monitoring VMware ESX, ESXi, vSphere and vCenter Server](https://kb.op5.com/x/J4IK)  (for OP5 Monitor)
+* Subscribe to the [op5-users](http://lists.op5.com/mailman/listinfo/op5-users) mailing list
+* Browse the [mailing list archives](http://lists.op5.com/pipermail/op5-users/)
+
+## Get involved - Contribute to the Check VMware API project
+It is easy to get involved in the project and to contribute!
+* Start using the plugin and if you like what you see, help by spreading the word on blogs and forums.
+* If you find a bug you can create a bug report in the issue tracker here on GitHub.
+### Testing
+* Unit tests: This plugin is huge and hard to unit test but if pull requests with unit tests are greatly appreciated.
+* Integration tests: This plugin is equipped with an option of generating tests (--generate_test). Simply run the plugin with this flag appended at the end of your command followed by a filename with the following format: 
+
+> <target>_<command>_<subcommand>_<option>.dat
+For example:
+> host_runtime_maintenance_maintwarn.dat
+So running the plugin from command line with the following will generate the integration test:
+> $ ./check_vmware_api -u <user> -p <password> -H <host_name> -l runtime -s maintenance -o maintwarn --generate_test host_runtime_maintenance_maintwarn.dat
+You can omit subcommand and/or option from the command and reflect that in the file name. To run all the tests simply run 'make'.
 
 ## License
 See LICENSE.
