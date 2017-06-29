@@ -42,6 +42,7 @@ use File::Basename;
 use HTTP::Date;
 use Data::Dumper qw(Dumper);
 use Net::SSL;
+use Number::Bytes::Human qw(format_bytes);
 my $perl_module_instructions="
 Download the latest version of the vSphere SDK for Perl from VMware.
 In this example we use VMware-vSphere-Perl-SDK-5.1.0-780721.x86_64.tar.gz,
@@ -1232,7 +1233,7 @@ sub datastore_volumes_info
 				$state = $np->check_threshold(check => $perc?$value2:$value1);
 				$res = Monitoring::Plugin::Functions::max_state($res, $state);
 				$np->add_perfdata(label => $name, value => $perc?$value2:$value1, uom => $perc?'%':'B', threshold => $np->threshold, min => 0, max => $capacity);
-				$output .= "'$name'" . ($usedflag ? "(used)" : "(free)") . "=". $value1 . " B (" . $value2 . "%), " if (!$briefflag || $state != OK);
+				$output .= "'$name'" . ($usedflag ? "(used)" : "(free)") . "=". format_bytes($value1) . "B/" . format_bytes($capacity) . "B (" . $value2 . "%), " if (!$briefflag || $state != OK);
 			}
 			else
 			{

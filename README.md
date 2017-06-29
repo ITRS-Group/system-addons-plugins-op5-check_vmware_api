@@ -48,7 +48,7 @@ This is how to install the plugin on CentOS with VMware vSphere SDK for Perl
 - In this example we use VMware-vSphere-Perl-SDK-5.1.0-780721.x86_64.tar.gz.
 - Make sure the following packages are installed.
 ```bash
-$ sudo yum install openssl-devel perl-Archive-Zip perl-Class-MethodMaker uuid-perl perl-SOAP-Lite perl-XML-SAX perl-XML-NamespaceSupport perl-XML-LibXML perl-MIME-Lite perl-MIME-Types perl-MailTools perl-TimeDate uuid libuuid perl-Data-Dump perl-UUID cpan libxml2-devel perl-libwww-perl perl-Test-MockObject perl-Test-Simple perl-Monitoring-Plugin perl-Class-Accessor perl-Config-Tiny
+$ sudo yum install openssl-devel perl-Archive-Zip perl-Class-MethodMaker uuid-perl perl-SOAP-Lite perl-XML-SAX perl-XML-NamespaceSupport perl-XML-LibXML perl-MIME-Lite perl-MIME-Types perl-MailTools perl-TimeDate uuid libuuid perl-Data-Dump perl-UUID cpan libxml2-devel perl-libwww-perl perl-Test-MockObject perl-Test-Simple perl-Monitoring-Plugin perl-Class-Accessor perl-Config-Tiny perl-Number-Bytes-Human
 ```
 - Upload the file "VMware-vSphere-Perl-SDK*.tar.gz" to your op5 Monitor server’s
 /root directory.
