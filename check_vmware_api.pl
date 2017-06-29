@@ -1219,20 +1219,20 @@ sub datastore_volumes_info
 			if ($store->summary->accessible)
 			{
 				$store->RefreshDatastoreStorageInfo() if ($store->can("RefreshDatastoreStorageInfo") && exists($store->info->{timestamp}) && $defperfargs->{timeshift} && (time() - str2time($store->info->timestamp) > $defperfargs->{timeshift}));
-				my $value1 = simplify_number(convert_number($store->summary->freeSpace) / 1024 / 1024);
+				my $value1 = convert_number($store->summary->freeSpace);
 				my $value2 = convert_number($store->summary->capacity);
 				$value2 = simplify_number(convert_number($store->info->freeSpace) / $value2 * 100) if ($value2 > 0);
 
 				if ($usedflag)
 				{
-					$value1 = simplify_number(convert_number($store->summary->capacity) / 1024 / 1024) - $value1;
+					$value1 = convert_number($store->summary->capacity) - $value1;
 					$value2 = 100 - $value2;
 				}
 
 				$state = $np->check_threshold(check => $perc?$value2:$value1);
 				$res = Monitoring::Plugin::Functions::max_state($res, $state);
-				$np->add_perfdata(label => $name, value => $perc?$value2:$value1, uom => $perc?'%':'MB', threshold => $np->threshold);
-				$output .= "'$name'" . ($usedflag ? "(used)" : "(free)") . "=". $value1 . " MB (" . $value2 . "%), " if (!$briefflag || $state != OK);
+				$np->add_perfdata(label => $name, value => $perc?$value2:$value1, uom => $perc?'%':'B', threshold => $np->threshold);
+				$output .= "'$name'" . ($usedflag ? "(used)" : "(free)") . "=". $value1 . " B (" . $value2 . "%), " if (!$briefflag || $state != OK);
 			}
 			else
 			{
