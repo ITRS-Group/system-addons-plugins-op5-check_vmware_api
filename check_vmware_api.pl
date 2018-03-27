@@ -2291,7 +2291,6 @@ sub host_runtime_info
 			my %vm_state_strings = ("poweredOn" => "UP", "poweredOff" => "DOWN", "suspended" => "SUSPENDED");
 			my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', begin_entity => $host_view, properties => ['name', 'runtime']);
 			die "Runtime error\n" if (!defined($vm_views));
-			die "There are no VMs.\n" if (!@$vm_views);
 			my $up = 0;
 			$output = '';
 
