@@ -128,6 +128,7 @@ sub main {
 		. "            + usagemhz - CPU usage in MHz\n"
 		. "            + wait - CPU wait time in ms\n"
 		. "            + ready - CPU ready time in ms\n"
+		. "            + readiness - CPU readiness in %\n"
 		. "            ^ all cpu info(no thresholds)\n"
 		. "        * mem - shows mem info\n"
 		. "            + usage - mem usage in percentage\n"
@@ -2970,6 +2971,17 @@ sub vm_cpu_info
 				my $value = simplify_number(convert_number($$values[0][0]->value));
 				$np->add_perfdata(label => "cpu_ready", value => $value, uom => 'ms', threshold => $np->threshold);
 				$output = "\"$vmname\" cpu ready=" . $value . " ms";
+				$res = $np->check_threshold(check => $value);
+			}
+		}
+		elsif ($subcommand eq "READINESS")
+		{
+			$values = return_host_vmware_performance_values($vmname, $defperfargs, 'cpu', ('readiness.average:'));
+			if (defined($values))
+			{
+				my $value = simplify_number(convert_number($$values[0][0]->value)) / 100;
+				$np->add_perfdata(label => "cpu_readiness", value => $value, uom => '%', threshold => $np->threshold);
+				$output = "\"$vmname\" cpu readiness=" . $value . "%";
 				$res = $np->check_threshold(check => $value);
 			}
 		}
