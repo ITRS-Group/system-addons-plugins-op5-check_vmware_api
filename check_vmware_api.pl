@@ -41,7 +41,6 @@ use Monitoring::Plugin;
 use File::Basename;
 use HTTP::Date;
 use Data::Dumper qw(Dumper);
-use Net::SSL;
 my $perl_module_instructions="
 Download the latest version of the vSphere SDK for Perl from VMware.
 In this example we use VMware-vSphere-Perl-SDK-5.1.0-780721.x86_64.tar.gz,
@@ -1445,7 +1444,6 @@ sub host_mem_info
 				{
 					my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', begin_entity => $$host_view[0], properties => ['name', 'runtime.powerState']);
 					die "Runtime error\n" if (!defined($vm_views));
-					die "There are no VMs.\n" if (!@$vm_views);
 					my @vms = ();
 					foreach my $vm (@$vm_views)
 					{
@@ -1500,7 +1498,6 @@ sub host_mem_info
 				{
 					my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', begin_entity => $$host_view[0], properties => ['name', 'runtime.powerState']);
 					die "Runtime error\n" if (!defined($vm_views));
-					die "There are no VMs.\n" if (!@$vm_views);
 					my @vms = ();
 					foreach my $vm (@$vm_views)
 					{
@@ -2291,7 +2288,6 @@ sub host_runtime_info
 			my %vm_state_strings = ("poweredOn" => "UP", "poweredOff" => "DOWN", "suspended" => "SUSPENDED");
 			my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', begin_entity => $host_view, properties => ['name', 'runtime']);
 			die "Runtime error\n" if (!defined($vm_views));
-			die "There are no VMs.\n" if (!@$vm_views);
 			my $up = 0;
 			$output = '';
 
@@ -3990,7 +3986,6 @@ sub dc_runtime_info
 			my %vm_state_strings = ("poweredOn" => "UP", "poweredOff" => "DOWN", "suspended" => "SUSPENDED");
 			my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', properties => ['name', 'runtime']);
 			die "Runtime error\n" if (!defined($vm_views));
-			die "There are no VMs.\n" if (!@$vm_views);
 			my $up = 0;
 			$output = '';
 
@@ -4019,7 +4014,6 @@ sub dc_runtime_info
 			my %host_state_strings = ("unknown" => "UNKNOWN", "poweredOn" => "UP", "poweredOff" => "DOWN", "suspended" => "SUSPENDED", "standBy" => "STANDBY", "MaintenanceMode" => "Maintenance Mode");
 			my $host_views = Vim::find_entity_views(view_type => 'HostSystem', properties => ['name', 'runtime.powerState']);
 			die "Runtime error\n" if (!defined($host_views));
-			die "There are no VMs.\n" if (!@$host_views);
 			my $up = 0;
 			my $unknown = 0;
 			$output = '';
@@ -4082,7 +4076,6 @@ sub dc_runtime_info
 		{
 			my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', properties => ['name', 'runtime.powerState', 'summary.guest']);
 			die "Runtime error\n" if (!defined($vm_views));
-			die "There are no VMs.\n" if (!@$vm_views);
 			$output = '';
 			my $tools_ok = 0;
 			my $vms_up = 0;
@@ -4395,7 +4388,6 @@ sub cluster_mem_info
 				{
 					my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', begin_entity => $$cluster_view[0], properties => ['name', 'runtime.powerState']);
 					die "Runtime error\n" if (!defined($vm_views));
-					die "There are no VMs.\n" if (!@$vm_views);
 					my @vms = ();
 					foreach my $vm (@$vm_views)
 					{
@@ -4428,7 +4420,6 @@ sub cluster_mem_info
 				{
 					my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', begin_entity => $$cluster_view[0], properties => ['name', 'runtime.powerState']);
 					die "Runtime error\n" if (!defined($vm_views));
-					die "There are no VMs.\n" if (!@$vm_views);
 					my @vms = ();
 					foreach my $vm (@$vm_views)
 					{
@@ -4581,7 +4572,6 @@ sub cluster_runtime_info
 			my %vm_state_strings = ("poweredOn" => "UP", "poweredOff" => "DOWN", "suspended" => "SUSPENDED");
 			my $vm_views = Vim::find_entity_views(view_type => 'VirtualMachine', begin_entity => $cluster_view, properties => ['name', 'runtime']);
 			die "Runtime error\n" if (!defined($vm_views));
-			die "There are no VMs.\n" if (!defined($vm_views));
 			my $up = 0;
 			$output = '';
 
