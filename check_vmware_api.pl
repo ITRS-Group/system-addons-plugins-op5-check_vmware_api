@@ -2313,7 +2313,7 @@ sub host_runtime_info
 			chop($output);
 			$res = OK;
 			$output = $up . "/" . @$vm_views . " VMs up: " . $output;
-			$np->add_perfdata(label => "vmcount", value => $up, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "vmcount", value => $up, threshold => $np->threshold);
 			$res = $np->check_threshold(check => $up) if (defined($np->threshold));
 		}
 		elsif ($subcommand eq "STATUS")
@@ -2371,7 +2371,7 @@ sub host_runtime_info
 		{
 			$output = "No VMs installed";
 		}
-		$np->add_perfdata(label => "vmcount", value => $up, uom => 'units', threshold => $np->threshold);
+		$np->add_perfdata(label => "vmcount", value => $up, threshold => $np->threshold);
 
 		my $AlertCount = 0;
 		my $SensorCount = 0;
@@ -2545,7 +2545,7 @@ sub host_storage_info
 			}
 			my $state = $np->check_threshold(check => $count);
 			$res = $state if ($state != OK);
-			$np->add_perfdata(label => "adapters", value => $count, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "adapters", value => $count, threshold => $np->threshold);
 		}
 		elsif ($subcommand eq "LUN")
 		{
@@ -2601,7 +2601,7 @@ sub host_storage_info
 				$count++ if ($state == OK);
 				$output .= $name . " <" . $operationState . ">; ";
 			}
-			$np->add_perfdata(label => "LUNs", value => $count, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "LUNs", value => $count, threshold => $np->threshold);
 			$state = $np->check_threshold(check => $count);
 			$res = $state if ($state != OK);
 		}
@@ -2641,7 +2641,7 @@ sub host_storage_info
 						$output .= $name . " <" . $pathState . ">; ";
 					}
 				}
-				$np->add_perfdata(label => "paths", value => $count, uom => 'units', threshold => $np->threshold);
+				$np->add_perfdata(label => "paths", value => $count, threshold => $np->threshold);
 				my $state = $np->check_threshold(check => $count);
 				$res = $state if ($state != OK);
 			}
@@ -2685,7 +2685,7 @@ sub host_storage_info
 			}
 			$state = Monitoring::Plugin::Functions::max_state($state, $status);
 		}
-		$np->add_perfdata(label => "adapters", value => $count, uom => 'units', threshold => $np->threshold);
+		$np->add_perfdata(label => "adapters", value => $count, threshold => $np->threshold);
 		$output .= $count . "/" . @{$storage->storageDeviceInfo->hostBusAdapter} . " adapters online, ";
 
 		$count = 0;
@@ -2731,7 +2731,7 @@ sub host_storage_info
 				$state = Monitoring::Plugin::Functions::max_state($state, $status);
 			}
 		}
-		$np->add_perfdata(label => "LUNs", value => $count, uom => 'units', threshold => $np->threshold);
+		$np->add_perfdata(label => "LUNs", value => $count, threshold => $np->threshold);
 		$output .= $count . "/" . @{$storage->storageDeviceInfo->scsiLun} . " LUNs ok, ";
 
 		if (exists($storage->storageDeviceInfo->{multipathInfo}))
@@ -2780,7 +2780,7 @@ sub host_storage_info
 					$amount++;
 				}
 			}
-			$np->add_perfdata(label => "paths", value => $count, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "paths", value => $count, threshold => $np->threshold);
 			$output .= $count . "/" . $amount . " paths active";
 		}
 		else
@@ -4011,7 +4011,7 @@ sub dc_runtime_info
 			chop($output);
 			$res = OK;
 			$output = $up . "/" . @$vm_views . " VMs up: " . $output;
-			$np->add_perfdata(label => "vmcount", value => $up, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "vmcount", value => $up, threshold => $np->threshold);
 			$res = $np->check_threshold(check => $up) if (defined($np->threshold));
 		}
 		elsif ($subcommand eq "LISTHOST")
@@ -4042,7 +4042,7 @@ sub dc_runtime_info
 			chop($output);
 			$res = OK;
 			$output = $up . "/" . @$host_views . " Hosts up: " . $output;
-			$np->add_perfdata(label => "hostcount", value => $up, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "hostcount", value => $up, threshold => $np->threshold);
 			$res = $np->check_threshold(check => $up) if (defined($np->threshold));
 			$res = UNKNOWN if ($res == OK && $unknown);
 		}
@@ -4074,7 +4074,7 @@ sub dc_runtime_info
 			chop($output);
 			$res = OK;
 			$output = $green . "/" . @$cluster_views . " Cluster green: " . $output;
-			$np->add_perfdata(label => "clustercount", value => $green, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "clustercount", value => $green, threshold => $np->threshold);
 			$res = $np->check_threshold(check => $green) if (defined($np->threshold));
 			$res = UNKNOWN if ($res == OK && $unknown);
 		}
@@ -4245,7 +4245,7 @@ sub dc_runtime_info
 		{
 			$output = "No VMs installed, ";
 		}
-		$np->add_perfdata(label => "vmcount", value => $up, uom => 'units', threshold => $np->threshold);
+		$np->add_perfdata(label => "vmcount", value => $up, threshold => $np->threshold);
 
 		my $host_views = Vim::find_entity_views(view_type => 'HostSystem', properties => ['name', 'runtime.powerState']);
 		die "Runtime error\n" if (!defined($host_views));
@@ -4262,7 +4262,7 @@ sub dc_runtime_info
 		{
 			$output .= "there are no hosts, ";
 		}
-		$np->add_perfdata(label => "hostcount", value => $up, uom => 'units');
+		$np->add_perfdata(label => "hostcount", value => $up);
 
 		$res = OK;
 
@@ -4603,7 +4603,7 @@ sub cluster_runtime_info
 			chop($output);
 			$res = OK;
 			$output = $up .  "/" . @$vm_views . " VMs up: " . $output;
-			$np->add_perfdata(label => "vmcount", value => $up, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "vmcount", value => $up, threshold => $np->threshold);
 			$res = $np->check_threshold(check => $up) if (defined($np->threshold));
 		}
 		elsif ($subcommand eq "LISTHOST")
@@ -4633,7 +4633,7 @@ sub cluster_runtime_info
 			chop($output);
 			$res = OK;
 			$output = $up .  "/" . @$host_views . " Hosts up: " . $output;
-			$np->add_perfdata(label => "vmcount", value => $up, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "vmcount", value => $up, threshold => $np->threshold);
 			$res = $np->check_threshold(check => $up) if (defined($np->threshold));
 			$res = UNKNOWN if ($res == OK && $unknown);
 		}
@@ -4695,7 +4695,7 @@ sub cluster_runtime_info
 			foreach my $vm (@$vm_views) {
 				$up += $vm->get_property('runtime.powerState')->val eq "poweredOn";
 			}
-			$np->add_perfdata(label => "vmcount", value => $up, uom => 'units', threshold => $np->threshold);
+			$np->add_perfdata(label => "vmcount", value => $up, threshold => $np->threshold);
 			$output = $up . "/" . @$vm_views . " VMs up";
 		}
 		else
