@@ -48,8 +48,8 @@ In this example we use VMware-vSphere-Perl-SDK-5.1.0-780721.x86_64.tar.gz,
 but the instructions should apply to other versions as well.
 
 You may need to install additional packages and Perl modules on your server,
-see https://kb.op5.com/x/pYEK for
-more information and package names for op5 APS / CentOS 6 / RHEL 6.
+see https://support.itrsgroup.com/hc/en-us/articles/360020252573-Monitoring-VMware-ESX-ESXi-vSphere-and-vCenter-Server
+for more information and package names for op5 APS / CentOS 6 / RHEL 6.
 
 Upload the .tar.gz file to your op5 Monitor server's /root dir and execute:
 
