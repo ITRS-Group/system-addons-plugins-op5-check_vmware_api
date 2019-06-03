@@ -115,9 +115,7 @@ $ /opt/plugins/check_vmware_api --help
 ```
 
 ## Documentation
-* Read the OP5 [Monitoring VMware ESX, ESXi, vSphere and vCenter Server](https://kb.op5.com/x/J4IK)  (for OP5 Monitor) documentation
-* Subscribe to the [op5-users](http://lists.op5.com/mailman/listinfo/op5-users) mailing list
-* Browse the [mailing list archives](http://lists.op5.com/pipermail/op5-users/)
+* Read the OP5 [Monitoring VMware ESX, ESXi, vSphere and vCenter Server](https://support.itrsgroup.com/hc/en-us/articles/360020252573-Monitoring-VMware-ESX-ESXi-vSphere-and-vCenter-Server)  (for OP5 Monitor) documentation
 
 ## Get involved - Contribute to the Check VMware API project
 It is easy to get involved in the project and to contribute!
