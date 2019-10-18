@@ -1,3 +1,8 @@
+# This plugin is "Deprecated"
+
+This plugin is deprecated and is unlikely to see any further development.
+The following fork might be of interest: https://github.com/BaldMansMojo/check_vmware_esx/
+
 # Welcome to check VMware API
 Check VMware API is a plugin developed by op5 to primarily be used with op5
 Monitor, but can also be used in Naemon or Nagios installations, to monitor
