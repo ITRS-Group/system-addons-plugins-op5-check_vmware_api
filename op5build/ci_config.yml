@@ -2,7 +2,7 @@ post:
   install: [curl, module-init-tools]
   steps: |
     cd /tmp
-    curl -3 --insecure http://repos.op5.com/sources/VMware-vSphere-Perl-SDK-5.5.0-1292267.x86_64.gz | tar xvzf -
+    curl -3 --insecure http://repos.dev.itrsent.local/sources/VMware-vSphere-Perl-SDK-5.5.0-1292267.x86_64.gz | tar xvzf -
     pushd vmware-vsphere-cli-distrib
     export PAGER='/bin/cat'
     printf "\ny\nn\n\n" | ./vmware-install.pl
